@@ -23,7 +23,7 @@ module.exports = React.createClass
         <Alert>
           <Grid>
             <Col xs={12}>
-              <Col xs={6}>{@props.enemyName}</Col>
+              <Col xs={6}>{@props.enemyName}{@props.enemyPlane}</Col>
               <Col xs={6}>{@props.HP}</Col>
             </Col>
           </Grid>

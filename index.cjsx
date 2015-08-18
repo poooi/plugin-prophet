@@ -376,7 +376,7 @@ module.exports =
         if planeCount[2] != 0
           sortiePlane = " #{__ 'Plane'} #{planeCount[1]} / #{planeCount[2]}"
         if planeCount[4] != 0
-          enemyPlane " #{__ 'Plane'} #{planeCount[3]} / #{planeCount[4]}"
+          enemyPlane = " #{__ 'Plane'} #{planeCount[3]} / #{planeCount[4]}"
         seiku = dispSeiku[planeCount[0]]
 
       @setState
