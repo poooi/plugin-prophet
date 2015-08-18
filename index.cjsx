@@ -286,7 +286,7 @@ module.exports =
           [sortieHp, sortieInfo] = getDeckInfo sortieHp, sortieInfo, 0
           [combinedHp, combinedInfo] = getDeckInfo combinedHp, combinedInfo, 1
       if path == '/kcsapi/api_get_member/ship_deck' && combinedFlag == 0
-        [sortieHp, sortieInfo] = getDeckInfo sortieHp, sortieInfo, body.api_deck_data.api_id - 1
+        [sortieHp, sortieInfo] = getDeckInfo sortieHp, sortieInfo, body.api_deck_data[0].api_id - 1
       isResult = path.match /result/
       isBattle = path.match /battle/
       isPractice = path.match /practice/
