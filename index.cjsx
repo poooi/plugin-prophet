@@ -398,6 +398,7 @@ module.exports =
         combinedPre = Object.clone combinedHp
         leastHp = 0
         if isPractice?
+          combinedFlag = 0
           leastHp = 1
           enemyName = __ "PvP"
           [sortieHp, sortieInfo] = getDeckInfo sortieHp, sortieInfo, parseInt(postBody.api_deck_id) - 1
