@@ -133,15 +133,15 @@ getResult = (sortieHp, enemyHp, combinedHp, result, leastHp) ->
       enemyCnt += 1
       enemyTot += (enemyHp[i] + enemyHp[i + 12])
       sortieDmg += enemyHp[i + 12]
-      if enemyHp[i] <= leastHp
+      if enemyHp[i] <= 0
         sortieDmg += (enemyHp[i] - leastHp)
         enemyDrop += 1
-        enemyHp[i] = leastHp
+        enemyHp[i] = 0
     if enemyDrop == enemyCnt
       result = 'S'
     else if enemyDrop >= dropCount[enemyCnt]
       result = 'A'
-    else if sortieDmg != 0 && (enemyHp[0] <= leastHp || (sortieDmg * sortieTot >= 2.5 * enemyDmg * enemyTot))
+    else if sortieDmg != 0 && (enemyHp[0] <= 0 || (sortieDmg * sortieTot >= 2.5 * enemyDmg * enemyTot))
       result = 'B'
     else if sortieDmg != 0 && (sortieDmg * sortieTot >= 1.0 * enemyDmg * enemyTot)
       result = 'C'
