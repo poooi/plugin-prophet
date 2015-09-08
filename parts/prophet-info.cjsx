@@ -1,7 +1,9 @@
 {Table, ProgressBar, Grid, Input, Col, Alert, Button} = ReactBootstrap
 
-getCondStyle = (cond) ->
-  if window.theme.indexOf('dark') != -1 or window.theme == 'slate' or window.theme == 'superhero'
+getCondStyle = (cond, show) ->
+  if !show
+    {}
+  else if window.theme.indexOf('dark') != -1 or window.theme == 'slate' or window.theme == 'superhero'
     if cond > 52 # 53~100
       color: '#FFFF00',
       fontWeight: 'bold',
@@ -42,13 +44,17 @@ module.exports = React.createClass
     else
       <td style={opacity: 1 - 0.6 * @props.isBack} className="prophet-info-content">
         {
-          txt = "#{@props.name} Lv.#{@props.lv}"
-          if @props.cond && @props.condShow != 0
-            txt += " ★#{@props.cond}"
-            <span style={getCondStyle @props.cond}>
-              {txt}
-            </span>
-          else
-            <span>{txt}</span>
+          nameTxt = "#{@props.name}"
+          lvTxt = " - Lv.#{@props.lv}"
+          condTxt = " ★#{@props.cond}"
+          showCond = @props.cond && @props.condShow
+
+          txt = nameTxt
+          if !@props.compactMode
+            txt += lvTxt
+          if showCond
+            txt += condTxt
+
+          <span style={getCondStyle @props.cond, showCond}>{txt}</span>
         }
       </td>

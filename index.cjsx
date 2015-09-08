@@ -345,6 +345,7 @@ module.exports =
       prophetCondShow: config.get 'plugin.prophet.show.cond', true
       combinedFlag: 0
       goBack: Object.clone initData
+      compactMode: false
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
       {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack} = @state
@@ -518,11 +519,15 @@ module.exports =
           combinedFlag: combinedFlag
           goBack: goBack
 
+    handleDisplayModeSwitch: ->
+      @setState
+        compactMode: !@state.compactMode
+
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
 
     render: ->
-      <div>
+      <div onDoubleClick={@handleDisplayModeSwitch}>
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'prophet.css')} />
         <ProphetPanel
           sortieHp={@state.sortieHp}
@@ -538,7 +543,8 @@ module.exports =
           enemyPlane={@state.enemyPlane}
           cols={if @state.combinedFlag == 0 then 0 else 1}
           lay={if layout == 'horizonal' || window.doubleTabbed then 0 else 1}
-          goBack={@state.goBack}/>
+          goBack={@state.goBack}
+          compactMode={@state.compactMode} />
         <BottomAlert
           admiral={__ "Admiral"}
           getShip={@state.getShip}
