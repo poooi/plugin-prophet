@@ -26,13 +26,14 @@ module.exports = React.createClass
                       lv={@props.enemyInfo.lv[j]}
                       name={@props.enemyInfo.name[j]}
                       condShow={0}
-                      isBack={0}/>
+                      isBack={0}
+                      compactMode={@props.compactMode} />
                     list.push <ProphetHp
                       lv={@props.enemyInfo.lv[j]}
                       now={@props.enemyHp.now[j]}
                       max={@props.enemyHp.max[j]}
                       dmg={@props.enemyHp.dmg[j]}
-                      isBack={0}/>
+                      isBack={0} />
                   else if i == 1
                     if @props.combinedInfo[j] != -1
                       tmpLv = window._ships[@props.combinedInfo[j]].api_lv
@@ -47,13 +48,14 @@ module.exports = React.createClass
                       name={tmpName}
                       cond={tmpCond}
                       condShow={1}
-                      isBack={@props.goBack[j + 6]}/>
+                      isBack={@props.goBack[j + 6]}
+                      compactMode={@props.compactMode} />
                     list.push <ProphetHp
                       lv={tmpLv}
                       now={@props.combinedHp.now[j]}
                       max={@props.combinedHp.max[j]}
                       dmg={@props.combinedHp.dmg[j]}
-                      isBack={@props.goBack[j + 6]}/>
+                      isBack={@props.goBack[j + 6]} />
                   else if i == 0
                     if @props.sortieInfo[j] != -1
                       tmpLv = window._ships[@props.sortieInfo[j]].api_lv
@@ -68,13 +70,14 @@ module.exports = React.createClass
                       name={tmpName}
                       cond={tmpCond}
                       condShow={1}
-                      isBack={@props.goBack[j]}/>
+                      isBack={@props.goBack[j]}
+                      compactMode={@props.compactMode} />
                     list.push <ProphetHp
                       lv={tmpLv}
                       now={@props.sortieHp.now[j]}
                       max={@props.sortieHp.max[j]}
                       dmg={@props.sortieHp.dmg[j]}
-                      isBack={@props.goBack[j]}/>
+                      isBack={@props.goBack[j]} />
                 <tr key={j + 1}>
                   {list}
                 </tr>
@@ -94,13 +97,14 @@ module.exports = React.createClass
                     lv={@props.enemyInfo.lv[j]}
                     name={@props.enemyInfo.name[j]}
                     condShow={0}
-                    isBack={0}/>
+                    isBack={0}
+                    compactMode={@props.compactMode} />
                   list.push <ProphetHp
                     lv={@props.enemyInfo.lv[j]}
                     now={@props.enemyHp.now[j]}
                     max={@props.enemyHp.max[j]}
                     dmg={@props.enemyHp.dmg[j]}
-                    isBack={0}/>
+                    isBack={0} />
                 <tr key={j + 6}>
                   {list}
                 </tr>
