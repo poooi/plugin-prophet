@@ -1,4 +1,4 @@
-{Table, ProgressBar, Grid, Input, Col, Alert, Button} = ReactBootstrap
+{Table, ProgressBar, Grid, Input, Col, Alert, Button, OverlayTrigger, Popover} = ReactBootstrap
 
 getCondStyle = (cond, show) ->
   if !show
@@ -50,11 +50,15 @@ module.exports = React.createClass
           showCond = @props.cond && @props.condShow
 
           txt = nameTxt
+          popoverTxt = nameTxt + lvTxt
           if !@props.compactMode
             txt += lvTxt
           if showCond
             txt += condTxt
+            popoverTxt += condTxt
 
-          <span style={getCondStyle @props.cond, showCond}>{txt}</span>
+          <OverlayTrigger trigger='click' rootClose placement='bottom' overlay={<Popover>{popoverTxt}</Popover>}>
+            <span style={getCondStyle(@props.cond, showCond)}>{txt}</span>
+          </OverlayTrigger>
         }
       </td>
