@@ -97,13 +97,14 @@ module.exports = React.createClass
                     lv={@props.enemyInfo.lv[j]}
                     name={@props.enemyInfo.name[j]}
                     condShow={0}
-                    isBack={0}/>
+                    isBack={0}
+                    compactMode={@props.compactMode} />
                   list.push <ProphetHp
                     lv={@props.enemyInfo.lv[j]}
                     now={@props.enemyHp.now[j]}
                     max={@props.enemyHp.max[j]}
                     dmg={@props.enemyHp.dmg[j]}
-                    isBack={0}/>
+                    isBack={0} />
                 <tr key={j + 6}>
                   {list}
                 </tr>
