@@ -17,12 +17,15 @@ getCondStyle = (cond) ->
     else if cond < 40 # 30~39
       color: '#FFC880'
     else # 40~48
-      opacity: 0.5
+      color: '#FFE8CB'
+      opacity: 0.8
   else
     if cond > 52
       textShadow: '0 0 3px #FFFF00'
     else if cond > 49
       textShadow: '0 0 3px #FFFF80'
+    else if cond is 49
+      {}
     else if cond < 20
       textShadow: '0 0 3px #DD514C'
     else if cond < 30
@@ -30,7 +33,7 @@ getCondStyle = (cond) ->
     else if cond < 40
       textShadow: '0 0 3px #FFC880'
     else
-      null
+      textShadow: '0 0 3px #FFE8CB'
 
 module.exports = React.createClass
   render: ->
