@@ -193,11 +193,13 @@ simulateKouku = (api_kouku, planeCount) ->
 
 checkDamageControl = (info, hp) ->
   {_ships} = window
+  {_slotitems} = window
   for i in [0..5]
     continue if info[i] == -1 or if hp[i] > 0
     slot = Object.clone _ships[info[i]].api_slot
     slot.push _ships[info[i]].api_slot_ex
-    for x in slot
+    for id in slot
+      x = _slotitems[id].api_slotitem_id
       # Repair Team
       if x == 42
         hp.now[i] = Math.floor(hp.max[i] / 5)
