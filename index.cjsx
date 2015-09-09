@@ -195,7 +195,7 @@ checkDamageControl = (info, hp) ->
   {_ships} = window
   {_slotitems} = window
   for i in [0..5]
-    continue if info[i] == -1 or hp[i] > 0
+    continue if info[i] == -1 or hp.now[i] > 0
     slot = Object.clone _ships[info[i]].api_slot
     slot.push _ships[info[i]].api_slot_ex
     # According to wiki, if both damage control and goddess are equipped,
