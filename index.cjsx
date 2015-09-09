@@ -191,40 +191,27 @@ simulateKouku = (api_kouku, planeCount) ->
     planeCount.sortie[0] -= api_kouku.api_stage2.api_f_lostcount
     planeCount.enemy[0] -= api_kouku.api_stage2.api_e_lostcount
 
-checkRepair = (sortieHp, combinedHp, sortieInfo, combinedInfo) ->
+checkDamageControl = (info, hp) ->
   {_ships} = window
   for i in [0..5]
-    continue if sortieInfo[i] == -1
-    continue if sortieHp[i] > 0
-    slot = Object.clone _ships[sortieInfo[i]].api_slot
-    slot.push _ships[sortieInfo[i]].api_slot_ex
+    continue if info[i] == -1 or if hp[i] > 0
+    slot = Object.clone _ships[info[i]].api_slot
+    slot.push _ships[info[i]].api_slot_ex
     for x in slot
       # Repair Team
       if x == 42
-        sortieHp.now[i] = Math.floor(sortieHp.max[i] / 5)
-        sortieHp.dmg[i] = 0
+        hp.now[i] = Math.floor(hp.max[i] / 5)
+        hp.dmg[i] = 0
         break
       # Repair Goddess
       if x == 43
-        sortieHp.now[i] = sortieHp.max[i]
-        sortieHp.dmg[i] = 0
+        hp.now[i] = hp.max[i]
+        hp.dmg[i] = 0
         break
-  for i in [0..5]
-    continue if combinedInfo[i] == -1
-    continue if combinedHp[i] > 0
-    slot = Object.clone _ships[combinedInfo[i]].api_slot
-    slot.push _ships[combinedInfo[i]].api_slot_ex
-    for x in slot
-      # Repair Team
-      if x == 42
-        combinedHp.now[i] = Math.floor(combinedHp.max[i] / 5)
-        combinedHp.dmg[i] = 0
-        break
-      # Repair Goddess
-      if x == 43
-        combinedHp.now[i] = combinedHp.max[i]
-        combinedHp.dmg[i] = 0
-        break
+
+checkRepair = (sortieHp, combinedHp, sortieInfo, combinedInfo) ->
+  checkDamageControl sortieInfo, sortieHp
+  checkDamageControl combinedInfo, combinedHp
 
 simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leastHp, planeCount, sortieInfo, combinedInfo) ->
   # First air battle
