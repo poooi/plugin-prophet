@@ -201,17 +201,20 @@ checkDamageControl = (info, hp) ->
     # According to wiki, if both damage control and goddess are equipped,
     # they will be consumed from top to bottom.
     for id in slot
-      x = _slotitems[id].api_slotitem_id
-      # Repair Team
-      if x == 42
-        hp.now[i] = Math.floor(hp.max[i] / 5)
-        hp.dmg[i] = 0
-        break
-      # Repair Goddess
-      if x == 43
-        hp.now[i] = hp.max[i]
-        hp.dmg[i] = 0
-        break
+      # For normal slots, -1 means empty or not usable.
+      # For the ex slot, 0 means not available, -1 means empty.
+      if id > 0
+        x = _slotitems[id].api_slotitem_id
+        # Repair Team
+        if x == 42
+          hp.now[i] = Math.floor(hp.max[i] / 5)
+          hp.dmg[i] = 0
+          break
+        # Repair Goddess
+        if x == 43
+          hp.now[i] = hp.max[i]
+          hp.dmg[i] = 0
+          break
 
 checkRepair = (sortieHp, combinedHp, sortieInfo, combinedInfo) ->
   checkDamageControl sortieInfo, sortieHp
