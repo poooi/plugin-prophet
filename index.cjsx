@@ -201,7 +201,7 @@ checkRepair = (sortieHp, combinedHp, sortieInfo, combinedInfo) ->
     for x in slot
       # Repair Team
       if x == 42
-        sortieHp.now[i] = Math.floor(sortieHp.max[i] / 4)
+        sortieHp.now[i] = Math.floor(sortieHp.max[i] / 5)
         sortieHp.dmg[i] = 0
         break
       # Repair Goddess
@@ -217,7 +217,7 @@ checkRepair = (sortieHp, combinedHp, sortieInfo, combinedInfo) ->
     for x in slot
       # Repair Team
       if x == 42
-        combinedHp.now[i] = Math.floor(combinedHp.max[i] / 4)
+        combinedHp.now[i] = Math.floor(combinedHp.max[i] / 5)
         combinedHp.dmg[i] = 0
         break
       # Repair Goddess
