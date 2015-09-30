@@ -13,7 +13,7 @@ module.exports = React.createClass
           </Alert>
         else if @props.cellInfo isnt ''
           <Alert>
-            {"#{@props.admiral} #{@props.nextCell} : 「#{@props.cellInfo}」"}
+            {"#{@props.admiral} #{@props.nextCell} :「#{@props.cellInfo}」"}
           </Alert>
           
       }
