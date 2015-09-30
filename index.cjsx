@@ -606,7 +606,7 @@ module.exports =
           intercept={intercept[@state.enemyIntercept]}
           seiku={@state.seiku}
           result={@state.result}
-          cellInfo={if !@state.compactMode and cellInfo[@state.nextCellKind] isnt '' then cellInfo[@state.nextCellKind] + "(" + @state.nextCellNo + ")" else cellInfo[@state.nextCellKind]}
+          cellInfo={if !@state.compactMode and cellInfo[@state.nextCellKind] isnt '' then cellInfo[@state.nextCellKind] + " (" + @state.nextCellNo + ")" else cellInfo[@state.nextCellKind]}
           nextCell={__ "Next Cell"}/>
       </div>
   settingsClass: React.createClass
