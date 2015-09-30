@@ -5,11 +5,16 @@ module.exports = React.createClass
       {
         if @props.getShip?
           <Alert>
-            {"#{@props.getShip.api_ship_type} 「#{@props.getShip.api_ship_name}」 #{@props.joinFleet}"}
+            {"#{@props.admiral} #{@props.getShip.api_ship_type} 「#{@props.getShip.api_ship_name}」 #{@props.joinFleet}"}
           </Alert>
         else if @props.formationNum != 0
           <Alert>
-            {"#{@props.result} | #{@props.formation} | #{@props.intercept} | #{@props.seiku}"}
+            {"#{@props.admiral} 「#{@props.formation}」「#{@props.intercept}」「#{@props.seiku}」「#{@props.result}」"}
           </Alert>
+        else if @props.cellInfo isnt ''
+          <Alert>
+            {"#{@props.admiral} #{@props.nextCell} :「#{@props.cellInfo}」"}
+          </Alert>
+          
       }
     </div>
