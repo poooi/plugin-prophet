@@ -25,18 +25,18 @@ window.addEventListener 'layout.change', (e) ->
 
 cellInfo = [
   __(''),
-  __('start'),
-  __('1'),
-  __('get material'),
-  __('lose material'),
-  __('normal battle'),
+  __('Start'),
+  __('Unkown event'),
+  __('Get material'),
+  __('Lose material'),
+  __('Normal battle'),
   __('Boss battle'),
-  __('non battle'),
-  __('air strike'),
-  __('escort success'),
-  __('detected enemy'),
-  __('active choice'),
-  __('air detect')
+  __('No battle'),
+  __('Air strike'),
+  __('Escort success'),
+  __('Detected enemy'),
+  __('Manual selection'),
+  __('Air detect')
 ]
 
 formation = [
@@ -347,7 +347,7 @@ simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leas
 escapeId = -1
 towId = -1
 
-getInfoNum: (eventId, eventKind, bossCell, CellNo) ->
+getCellInfo: (eventId, eventKind, bossCell, CellNo) ->
   if bossCell is CellNo
     return 6
   if eventId is 6
@@ -359,10 +359,6 @@ getInfoNum: (eventId, eventKind, bossCell, CellNo) ->
     if eventKind is 0
       return 12
   return eventId + 1
-
-
-
-
 
 module.exports =
   name: 'prophet'
@@ -425,7 +421,7 @@ module.exports =
           getShip = null
           planeCount = Object.clone initPlaneCount
           nextCellNo = body.api_no                    
-          nextCellKind = getInfoNum body.api_event_id body.event_kind body.api_bosscell_no bossCell.api_no
+          nextCellKind = getCellinfo body.api_event_id, body.event_kind, body.api_bosscell_no, bossCell.api_no
         # Enter next point in battle
         when '/kcsapi/api_req_map/next'
           flag = true
@@ -437,7 +433,7 @@ module.exports =
           getShip = null
           planeCount = Object.clone initPlaneCount
           nextCellNo = body.api_no                    
-          nextCellKind = getInfoNum body.api_event_id body.event_kind body.api_bosscell_no bossCell.api_no
+          nextCellKind = getCellinfo body.api_event_id, body.event_kind, body.api_bosscell_no, bossCell.api_no
         # Some ship while go back
         when '/kcsapi/api_req_combined_battle/goback_port'
           flag = true
