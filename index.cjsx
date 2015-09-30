@@ -26,17 +26,17 @@ window.addEventListener 'layout.change', (e) ->
 cellInfo = [
   __(''),
   __('Start'),
-  __('Unkown event'),
-  __('Get material'),
-  __('Lose material'),
-  __('Normal battle'),
-  __('Boss battle'),
-  __('No battle'),
-  __('Air strike'),
-  __('Escort success'),
-  __('Detected enemy'),
-  __('Manual selection'),
-  __('Air detect')
+  __('Unknown'),
+  __('Obtain Resources'),
+  __('Lose Resources'),
+  __('Battle'),
+  __('Boss Battle'),
+  __('Battle Avoid'),
+  __('Air Strike'),
+  __('Escort Success'),
+  __('Enemy Detected'),
+  __('Manual Selection'),
+  __('Aerial Recon')
 ]
 
 formation = [
@@ -421,7 +421,7 @@ module.exports =
           getShip = null
           planeCount = Object.clone initPlaneCount
           nextCellNo = body.api_no                    
-          nextCellKind = getCellInfo body.api_event_id, body.event_kind, body.api_bosscell_no, bossCell.api_no
+          nextCellKind = getCellInfo body.api_event_id, body.event_kind, body.api_bosscell_no, body.api_no
         # Enter next point in battle
         when '/kcsapi/api_req_map/next'
           flag = true
@@ -433,7 +433,7 @@ module.exports =
           getShip = null
           planeCount = Object.clone initPlaneCount
           nextCellNo = body.api_no                    
-          nextCellKind = getCellInfo body.api_event_id, body.event_kind, body.api_bosscell_no, bossCell.api_no
+          nextCellKind = getCellInfo body.api_event_id, body.event_kind, body.api_bosscell_no, body.api_no
         # Some ship while go back
         when '/kcsapi/api_req_combined_battle/goback_port'
           flag = true
