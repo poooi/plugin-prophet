@@ -4,8 +4,11 @@ module.exports = React.createClass
     <div>
       {
         if @props.getShip? or @props.getItem?
+          prepend = ""
+          if @props.getItem?.api_useitem_id is 68
+            prepend = "摸鱼成功！ "
           <Panel>
-            {"#{@props.getShip.api_ship_type} 「#{@props.getShip.api_ship_name}」 #{@props.joinFleet}"}
+            {prepend + "#{@props.getShip.api_ship_type} 「#{@props.getShip.api_ship_name}」 #{@props.joinFleet}"}
           </Panel>
         else if @props.formationNum != 0
           <Panel>
