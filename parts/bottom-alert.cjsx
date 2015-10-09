@@ -3,7 +3,7 @@ module.exports = React.createClass
   render: ->
     <div>
       {
-        if @props.getShip?
+        if @props.getShip? or @props.getItem?
           <Panel>
             {"#{@props.getShip.api_ship_type} 「#{@props.getShip.api_ship_name}」 #{@props.joinFleet}"}
           </Panel>
