@@ -202,7 +202,7 @@ checkRepair = (shipId) ->
         return x
   return 0
 
-koukuAttack = (sortieHp, enemyHp, kouku, sortieInfo) ->
+AerialCombat = (sortieHp, enemyHp, kouku, sortieInfo) ->
   if kouku.api_edam?
     for damage, i in kouku.api_edam
       damage = Math.floor(damage)
@@ -224,7 +224,7 @@ koukuAttack = (sortieHp, enemyHp, kouku, sortieInfo) ->
           sortieHp.now[i - 1] = sortieHp.max[i - 1]
           sortieHp.dmg[i - 1] = 0
 
-supportAttack = (enemyHp, support) ->
+SupportFire = (enemyHp, support) ->
   for damage, i in support
     damage = Math.floor(damage)
     continue if damage <= 0
@@ -232,7 +232,7 @@ supportAttack = (enemyHp, support) ->
     enemyHp.dmg[i - 1] += damage
     enemyHp.now[i - 1] -= damage
 
-raigekiAttack = (sortieHp, enemyHp, raigeki, sortieInfo) ->
+TorpedoSalvo = (sortieHp, enemyHp, raigeki, sortieInfo) ->
   if raigeki.api_edam?
     for damage, i in raigeki.api_edam
       damage = Math.floor(damage)
@@ -262,7 +262,7 @@ raigekiAttack = (sortieHp, enemyHp, raigeki, sortieInfo) ->
           sortieHp.now[i - 1] = sortieHp.max[i - 1]
           sortieHp.dmg[i - 1] = 0
 
-hougekiAttack = (sortieHp, enemyHp, hougeki, sortieInfo) ->
+Shelling = (sortieHp, enemyHp, hougeki, sortieInfo) ->
   for damageFrom, i in hougeki.api_at_list
     continue if damageFrom == -1
     for damage, j in hougeki.api_damage[i]
@@ -315,66 +315,66 @@ simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leas
     simulateKouku body.api_kouku, planeCount
 
     if body.api_kouku.api_stage3?
-      koukuAttack sortieHp, enemyHp, body.api_kouku.api_stage3, sortieInfo
+      AerialCombat sortieHp, enemyHp, body.api_kouku.api_stage3, sortieInfo
     if body.api_kouku.api_stage3_combined?
-      koukuAttack combinedHp, enemyHp, body.api_kouku.api_stage3_combined, combinedInfo
+      AerialCombat combinedHp, enemyHp, body.api_kouku.api_stage3_combined, combinedInfo
   # Second air battle
 
   if body.api_kouku2?
     simulateKouku body.api_kouku2, planeCount
 
     if body.api_kouku2.api_stage3?
-      koukuAttack sortieHp, enemyHp, body.api_kouku2.api_stage3, sortieInfo
+      AerialCombat sortieHp, enemyHp, body.api_kouku2.api_stage3, sortieInfo
     if body.api_kouku2.api_stage3_combined?
-      koukuAttack combinedHp, enemyHp, body.api_kouku2.api_stage3_combined, combinedInfo
+      AerialCombat combinedHp, enemyHp, body.api_kouku2.api_stage3_combined, combinedInfo
   # Support battle
 
   if body.api_support_info?
     if body.api_support_info.api_support_airatack?
-      supportAttack enemyHp, body.api_support_info.api_support_airatack.api_stage3.api_edam
+      SupportFire enemyHp, body.api_support_info.api_support_airatack.api_stage3.api_edam
     else if body.api_support_info.api_support_hourai?
-      supportAttack enemyHp, body.api_support_info.api_support_hourai.api_damage
+      SupportFire enemyHp, body.api_support_info.api_support_hourai.api_damage
     else
-      supportAttack enemyHp, body.api_support_info.api_damage
+      SupportFire enemyHp, body.api_support_info.api_damage
   # Opening battle
 
   if body.api_opening_atack?
     if isCombined
-      raigekiAttack combinedHp, enemyHp, body.api_opening_atack, combinedInfo
+      TorpedoSalvo combinedHp, enemyHp, body.api_opening_atack, combinedInfo
     else
-      raigekiAttack sortieHp, enemyHp, body.api_opening_atack, sortieInfo
+      TorpedoSalvo sortieHp, enemyHp, body.api_opening_atack, sortieInfo
   # Night battle
 
   if body.api_hougeki?
     if isCombined
-      hougekiAttack combinedHp, enemyHp, body.api_hougeki, combinedInfo
+      Shelling combinedHp, enemyHp, body.api_hougeki, combinedInfo
     else
-      hougekiAttack sortieHp, enemyHp, body.api_hougeki, sortieInfo
+      Shelling sortieHp, enemyHp, body.api_hougeki, sortieInfo
   # First hougeki battle
 
   if body.api_hougeki1?
     if isCombined && !isWater
-      hougekiAttack combinedHp, enemyHp, body.api_hougeki1, combinedInfo
+      Shelling combinedHp, enemyHp, body.api_hougeki1, combinedInfo
     else
-      hougekiAttack sortieHp, enemyHp, body.api_hougeki1, sortieInfo
+      Shelling sortieHp, enemyHp, body.api_hougeki1, sortieInfo
   # Second hougeki battle
 
   if body.api_hougeki2?
-    hougekiAttack sortieHp, enemyHp, body.api_hougeki2, sortieInfo
+    Shelling sortieHp, enemyHp, body.api_hougeki2, sortieInfo
   # Combined hougeki battle
 
   if body.api_hougeki3?
     if isCombined && isWater
-      hougekiAttack combinedHp, enemyHp, body.api_hougeki3, combinedInfo
+      Shelling combinedHp, enemyHp, body.api_hougeki3, combinedInfo
     else
-      hougekiAttack sortieHp, enemyHp, body.api_hougeki3, sortieInfo
+      Shelling sortieHp, enemyHp, body.api_hougeki3, sortieInfo
   # Raigeki battle
 
   if body.api_raigeki?
     if isCombined
-      raigekiAttack combinedHp, enemyHp, body.api_raigeki, combinedInfo
+      TorpedoSalvo combinedHp, enemyHp, body.api_raigeki, combinedInfo
     else
-      raigekiAttack sortieHp, enemyHp, body.api_raigeki, sortieInfo
+      TorpedoSalvo sortieHp, enemyHp, body.api_raigeki, sortieInfo
   getResult sortieHp, enemyHp, combinedHp, leastHp, mvpPos
 
 escapeId = -1
