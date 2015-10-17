@@ -404,6 +404,7 @@ module.exports =
       enemyInfo: Object.clone initInfo
       combinedInfo: Object.clone initId
       getShip: null
+      getItem: null
       planeCount: Object.clone initPlaneCount
       sortiePlane: ''
       enemyPlane: ''
@@ -427,7 +428,7 @@ module.exports =
       MAPSPOT: mapspot
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
-      {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack, mvpPos, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
+      {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack, mvpPos, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
       flag = false
@@ -451,6 +452,7 @@ module.exports =
           enemyName = __ 'Enemy Vessel'
           result = null
           getShip = null
+          getItem = null
           planeCount = Object.clone initPlaneCount
           # Compass
           mapArea = body.api_maparea_id
@@ -468,6 +470,7 @@ module.exports =
           enemyName = __ 'Enemy Vessel'
           result = null
           getShip = null
+          getItem = null
           planeCount = Object.clone initPlaneCount
           # Comapss
           nowSpot = nextSpot
@@ -555,6 +558,8 @@ module.exports =
                 icon: join(ROOT, 'views', 'components', 'main', 'assets', 'img', 'state', '4.png')
             if body.api_get_ship?
               getShip = body.api_get_ship
+            if body.api_get_useitem?
+              getItem = body.api_get_useitem
           result = body.api_win_rank
 
         # Return to port
@@ -577,6 +582,7 @@ module.exports =
           enemyName = __ 'Enemy Vessel'
           result = null
           getShip = null
+          getItem = null
           planeCount = Object.clone initPlaneCount
           # Compass
           mapArea = NaN
@@ -608,6 +614,7 @@ module.exports =
           enemyInfo: enemyInfo
           combinedInfo: combinedInfo
           getShip: getShip
+          getItem: getItem
           planeCount: planeCount
           sortiePlane: sortiePlane
           enemyPlane: enemyPlane
@@ -667,6 +674,7 @@ module.exports =
         <BottomAlert
           admiral={__ "Admiral"}
           getShip={@state.getShip}
+          getItem={@state.getItem}
           joinFleet={__ "Join fleet"}
           formationNum={@state.enemyFormation}
           formation={formation[@state.enemyFormation]}

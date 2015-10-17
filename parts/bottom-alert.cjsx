@@ -3,9 +3,14 @@ module.exports = React.createClass
   render: ->
     <div>
       {
-        if @props.getShip?
+        if @props.getShip? or @props.getItem?
+          messages = []
+          if @props.getItem?.api_useitem_id is 68
+            messages.push "摸鱼成功！"
+          if @props.getShip?
+            messages.push "#{@props.getShip.api_ship_type} 「#{@props.getShip.api_ship_name}」 #{@props.joinFleet}"
           <Panel>
-            {"#{@props.getShip.api_ship_type} 「#{@props.getShip.api_ship_name}」 #{@props.joinFleet}"}
+            {messages.join " "}
           </Panel>
         else if @props.formationNum != 0
           <Panel>
