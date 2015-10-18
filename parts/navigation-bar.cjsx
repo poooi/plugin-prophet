@@ -7,17 +7,18 @@ module.exports = React.createClass
           {
             list = []
             tmp = 6 / (@props.cols + 1)
+            k = 0
             for i in [0..(@props.cols)]
               if (i == @props.cols) && (@props.lay == 1)
                 if !@props.enemyPlane
-                  list.push <Col xs={tmp}>{@props.enemyName}</Col>
+                  list.push <Col key={++k} xs={tmp}>{@props.enemyName}</Col>
                 else
-                  list.push <Col xs={tmp} className="navigation-bar-airplane">「<FontAwesome name='plane' />{@props.enemyPlane}」{@props.enemyName}</Col>
+                  list.push <Col key={++k} xs={tmp} className="navigation-bar-airplane">「<FontAwesome name='plane' />{@props.enemyPlane}」{@props.enemyName}</Col>
               else if i == 1 or !@props.sortiePlane
-                list.push <Col xs={tmp}>{@props.sortieFleet}</Col>
+                list.push <Col key={++k} xs={tmp}>{@props.sortieFleet}</Col>
               else
-                list.push <Col xs={tmp} className="navigation-bar-airplane">「<FontAwesome name='plane' />{@props.sortiePlane}」{@props.sortieFleet}</Col>
-              list.push <Col xs={tmp}>{@props.HP}</Col>
+                list.push <Col key={++k} xs={tmp} className="navigation-bar-airplane">「<FontAwesome name='plane' />{@props.sortiePlane}」{@props.sortieFleet}</Col>
+              list.push <Col key={++k} xs={tmp}>{@props.HP}</Col>
             <Grid>
               {list}
             </Grid>
