@@ -105,8 +105,10 @@ module.exports = React.createClass
                 if @props.enemyInfo.lv[j] == -1
                   continue
                 list = []
+                k = 0
                 for i in [0..0]
                   list.push <ProphetInfo
+                    key={++k}
                     lv={@props.enemyInfo.lv[j]}
                     name={@props.enemyInfo.name[j]}
                     condShow={0}
@@ -115,6 +117,7 @@ module.exports = React.createClass
                     atk={@props.enemyHp.atk[j]}
                     mvp={if @props.mvpPos[2] == j then true else false}/>
                   list.push <ProphetHp
+                    key={++k}
                     lv={@props.enemyInfo.lv[j]}
                     now={@props.enemyHp.now[j]}
                     max={@props.enemyHp.max[j]}
