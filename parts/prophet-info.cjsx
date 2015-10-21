@@ -21,7 +21,7 @@ module.exports = React.createClass
 
       <td style={opacity: 1 - 0.6 * @props.isBack} className="prophet-info-content">
         <div className="ship-name">
-          <OverlayTrigger trigger='click' rootClose placement='bottom' overlay={<Popover>{popoverTxt}</Popover>} >
+          <OverlayTrigger trigger='click' rootClose placement='bottom' overlay={<Popover id={popoverTxt}>{popoverTxt}</Popover>} >
             <span className={getCondStyle(@props.cond, showCond)}>
               <span className="prophet-info-name">{nameTxt}</span>
             </span>
