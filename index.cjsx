@@ -233,58 +233,55 @@ SupportFire = (enemyHp, support) ->
     enemyHp.now[i - 1] -= damage
 
 TorpedoSalvo = (sortieHp, enemyHp, raigeki, sortieInfo) ->
-  if raigeki.api_edam?
-    for damage, i in raigeki.api_edam
-      damage = Math.floor(damage)
-      continue if damage <= 0
-      enemyHp.dmg[i - 1] += damage
-      enemyHp.now[i - 1] -= damage
-    for damage, i in raigeki.api_fydam
-      damage = Math.floor(damage)
-      continue if damage <= 0
-      sortieHp.atk[i - 1] += damage
-  if raigeki.api_fdam?
-    for damage, i in raigeki.api_eydam
-      damage = Math.floor(damage)
-      continue if damage <= 0
-      enemyHp.atk[i - 1] += damage
-    for damage, i in raigeki.api_fdam
-      damage = Math.floor(damage)
-      continue if damage <= 0
-      sortieHp.dmg[i - 1] += damage
-      sortieHp.now[i - 1] -= damage
-      if sortieHp.now[i - 1] <= 0
-        repairNum = checkRepair sortieInfo[i - 1]
-        if repairNum == 42
-          sortieHp.now[i - 1] = Math.floor(sortieHp.max[i - 1] / 5)
-          sortieHp.dmg[i - 1] = 0
-        else if repairNum == 43
-          sortieHp.now[i - 1] = sortieHp.max[i - 1]
-          sortieHp.dmg[i - 1] = 0
+  # 雷撃ターゲット
+  for target, i in raigeki.api_frai
+    continue if target <= 0
+    damage = Math.floor(raigeki.api_fydam[i])
+    continue if damage <= 0
+    sortieHp.atk[i - 1] += damage
+    enemyHp.dmg[target - 1] += damage
+    enemyHp.now[target - 1] -= damage
+  # 雷撃ターゲット
+  for target, i in raigeki.api_erai
+    continue if target <= 0
+    damage = Math.floor(raigeki.api_eydam[i])
+    continue if damage <= 0
+    enemyHp.atk[i - 1] += damage
+    sortieHp.dmg[target - 1] += damage
+    sortieHp.now[target - 1] -= damage
+    if sortieHp.now[target - 1] <= 0
+      repairNum = checkRepair sortieInfo[target - 1]
+      if repairNum == 42
+        sortieHp.now[target - 1] = Math.floor(sortieHp.max[target - 1] / 5)
+        sortieHp.dmg[target - 1] = 0
+      else if repairNum == 43
+        sortieHp.now[target - 1] = sortieHp.max[target - 1]
+        sortieHp.dmg[target - 1] = 0
 
 Shelling = (sortieHp, enemyHp, hougeki, sortieInfo) ->
   for damageFrom, i in hougeki.api_at_list
     continue if damageFrom == -1
+    damageFrom -= 1
     for damage, j in hougeki.api_damage[i]
       damage = Math.floor(damage)
-      damageTo = hougeki.api_df_list[i][j]
+      target = hougeki.api_df_list[i][0] - 1
       continue if damage <= 0
-      if damageTo < 7
-        enemyHp.atk[damageFrom - 1 - 6] += damage
-        sortieHp.dmg[damageTo - 1] += damage
-        sortieHp.now[damageTo - 1] -= damage
-        if sortieHp.now[damageTo - 1] <= 0
-          repairNum = checkRepair sortieInfo[damageTo - 1]
+      if target < 6
+        enemyHp.atk[damageFrom - 6] += damage
+        sortieHp.dmg[target] += damage
+        sortieHp.now[target] -= damage
+        if sortieHp.now[target] <= 0
+          repairNum = checkRepair sortieInfo[target]
           if repairNum == 42
-            sortieHp.now[damageTo - 1] = Math.floor(sortieHp.max[damageTo - 1] / 5)
-            sortieHp.dmg[damageTo - 1] = 0
+            sortieHp.now[target] = Math.floor(sortieHp.max[target] / 5)
+            sortieHp.dmg[target] = 0
           else if repairNum == 43
-            sortieHp.now[damageTo - 1] = sortieHp.max[damageTo - 1]
-            sortieHp.dmg[damageTo - 1] = 0
+            sortieHp.now[target] = sortieHp.max[target]
+            sortieHp.dmg[target] = 0
       else
-        sortieHp.atk[damageFrom - 1] += damage
-        enemyHp.dmg[damageTo - 7] += damage
-        enemyHp.now[damageTo - 7] -= damage
+        sortieHp.atk[damageFrom] += damage
+        enemyHp.dmg[target - 6] += damage
+        enemyHp.now[target - 6] -= damage
 
 getShipInfo = (sortieHp, sortieInfo) ->
   {_ships} = window
@@ -295,13 +292,13 @@ getShipInfo = (sortieHp, sortieInfo) ->
       sortieHp.now[i] = _ships[shipId].api_nowhp
       sortieHp.max[i] = _ships[shipId].api_maxhp
 
-simulateKouku = (api_kouku, planeCount) ->
+simulateAerial = (api_kouku, planeCount) ->
   if api_kouku.api_stage2?
     planeCount.sortie[0] -= api_kouku.api_stage2.api_f_lostcount
     planeCount.enemy[0] -= api_kouku.api_stage2.api_e_lostcount
 
 
-simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leastHp, planeCount, sortieInfo, combinedInfo, mvpPos) ->
+simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isSurface, body, leastHp, planeCount, sortieInfo, combinedInfo, mvpPos) ->
   # First air battle
 
   if body.api_kouku?
@@ -312,7 +309,7 @@ simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leas
       planeCount.sortie[1] = tmp.api_f_count
       planeCount.enemy[0] = tmp.api_e_count - tmp.api_e_lostcount
       planeCount.enemy[1] = tmp.api_e_count
-    simulateKouku body.api_kouku, planeCount
+    simulateAerial body.api_kouku, planeCount
 
     if body.api_kouku.api_stage3?
       AerialCombat sortieHp, enemyHp, body.api_kouku.api_stage3, sortieInfo
@@ -321,7 +318,7 @@ simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leas
   # Second air battle
 
   if body.api_kouku2?
-    simulateKouku body.api_kouku2, planeCount
+    simulateAerial body.api_kouku2, planeCount
 
     if body.api_kouku2.api_stage3?
       AerialCombat sortieHp, enemyHp, body.api_kouku2.api_stage3, sortieInfo
@@ -353,7 +350,7 @@ simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leas
   # First hougeki battle
 
   if body.api_hougeki1?
-    if isCombined && !isWater
+    if isCombined && !isSurface
       Shelling combinedHp, enemyHp, body.api_hougeki1, combinedInfo
     else
       Shelling sortieHp, enemyHp, body.api_hougeki1, sortieInfo
@@ -364,7 +361,7 @@ simulateBattle = (sortieHp, enemyHp, combinedHp, isCombined, isWater, body, leas
   # Combined hougeki battle
 
   if body.api_hougeki3?
-    if isCombined && isWater
+    if isCombined && isSurface
       Shelling combinedHp, enemyHp, body.api_hougeki3, combinedInfo
     else
       Shelling sortieHp, enemyHp, body.api_hougeki3, sortieInfo
@@ -431,11 +428,11 @@ module.exports =
       {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack, mvpPos, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
-      flag = false
+      shouldRender = false
       switch path
         # First enter map in battle
         when '/kcsapi/api_req_map/start'
-          flag = true
+          shouldRender = true
           if parseInt(postBody.api_deck_id) != 1
             combinedFlag = 0
           if combinedFlag == 0
@@ -463,7 +460,7 @@ module.exports =
 
         # Enter next point in battle
         when '/kcsapi/api_req_map/next'
-          flag = true
+          shouldRender = true
           sortieHp.dmg[i] = enemyHp.dmg[i] = combinedHp.dmg[i] = sortieHp.atk[i] = enemyHp.atk[i] = combinedHp.atk[i] = 0 for i in [0..5]
           enemyInfo.lv = Object.clone initId
           enemyFormation = enemyIntercept = 0
@@ -485,7 +482,7 @@ module.exports =
 
         # Normal battle
         when '/kcsapi/api_req_sortie/airbattle', '/kcsapi/api_req_battle_midnight/sp_midnight', '/kcsapi/api_req_sortie/battle', '/kcsapi/api_req_battle_midnight/battle'
-          flag = true
+          shouldRender = true
           # The damage in day battle
           daySortieDmg = Object.clone sortieHp.dmg
           dayEnemyDmg = Object.clone enemyHp.dmg
@@ -502,7 +499,7 @@ module.exports =
 
         # Practice battle
         when '/kcsapi/api_req_practice/battle', '/kcsapi/api_req_practice/midnight_battle'
-          flag = true
+          shouldRender = true
           # If practice
           if path == '/kcsapi/api_req_practice/battle'
             sortieHp.dmg[i] = enemyHp.dmg[i] = combinedHp.dmg[i] = sortieHp.atk[i] = enemyHp.atk[i] = combinedHp.atk[i] = 0 for i in [0..5]
@@ -522,18 +519,18 @@ module.exports =
 
         # Combined battle
         when '/kcsapi/api_req_combined_battle/airbattle', '/kcsapi/api_req_combined_battle/sp_midnight', '/kcsapi/api_req_combined_battle/battle', '/kcsapi/api_req_combined_battle/battle_water', '/kcsapi/api_req_combined_battle/midnight_battle'
-          flag = true
+          shouldRender = true
           escapeId = towId = -1
-          isWater = false
+          isSurface = false
           # If water combined
           if path == '/kcsapi/api_req_combined_battle/battle_water'
-            isWater = true
+            isSurface = true
           daySortieDmg = Object.clone sortieHp.dmg
           dayEnemyDmg = Object.clone enemyHp.dmg
           dayCombinedDmg = Object.clone combinedHp.dmg
           if path != '/kcsapi/api_req_combined_battle/midnight_battle'
             getEnemyInfo enemyHp, enemyInfo, body, false
-          result = simulateBattle sortieHp, enemyHp, combinedHp, true, isWater, body, 1, planeCount, sortieInfo, combinedInfo, mvpPos
+          result = simulateBattle sortieHp, enemyHp, combinedHp, true, isSurface, body, 1, planeCount, sortieInfo, combinedInfo, mvpPos
           for i in [0..5]
             sortieHp.dmg[i] -= daySortieDmg[i]
             enemyHp.dmg[i] -= dayEnemyDmg[i]
@@ -541,7 +538,7 @@ module.exports =
 
         # Battle Result
         when '/kcsapi/api_req_practice/battle_result', '/kcsapi/api_req_sortie/battleresult', '/kcsapi/api_req_combined_battle/battleresult'
-          flag = true
+          shouldRender = true
           if path != '/kcsapi/api_req_practice/battle_result'
             if body.api_escape_flag? && body.api_escape_flag > 0
               escapeId = body.api_escape.api_escape_idx[0] - 1
@@ -564,7 +561,7 @@ module.exports =
 
         # Return to port
         when '/kcsapi/api_port/port'
-          flag = true
+          shouldRender = true
           goBack = Object.clone initData
           combinedFlag = body.api_combined_flag
           combinedFlag ?= 0
@@ -605,7 +602,7 @@ module.exports =
           enemyPlane = " #{planeCount.enemy[0]}/#{planeCount.enemy[1]}"
         seiku = dispSeiku[planeCount.seiku]
 
-      if flag
+      if shouldRender
         @setState
           sortieHp: sortieHp
           enemyHp: enemyHp
