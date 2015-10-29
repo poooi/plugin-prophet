@@ -557,6 +557,10 @@ module.exports =
               getShip = body.api_get_ship
             if body.api_get_useitem?
               getItem = body.api_get_useitem
+          if body.api_mvp?
+            mvpPos[0] = if body.api_mvp >= 2 then body.api_mvp - 1 else 0
+          if body.api_mvp_combined?
+            mvpPos[1] = if body.api_mvp_combined >= 2 then body.api_mvp_combined - 1 else 0
           result = body.api_win_rank
 
         # Return to port
