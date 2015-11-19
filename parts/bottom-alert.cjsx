@@ -21,7 +21,7 @@ module.exports = React.createClass
             {"#{@props.compassPoint}: "}
             <span className="compass">
             {
-              if @props.compassAngle
+              if @props.compassAngle?
                 # FontAwesome `location-arrow` points to north by east 45 degrees.
                 <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
                              style={transform: "rotate(#{@props.compassAngle - 45}deg)"} />
