@@ -1,5 +1,5 @@
 {
-  "name": "prophet",
+  "name": "poi-plugin-prophet",
   "version": "3.6.3",
   "description": "A prophet plugin for Poi",
   "main": "index.cjsx",
