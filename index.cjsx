@@ -642,6 +642,9 @@ module.exports =
 
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
+      
+    componentWillUnmount: ->
+      window.removeEventListener 'game.response', @handleResponse
 
     getCompassAngle: ->
       {MAPSPOT, mapArea, mapCell, nowSpot, nextSpot} = @state
