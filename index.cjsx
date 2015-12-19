@@ -8,18 +8,17 @@ CSON = require 'cson'
 {_, $, $$, React, ReactBootstrap, ROOT, resolveTime, layout, toggleModal} = window
 {Table, ProgressBar, Grid, Input, Col, Alert, Button, Divider} = ReactBootstrap
 {APPDATA_PATH, SERVER_HOSTNAME} = window
-i18n = require './node_modules/i18n'
-{__} = i18n
 BottomAlert = require './parts/bottom-alert'
 ProphetPanel = require './parts/prophet-panel'
-i18n.configure
+window.i18n.prophet = new(require 'i18n-2')
   locales: ['en-US', 'ja-JP', 'zh-CN']
   defaultLocale: 'zh-CN'
   directory: path.join(__dirname, 'assets', 'i18n')
   updateFiles: false
   indent: '\t'
   extension: '.json'
-i18n.setLocale(window.language)
+window.i18n.prophet.setLocale(window.language)
+__ = window.i18n.prophet.__.bind(window.i18n.prophet)
 
 window.addEventListener 'layout.change', (e) ->
   {layout} = e.detail
@@ -642,7 +641,7 @@ module.exports =
 
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
-      
+
     componentWillUnmount: ->
       window.removeEventListener 'game.response', @handleResponse
 
