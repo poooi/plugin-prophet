@@ -111,9 +111,9 @@ getEnemyInfo = (enemyHp, enemyInfo, body, isPractice) ->
   enemyHp.max = Object.clone body.api_maxhps.slice(7, 13)
   for shipId, i in enemyInfo.lv
     continue if shipId == -1
-    enemyInfo.name[i] = $ships[shipId].api_name
+    enemyInfo.name[i] = window.i18n.resources.__ $ships[shipId].api_name
     if $ships[shipId].api_yomi != '-' && !isPractice
-      enemyInfo.name[i] = enemyInfo.name[i] + $ships[shipId].api_yomi
+      enemyInfo.name[i] = window.i18n.resources.__(enemyInfo.name[i]) + $ships[shipId].api_yomi
   enemyInfo.lv = Object.clone body.api_ship_lv.slice(1, 7)
 
 getResult = (sortieHp, enemyHp, combinedHp, leastHp, mvpPos) ->
