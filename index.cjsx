@@ -8,18 +8,17 @@ CSON = require 'cson'
 {_, $, $$, React, ReactBootstrap, ROOT, resolveTime, layout, toggleModal} = window
 {Table, ProgressBar, Grid, Input, Col, Alert, Button, Divider} = ReactBootstrap
 {APPDATA_PATH, SERVER_HOSTNAME} = window
-i18n = require './node_modules/i18n'
-{__} = i18n
 BottomAlert = require './parts/bottom-alert'
 ProphetPanel = require './parts/prophet-panel'
-i18n.configure
+window.i18n.prophet = new(require 'i18n-2')
   locales: ['en-US', 'ja-JP', 'zh-CN']
   defaultLocale: 'zh-CN'
   directory: path.join(__dirname, 'assets', 'i18n')
   updateFiles: false
   indent: '\t'
   extension: '.json'
-i18n.setLocale(window.language)
+window.i18n.prophet.setLocale(window.language)
+__ = window.i18n.prophet.__.bind(window.i18n.prophet)
 
 window.addEventListener 'layout.change', (e) ->
   {layout} = e.detail
@@ -112,9 +111,9 @@ getEnemyInfo = (enemyHp, enemyInfo, body, isPractice) ->
   enemyHp.max = Object.clone body.api_maxhps.slice(7, 13)
   for shipId, i in enemyInfo.lv
     continue if shipId == -1
-    enemyInfo.name[i] = $ships[shipId].api_name
+    enemyInfo.name[i] = window.i18n.resources.__ $ships[shipId].api_name
     if $ships[shipId].api_yomi != '-' && !isPractice
-      enemyInfo.name[i] = enemyInfo.name[i] + $ships[shipId].api_yomi
+      enemyInfo.name[i] = window.i18n.resources.__(enemyInfo.name[i]) + $ships[shipId].api_yomi
   enemyInfo.lv = Object.clone body.api_ship_lv.slice(1, 7)
 
 getResult = (sortieHp, enemyHp, combinedHp, leastHp, mvpPos) ->
@@ -642,7 +641,7 @@ module.exports =
 
     componentDidMount: ->
       window.addEventListener 'game.response', @handleResponse
-      
+
     componentWillUnmount: ->
       window.removeEventListener 'game.response', @handleResponse
 

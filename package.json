@@ -4,7 +4,6 @@
   "description": "A prophet plugin for Poi",
   "main": "index.cjsx",
   "dependencies": {
-    "i18n": "^0.5.0"
   },
   "devDependencies": {},
   "scripts": {

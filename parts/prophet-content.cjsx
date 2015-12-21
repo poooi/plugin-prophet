@@ -42,7 +42,7 @@ module.exports = React.createClass
                   else if i == 1
                     if @props.combinedInfo[j] != -1
                       tmpLv = window._ships[@props.combinedInfo[j]].api_lv
-                      tmpName = window._ships[@props.combinedInfo[j]].api_name
+                      tmpName = window.i18n.resources.__ window._ships[@props.combinedInfo[j]].api_name
                       tmpCond = window._ships[@props.combinedInfo[j]].api_cond
                     else
                       tmpLv = -1
@@ -68,7 +68,7 @@ module.exports = React.createClass
                   else if i == 0
                     if @props.sortieInfo[j] != -1
                       tmpLv = window._ships[@props.sortieInfo[j]].api_lv
-                      tmpName = window._ships[@props.sortieInfo[j]].api_name
+                      tmpName = window.i18n.resources.__ window._ships[@props.sortieInfo[j]].api_name
                       tmpCond = window._ships[@props.sortieInfo[j]].api_cond
                     else
                       tmpLv = -1
