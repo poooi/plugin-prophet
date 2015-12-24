@@ -23,7 +23,7 @@
   "HP": "耐久",
   "PvP": "演習相手",
   "Admiral": "提督さん、",
-  "Join fleet": "が戦列に加わりました",
+  "Join fleet": "%s「%s」が戦列に加わりました",
   "Unknown FC": "不明",
   "AS+": "制空権確保",
   "AS": "航空優勢",
@@ -43,6 +43,7 @@
   "Manual Selection": "能動分岐",
   "Aerial Recon": "航空偵察",
   "Compass Point": "羅針盤",
-  "Next Spot": "次のセル"
-
+  "Next Spot": "次のセル",
+  "Item get": "「%s」を入手しました！",
+  "": ""
 }

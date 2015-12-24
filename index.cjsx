@@ -8,17 +8,17 @@ CSON = require 'cson'
 {_, $, $$, React, ReactBootstrap, ROOT, resolveTime, layout, toggleModal} = window
 {Table, ProgressBar, Grid, Input, Col, Alert, Button, Divider} = ReactBootstrap
 {APPDATA_PATH, SERVER_HOSTNAME} = window
-BottomAlert = require './parts/bottom-alert'
-ProphetPanel = require './parts/prophet-panel'
 window.i18n.prophet = new(require 'i18n-2')
   locales: ['en-US', 'ja-JP', 'zh-CN']
   defaultLocale: 'zh-CN'
   directory: path.join(__dirname, 'assets', 'i18n')
-  updateFiles: false
-  indent: '\t'
+  devMode: false
   extension: '.json'
 window.i18n.prophet.setLocale(window.language)
 __ = window.i18n.prophet.__.bind(window.i18n.prophet)
+
+BottomAlert = require './parts/bottom-alert'
+ProphetPanel = require './parts/prophet-panel'
 
 window.addEventListener 'layout.change', (e) ->
   {layout} = e.detail
