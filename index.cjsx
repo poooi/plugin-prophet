@@ -8,17 +8,17 @@ CSON = require 'cson'
 {_, $, $$, React, ReactBootstrap, ROOT, resolveTime, layout, toggleModal} = window
 {Table, ProgressBar, Grid, Input, Col, Alert, Button, Divider} = ReactBootstrap
 {APPDATA_PATH, SERVER_HOSTNAME} = window
-BottomAlert = require './parts/bottom-alert'
-ProphetPanel = require './parts/prophet-panel'
 window.i18n.prophet = new(require 'i18n-2')
   locales: ['en-US', 'ja-JP', 'zh-CN']
   defaultLocale: 'zh-CN'
   directory: path.join(__dirname, 'assets', 'i18n')
-  updateFiles: false
-  indent: '\t'
+  devMode: false
   extension: '.json'
 window.i18n.prophet.setLocale(window.language)
 __ = window.i18n.prophet.__.bind(window.i18n.prophet)
+
+BottomAlert = require './parts/bottom-alert'
+ProphetPanel = require './parts/prophet-panel'
 
 window.addEventListener 'layout.change', (e) ->
   {layout} = e.detail
@@ -425,6 +425,7 @@ module.exports =
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
       {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack, mvpPos, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
+      {$useitems} = window
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
       shouldRender = false
@@ -555,7 +556,7 @@ module.exports =
             if body.api_get_ship?
               getShip = body.api_get_ship
             if body.api_get_useitem?
-              getItem = body.api_get_useitem
+              getItem = $useitems[body.api_get_useitem.api_useitem_id]?.api_name
           if body.api_mvp?
             mvpPos[0] = if body.api_mvp >= 2 then body.api_mvp - 1 else 0
           if body.api_mvp_combined?

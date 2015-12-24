@@ -23,7 +23,7 @@
   "HP": "HP",
   "PvP": "PvP",
   "Admiral": "Admiral",
-  "Join fleet": "Join fleet",
+  "Join fleet": "%s \"%s\" joined your fleet",
   "Unknown FC": "Unknown FC",
   "AS+": "AS+",
   "AS": "AS",
@@ -43,5 +43,7 @@
   "Manual Selection": "Manual Selection",
   "Aerial Recon": "Aerial Recon",
   "Compass Point": "Compass Point",
-  "Next Spot": "Next Spot"
+  "Next Spot": "Next Spot",
+  "Item get": "Item \"%s:\" got! ",
+  "": ""
 }

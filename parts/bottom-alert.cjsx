@@ -1,3 +1,5 @@
+__ = window.i18n.prophet.__.bind(window.i18n.prophet)
+
 {Panel} = ReactBootstrap
 module.exports = React.createClass
   render: ->
@@ -5,10 +7,12 @@ module.exports = React.createClass
       {
         if @props.getShip? or @props.getItem?
           messages = []
-          if @props.getItem?.api_useitem_id is 72
-            messages.push "お飾り材料GET！"
+          if @props.getItem?
+            messages.push __ "Item get", window.i18n.resources.__(@props.getItem)
           if @props.getShip?
-            messages.push "#{window.i18n.resources.__ @props.getShip.api_ship_type} 「#{window.i18n.resources.__ @props.getShip.api_ship_name}」 #{@props.joinFleet}"
+            messages.push __ "Join fleet", 
+                window.i18n.resources.__(@props.getShip.api_ship_type), 
+                window.i18n.resources.__(@props.getShip.api_ship_name)
           <Panel>
             {messages.join " "}
           </Panel>
