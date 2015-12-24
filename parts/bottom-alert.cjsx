@@ -5,8 +5,9 @@ module.exports = React.createClass
       {
         if @props.getShip? or @props.getItem?
           messages = []
-          if @props.getItem?.api_useitem_id is 72
-            messages.push "お飾り材料GET！"
+          if @props.getItem?
+            itemName = $useitems[@props.getItem.api_useitem_id]?.api_name
+            messages.push window.i18n.resources.__(itemName)+"Get！"
           if @props.getShip?
             messages.push "#{window.i18n.resources.__ @props.getShip.api_ship_type} 「#{window.i18n.resources.__ @props.getShip.api_ship_name}」 #{@props.joinFleet}"
           <Panel>
