@@ -8,8 +8,7 @@ module.exports = React.createClass
         if @props.getShip? or @props.getItem?
           messages = []
           if @props.getItem?
-            itemName = $useitems[@props.getItem.api_useitem_id]?.api_name
-            messages.push __ "Item get", window.i18n.resources.__(itemName)
+            messages.push __ "Item get", window.i18n.resources.__(@props.getItem)
           if @props.getShip?
             messages.push __ "Join fleet", 
                 window.i18n.resources.__(@props.getShip.api_ship_type), 

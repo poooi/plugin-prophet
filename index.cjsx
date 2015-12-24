@@ -425,6 +425,7 @@ module.exports =
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
       {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack, mvpPos, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
+      {$useitems} = window
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
       shouldRender = false
@@ -555,7 +556,7 @@ module.exports =
             if body.api_get_ship?
               getShip = body.api_get_ship
             if body.api_get_useitem?
-              getItem = body.api_get_useitem
+              getItem = $useitems[body.api_get_useitem.api_useitem_id]?.api_name
           if body.api_mvp?
             mvpPos[0] = if body.api_mvp >= 2 then body.api_mvp - 1 else 0
           if body.api_mvp_combined?
