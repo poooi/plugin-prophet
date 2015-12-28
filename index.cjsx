@@ -551,8 +551,9 @@ module.exports =
                 tmpShip = tmpShip + _ships[combinedInfo[i]].api_name + " "
             if tmpShip != "" and @enableProphetDamaged
               notify "#{tmpShip}" + __('Heavily damaged'),
-                type: 'damagedAudio'
+                type: 'damaged'
                 icon: join(ROOT, 'views', 'components', 'main', 'assets', 'img', 'state', '4.png')
+                audio: config.get('plugin.prophet.notify.damagedAudio')
             if body.api_get_ship?
               getShip = body.api_get_ship
             if body.api_get_useitem?
