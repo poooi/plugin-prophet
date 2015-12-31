@@ -549,7 +549,7 @@ module.exports =
                 tmpShip = tmpShip + _ships[sortieInfo[i]].api_name + " "
               if combinedHp.now[i] < (0.2500001 * combinedHp.max[i]) && goBack[6 + i] == 0
                 tmpShip = tmpShip + _ships[combinedInfo[i]].api_name + " "
-            if tmpShip != "" and @enableProphetDamaged
+            if tmpShip != "" and @state.enableProphetDamaged
               notify "#{tmpShip}" + __('Heavily damaged'),
                 type: 'damaged'
                 icon: join(ROOT, 'views', 'components', 'main', 'assets', 'img', 'state', '4.png')
