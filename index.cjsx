@@ -9,7 +9,7 @@ CSON = require 'cson'
 {Table, ProgressBar, Grid, Input, Col, Alert, Button, Divider} = ReactBootstrap
 {APPDATA_PATH, SERVER_HOSTNAME} = window
 window.i18n.prophet = new(require 'i18n-2')
-  locales: ['en-US', 'ja-JP', 'zh-CN']
+  locales: ['en-US', 'ja-JP', 'zh-CN', 'zh-TW']
   defaultLocale: 'zh-CN'
   directory: path.join(__dirname, 'assets', 'i18n')
   devMode: false
