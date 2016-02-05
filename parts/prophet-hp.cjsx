@@ -10,6 +10,11 @@ getHpStyle = (percent) ->
   else
     'success'
 
+getLineStyle = (isFriend) ->
+  if isFriend > 0
+    'friend-hp'
+  else
+    'enemy-hp'
 
 module.exports = React.createClass
   render: ->
@@ -17,7 +22,9 @@ module.exports = React.createClass
       <td>　</td>
     else
       <td className="hp-progress" style={opacity: 1 - 0.6 * @props.isBack}>
-        <ProgressBar bsStyle={getHpStyle @props.now / @props.max * 100}
-          now={@props.now / @props.max * 100}
-          label={if @props.dmg > 0 then "#{@props.now} / #{@props.max} (-#{@props.dmg})" else "#{@props.now} / #{@props.max}"} />
+        <div className={getLineStyle @props.isFriend && (@props.now * 4 - @props.max > 0)}>
+          <ProgressBar bsStyle={getHpStyle @props.now / @props.max * 100}
+            now={@props.now / @props.max * 100}
+            label={if @props.dmg > 0 then "#{@props.now} / #{@props.max} (-#{@props.dmg})" else "#{@props.now} / #{@props.max}"} />
+        </div>
       </td>

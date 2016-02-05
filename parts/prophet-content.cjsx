@@ -34,6 +34,7 @@ module.exports = React.createClass
                       mvp={if @props.mvpPos[2] == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
+                      isFriend={0}
                       lv={@props.enemyInfo.lv[j]}
                       now={@props.enemyHp.now[j]}
                       max={@props.enemyHp.max[j]}
@@ -60,6 +61,7 @@ module.exports = React.createClass
                       mvp={if @props.mvpPos[1] == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
+                      isFriend={1}
                       lv={tmpLv}
                       now={@props.combinedHp.now[j]}
                       max={@props.combinedHp.max[j]}
@@ -86,6 +88,7 @@ module.exports = React.createClass
                       mvp={if @props.mvpPos[0] == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
+                      isFriend={1}
                       lv={tmpLv}
                       now={@props.sortieHp.now[j]}
                       max={@props.sortieHp.max[j]}
@@ -118,6 +121,7 @@ module.exports = React.createClass
                     mvp={if @props.mvpPos[2] == j then true else false}/>
                   list.push <ProphetHp
                     key={++k}
+                    isFriend={0}
                     lv={@props.enemyInfo.lv[j]}
                     now={@props.enemyHp.now[j]}
                     max={@props.enemyHp.max[j]}
