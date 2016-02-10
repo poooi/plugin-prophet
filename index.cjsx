@@ -381,7 +381,7 @@ module.exports =
   priority: 1
   displayName: <span><FontAwesome key={0} name='compass' />{' ' + __("Prophet")}</span>
   description: __ "Sortie Prophet"
-  version: '3.8.0'
+  version: '3.8.1'
   author: 'Chiba'
   link: 'https://github.com/Chibaheit'
   reactClass: React.createClass
@@ -503,7 +503,7 @@ module.exports =
           daySortieDmg = Object.clone sortieHp.dmg
           dayEnemyDmg = Object.clone enemyHp.dmg
           dayCombinedDmg = Object.clone combinedHp.dmg
-          
+
           getEnemyInfo enemyHp, enemyInfo, body, false
 
           result = simulateBattle sortieHp, enemyHp, combinedHp, false, false, body, 0, planeCount, sortieInfo, combinedInfo, mvpPos
