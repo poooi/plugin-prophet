@@ -497,6 +497,21 @@ module.exports =
             enemyHp.dmg[i] -= dayEnemyDmg[i]
             combinedHp.dmg[i] -= dayCombinedDmg[i]
 
+        when '/kcsapi/api_req_sortie/ld_airbattle'
+          shouldRender = true
+          # The damage in day battle
+          daySortieDmg = Object.clone sortieHp.dmg
+          dayEnemyDmg = Object.clone enemyHp.dmg
+          dayCombinedDmg = Object.clone combinedHp.dmg
+          
+          getEnemyInfo enemyHp, enemyInfo, body, false
+
+          result = simulateBattle sortieHp, enemyHp, combinedHp, false, false, body, 0, planeCount, sortieInfo, combinedInfo, mvpPos
+
+          for i in [0..5]
+            sortieHp.dmg[i] -= daySortieDmg[i]
+            enemyHp.dmg[i] -= dayEnemyDmg[i]
+            combinedHp.dmg[i] -= dayCombinedDmg[i]
         # Practice battle
         when '/kcsapi/api_req_practice/battle', '/kcsapi/api_req_practice/midnight_battle'
           shouldRender = true
