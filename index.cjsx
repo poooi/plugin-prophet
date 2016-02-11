@@ -512,6 +512,7 @@ module.exports =
             sortieHp.dmg[i] -= daySortieDmg[i]
             enemyHp.dmg[i] -= dayEnemyDmg[i]
             combinedHp.dmg[i] -= dayCombinedDmg[i]
+
         # Practice battle
         when '/kcsapi/api_req_practice/battle', '/kcsapi/api_req_practice/midnight_battle'
           shouldRender = true
@@ -545,6 +546,20 @@ module.exports =
           dayCombinedDmg = Object.clone combinedHp.dmg
           if path != '/kcsapi/api_req_combined_battle/midnight_battle'
             getEnemyInfo enemyHp, enemyInfo, body, false
+          result = simulateBattle sortieHp, enemyHp, combinedHp, true, isSurface, body, 1, planeCount, sortieInfo, combinedInfo, mvpPos
+          for i in [0..5]
+            sortieHp.dmg[i] -= daySortieDmg[i]
+            enemyHp.dmg[i] -= dayEnemyDmg[i]
+            combinedHp.dmg[i] -= dayCombinedDmg[i]
+
+        when '/kcsapi/api_req_combined_battle/ld_airbattle'
+          shouldRender = true
+          escapeId = towId = -1
+          isSurface = false
+          daySortieDmg = Object.clone sortieHp.dmg
+          dayEnemyDmg = Object.clone enemyHp.dmg
+          dayCombinedDmg = Object.clone combinedHp.dmg
+          getEnemyInfo enemyHp, enemyInfo, body, false
           result = simulateBattle sortieHp, enemyHp, combinedHp, true, isSurface, body, 1, planeCount, sortieInfo, combinedInfo, mvpPos
           for i in [0..5]
             sortieHp.dmg[i] -= daySortieDmg[i]
