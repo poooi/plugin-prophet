@@ -596,9 +596,6 @@ module.exports =
 
         # Return to port
         when '/kcsapi/api_port/port'
-        ,    '/kcsapi/api_req_hensei/change', '/kcsapi/api_req_hensei/preset_select' # Refresh if hensei changes
-        ,    '/kcsapi/api_req_nyukyo/start', '/kcsapi/api_req_nyukyo/speedchange' # Refresh when repairing
-        ,    '/kcsapi/api_req_kousyou/destroyship' # In case if any ship in the fleet is destroyed
           shouldRender = true
           goBack = Object.clone initData
           combinedFlag = body.api_combined_flag
