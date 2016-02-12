@@ -34,7 +34,7 @@ spotInfo = [
   __('Battle Avoid'),
   __('Air Strike'),
   __('Escort Success'),
-  __('Enemy Detected'),
+  __('Transport Munitions'),
   __('Manual Selection'),
   __('Aerial Recon')
 ]
