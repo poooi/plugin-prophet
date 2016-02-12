@@ -607,7 +607,7 @@ module.exports =
             when '/kcsapi/api_req_hensei/combined' then postBody.api_combined_type
             else @state.combinedFlag
           combinedFlag ?= 0
-          if combinedFlag == 0
+          if combinedFlag <= 0
             sortieInfo = Object.clone window._decks[0].api_ship
             combinedInfo = Object.clone initId
           else
