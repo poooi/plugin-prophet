@@ -411,7 +411,7 @@ module.exports =
       result: null
       enableProphetDamaged: config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow: config.get 'plugin.prophet.show.cond', true
-      combinedFlag: 0
+      combinedFleet: false
       goBack: Object.clone initData
       compactMode: false
       mvpPos: Object.clone initMvp
@@ -424,7 +424,7 @@ module.exports =
       MAPSPOT: mapspot
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
-      {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack, mvpPos, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
+      {sortieHp, enemyHp, combinedHp, sortieInfo, enemyInfo, combinedInfo, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFleet, goBack, mvpPos, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
       {$useitems} = window
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
@@ -434,8 +434,8 @@ module.exports =
         when '/kcsapi/api_req_map/start'
           shouldRender = true
           if parseInt(postBody.api_deck_id) != 1
-            combinedFlag = 0
-          if combinedFlag == 0
+            combinedFleet = false
+          if not combinedFleet
             sortieInfo = Object.clone window._decks[postBody.api_deck_id - 1].api_ship
             combinedInfo = Object.clone initId
           else
@@ -520,7 +520,7 @@ module.exports =
           if path == '/kcsapi/api_req_practice/battle'
             sortieHp.dmg[i] = enemyHp.dmg[i] = combinedHp.dmg[i] = sortieHp.atk[i] = enemyHp.atk[i] = combinedHp.atk[i] = 0 for i in [0..5]
             enemyName = __ 'PvP'
-            combinedFlag = 0
+            combinedFleet = false
             sortieInfo = Object.clone window._decks[postBody.api_deck_id - 1].api_ship
             getShipInfo sortieHp, sortieInfo
             getEnemyInfo enemyHp, enemyInfo, body, true
@@ -594,13 +594,19 @@ module.exports =
             mvpPos[1] = if body.api_mvp_combined >= 2 then body.api_mvp_combined - 1 else 0
           result = body.api_win_rank
 
-        # Return to port
+        # Refresh deck status
         when '/kcsapi/api_port/port'
+        ,    '/kcsapi/api_req_hensei/change', '/kcsapi/api_req_hensei/preset_select' # Refresh if hensei changes
+        ,    '/kcsapi/api_req_nyukyo/start', '/kcsapi/api_req_nyukyo/speedchange' # Refresh when repairing
+        ,    '/kcsapi/api_req_kousyou/destroyship' # In case if any ship in the fleet is destroyed
+        ,    '/kcsapi/api_req_hensei/combined' # When combined fleet is formed/disbanded
           shouldRender = true
           goBack = Object.clone initData
-          combinedFlag = body.api_combined_flag
-          combinedFlag ?= 0
-          if combinedFlag == 0
+          combinedFleet = switch path
+            when '/kcsapi/api_port/port' then body.api_combined_flag? and body.api_combined_flag > 0
+            when '/kcsapi/api_req_hensei/combined' then parseInt(postBody.api_combined_type) > 0
+            else @state.combinedFleet
+          if not combinedFleet
             sortieInfo = Object.clone window._decks[0].api_ship
             combinedInfo = Object.clone initId
           else
@@ -657,7 +663,7 @@ module.exports =
           result: result
           enableProphetDamaged: enableProphetDamaged
           prophetCondShow: prophetCondShow
-          combinedFlag: combinedFlag
+          combinedFleet: combinedFleet
           goBack: goBack
           mvpPos: mvpPos
           # Compass
@@ -701,7 +707,7 @@ module.exports =
           enemyName={@state.enemyName}
           sortiePlane={@state.sortiePlane}
           enemyPlane={@state.enemyPlane}
-          cols={if @state.combinedFlag == 0 then 0 else 1}
+          cols={if @state.combinedFleet then 1 else 0}
           lay={if layout == 'horizontal' || window.doubleTabbed then 0 else 1}
           goBack={@state.goBack}
           compactMode={@state.compactMode}
