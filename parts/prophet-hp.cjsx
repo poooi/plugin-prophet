@@ -10,11 +10,11 @@ getHpStyle = (percent) ->
   else
     'success'
 
-getLineStyle = (owner) ->
-  if owner 
-    'enemy-hp'
-  else
+getLineStyle = (flag) ->
+  if flag
     'friend-hp'
+  else
+    'enemy-hp'
 
 module.exports = React.createClass
   render: ->
