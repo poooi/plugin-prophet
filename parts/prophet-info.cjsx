@@ -9,30 +9,23 @@ module.exports = React.createClass
     if @props.lv == -1
       <td>　</td>
     else
-      nameTxt = "#{@props.name} "
+      nameText = "#{@props.ship.name} "
       showCond = @props.condShow
-      if showCond
-        condTxt = "★#{@props.cond} "
-        nameTxt += condTxt
-      lvTxt = "- Lv.#{@props.lv} "
-      popoverTxt = nameTxt + lvTxt
-      if !@props.compactMode
-        nameTxt += lvTxt
+      nameText += "★#{@props.ship.cond} " if showCond
+      nameText += "- Lv.#{@props.ship.lv} " if !@props.compactMode
 
       <td style={opacity: 1 - 0.6 * @props.isBack} className="prophet-info-content">
         <div className="ship-name">
-          <OverlayTrigger trigger='click' rootClose placement='bottom' overlay={<Popover id={popoverTxt}>{popoverTxt}</Popover>} >
-            <span className={getCondStyle(@props.cond, showCond)}>
-              <span className="prophet-info-name">{nameTxt}</span>
-            </span>
-          </OverlayTrigger>
+          <span className={getCondStyle(@props.ship.cond, showCond)}>
+            <span className="prophet-info-name">{nameText}</span>
+          </span>
         </div>
         <div className="attack-damage">
           {
             if @props.mvp == true
-              <span className={getCondStyle(100, 1)}>{@props.atk}</span>
+              <span className={getCondStyle(100, 1)}>{@props.ship.damage}</span>
             else
-              <span>{@props.atk}</span>
+              <span>{@props.ship.damage}</span>
           }
         </div>
       </td>

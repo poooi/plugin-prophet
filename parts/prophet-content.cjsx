@@ -10,14 +10,14 @@ module.exports = React.createClass
             {
               for j in [0..5]
                 if @props.lay == 0
-                  if @props.cols == 0 && @props.sortieInfo[j] == -1
+                  if @props.cols == 0 && @props.mainFleet.ship[j].id == -1
                     continue
-                  if @props.cols == 1 && @props.sortieInfo[j] == -1 && @props.combinedInfo[j] == -1
+                  if @props.cols == 1 && @props.mainFleet.ship[j].id == -1 && @props.escortFleet.ship[j].id == -1
                     continue
                 if @props.lay == 1
-                  if @props.cols == 1 && @props.sortieInfo[j] == -1 && @props.enemyInfo.lv[j] == -1
+                  if @props.cols == 1 && @props.mainFleet.ship[j].id == -1 && @props.enemyFleet.ship[j].id == -1
                     continue
-                  if @props.cols == 2 && @props.sortieInfo[j] == -1 && @props.enemyInfo.lv[j] == -1 && @props.combinedInfo[j] == -1
+                  if @props.cols == 2 && @props.mainFleet.ship[j].id == -1 && @props.enemyFleet.ship[j].id == -1 && @props.escortFleet.ship[j].id == -1
                     continue
                 list = []
                 k = 0
@@ -25,74 +25,38 @@ module.exports = React.createClass
                   if (i == @props.cols) && (@props.lay == 1)
                     list.push <ProphetInfo
                       key={++k}
-                      lv={@props.enemyInfo.lv[j]}
-                      name={@props.enemyInfo.name[j]}
+                      ship={@props.enemyFleet.ship[j]}
                       condShow={0}
                       isBack={0}
                       compactMode={@props.compactMode}
-                      atk={@props.enemyHp.atk[j]}
-                      mvp={if @props.mvpPos[2] == j then true else false}/>
+                      mvp={if @props.enemyFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
-                      isFriend={0}
-                      lv={@props.enemyInfo.lv[j]}
-                      now={@props.enemyHp.now[j]}
-                      max={@props.enemyHp.max[j]}
-                      dmg={@props.enemyHp.dmg[j]}
+                      ship={@props.enemyFleet.ship[j]}
                       isBack={0}/>
                   else if i == 1
-                    if @props.combinedInfo[j] != -1
-                      tmpLv = window._ships[@props.combinedInfo[j]].api_lv
-                      tmpName = window.i18n.resources.__ window._ships[@props.combinedInfo[j]].api_name
-                      tmpCond = window._ships[@props.combinedInfo[j]].api_cond
-                    else
-                      tmpLv = -1
-                      tmpName = -1
-                      tmpCond = -1
                     list.push <ProphetInfo
                       key={++k}
-                      lv={tmpLv}
-                      name={tmpName}
-                      cond={tmpCond}
+                      ship={@props.escortFleet.ship[j]}
                       condShow={1}
                       isBack={@props.goBack[j + 6]}
                       compactMode={@props.compactMode}
-                      atk={@props.combinedHp.atk[j]}
-                      mvp={if @props.mvpPos[1] == j then true else false}/>
+                      mvp={if @props.escortFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
-                      isFriend={1}
-                      lv={tmpLv}
-                      now={@props.combinedHp.now[j]}
-                      max={@props.combinedHp.max[j]}
-                      dmg={@props.combinedHp.dmg[j]}
+                      ship={@props.escortFleet.ship[j]}
                       isBack={@props.goBack[j + 6]}/>
                   else if i == 0
-                    if @props.sortieInfo[j] != -1
-                      tmpLv = window._ships[@props.sortieInfo[j]].api_lv
-                      tmpName = window.i18n.resources.__ window._ships[@props.sortieInfo[j]].api_name
-                      tmpCond = window._ships[@props.sortieInfo[j]].api_cond
-                    else
-                      tmpLv = -1
-                      tmpName = -1
-                      tmpCond = -1
                     list.push <ProphetInfo
                       key={++k}
-                      lv={tmpLv}
-                      name={tmpName}
-                      cond={tmpCond}
+                      ship={@props.mainFleet.ship[j]}
                       condShow={1}
                       isBack={@props.goBack[j]}
                       compactMode={@props.compactMode}
-                      atk={@props.sortieHp.atk[j]}
-                      mvp={if @props.mvpPos[0] == j then true else false}/>
+                      mvp={if @props.mainFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
-                      isFriend={1}
-                      lv={tmpLv}
-                      now={@props.sortieHp.now[j]}
-                      max={@props.sortieHp.max[j]}
-                      dmg={@props.sortieHp.dmg[j]}
+                      ship={@props.mainFleet.ship[j]}
                       isBack={@props.goBack[j]}/>
                 <tr key={j + 1}>
                   {list}
@@ -105,27 +69,20 @@ module.exports = React.createClass
           <tbody>
             {
               for j in [0..5]
-                if @props.enemyInfo.lv[j] == -1
-                  continue
+                continue if @props.enemyFleet.ship[j].id == -1
                 list = []
                 k = 0
                 for i in [0..0]
                   list.push <ProphetInfo
                     key={++k}
-                    lv={@props.enemyInfo.lv[j]}
-                    name={@props.enemyInfo.name[j]}
+                    ship={@props.enemyFleet.ship[j]}
                     condShow={0}
                     isBack={0}
                     compactMode={@props.compactMode}
-                    atk={@props.enemyHp.atk[j]}
-                    mvp={if @props.mvpPos[2] == j then true else false}/>
+                    mvp={if @props.enemyFleet.mvp == j then true else false}/>
                   list.push <ProphetHp
                     key={++k}
-                    isFriend={0}
-                    lv={@props.enemyInfo.lv[j]}
-                    now={@props.enemyHp.now[j]}
-                    max={@props.enemyHp.max[j]}
-                    dmg={@props.enemyHp.dmg[j]}
+                    ship={@props.enemyFleet.ship[j]}
                     isBack={0}/>
                 <tr key={j + 6}>
                   {list}

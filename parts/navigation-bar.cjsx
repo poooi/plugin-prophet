@@ -3,7 +3,7 @@ module.exports = React.createClass
   render: ->
     if @props.isFirst == 1 || (@props.isFirst == 0 && @props.lay == 0)
       if @props.isFirst == 1
-        <Panel >
+        <Panel>
           {
             list = []
             tmp = 6 / (@props.cols + 1)
@@ -24,7 +24,7 @@ module.exports = React.createClass
             </Grid>
           }
         </Panel>
-      else if @props.enemyInfo.lv[0] != -1
+      else if @props.enemyFleet.ship[0].id != -1
         <Panel>
           <Grid>
             <Col xs={6} className="navigation-bar-airplane">

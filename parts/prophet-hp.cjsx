@@ -10,21 +10,21 @@ getHpStyle = (percent) ->
   else
     'success'
 
-getLineStyle = (isFriend) ->
-  if isFriend > 0
-    'friend-hp'
-  else
+getLineStyle = (owner) ->
+  if owner 
     'enemy-hp'
+  else
+    'friend-hp'
 
 module.exports = React.createClass
   render: ->
-    if @props.lv == -1
+    if @props.ship.id == -1
       <td>　</td>
     else
       <td className="hp-progress" style={opacity: 1 - 0.6 * @props.isBack}>
-        <div className={getLineStyle @props.isFriend && (@props.now * 4 - @props.max > 0)}>
-          <ProgressBar bsStyle={getHpStyle @props.now / @props.max * 100}
-            now={@props.now / @props.max * 100}
-            label={if @props.dmg > 0 then "#{@props.now} / #{@props.max} (-#{@props.dmg})" else "#{@props.now} / #{@props.max}"} />
+        <div className={getLineStyle @props.ship.owner != 1 && (@props.ship.hp.now * 4 - @props.ship.hp.max > 0)}>
+          <ProgressBar bsStyle={getHpStyle @props.ship.hp.now / @props.ship.hp.max * 100}
+            now={@props.ship.hp.now / @props.ship.hp.max * 100}
+            label={if @props.ship.hp.injure > 0 then "#{@props.ship.hp.now} / #{@props.ship.hp.max} (-#{@props.ship.hp.injure})" else "#{@props.ship.hp.now} / #{@props.ship.hp.max}"} />
         </div>
       </td>
