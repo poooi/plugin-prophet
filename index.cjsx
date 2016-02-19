@@ -130,7 +130,7 @@ updateShip = (ship) ->
     ship.hp.max = _ship.api_maxhp
     ship.lv = _ship.api_lv
     ship.cond = _ship.api_cond
-    ship.name = _ship.api_name
+    ship.name = window.i18n.resources.__ _ship.api_name
     ship.slot = _ship.api_slot.concat(_ship.api_slot_ex || -1)
     ship.owner = 0
 
