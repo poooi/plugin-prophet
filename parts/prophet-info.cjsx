@@ -23,9 +23,9 @@ module.exports = React.createClass
         <div className="attack-damage">
           {
             if @props.mvp == true
-              <span className={getCondStyle(100, 1)}>{@props.ship.damage}</span>
+              <span className={getCondStyle(100, 1)}>{@props.ship.hp.damage}</span>
             else
-              <span>{@props.ship.damage}</span>
+              <span>{@props.ship.hp.damage}</span>
           }
         </div>
       </td>
