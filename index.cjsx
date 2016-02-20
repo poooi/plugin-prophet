@@ -140,12 +140,17 @@ updateResult = (fleet, result) ->
     tempHp = ship.hp.now + ship.hp.injure
     if tempHp > 0
       result.count += 1
-      result.totalHp += tempHp
-      result.injure += ship.hp.injure
-      if ship.hp.now <= 0
-        result.injure += ship.hp.now
+      if ship.hp.now == 0
+        result.totalHp += ship.hp.max
+        result.injure += ship.hp.max
         result.ruined += 1
-        ship.hp.now = 0
+      else
+        result.totalHp += tempHp
+        result.injure += ship.hp.injure
+        if ship.hp.now <= 0
+          result.injure += ship.hp.now
+          result.ruined += 1
+          ship.hp.now = 0
     fleet.mvp = i if ship.hp.damage > fleet.ship[fleet.mvp].hp.damage
 
 checkRepair = (ship) ->
