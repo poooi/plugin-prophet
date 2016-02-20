@@ -1,4 +1,7 @@
-{Table, ProgressBar, Grid, Input, Col, Alert, Button, OverlayTrigger, Popover, Tooltip} = ReactBootstrap
+{OverlayTrigger, Tooltip} = ReactBootstrap
+path = require 'path-extra'
+
+{SlotitemIcon} = require(path.join(ROOT, 'views', 'components', 'etc', 'icon'))
 
 getCondStyle = (cond, show) ->
   if show
@@ -17,9 +20,15 @@ Slotitems = React.createClass
         else
           item = window._slotitems[itemId]
         <div key={i} className="slotitem-container-mini">
+          <SlotitemIcon key={itemId} className='slotitem-img' slotitemId={item.api_type[3]} />
           <span className="slotitem-name-mini">
-            {item.api_name}
-              {if @props.owner != 1 && item.api_level > 0 then <strong style={color: '#45A9A5'}> ★{item.api_level}</strong> else ''}              
+            {window.i18n.resources.__ item.api_name}
+              {if @props.owner != 1 && item.api_level > 0 then <strong style={color: '#45A9A5'}> ★{item.api_level}</strong> else ''}
+              &nbsp;&nbsp;{
+                if item.api_alv? and 1 <= item.api_alv <= 7
+                  <img className='alv-img' src={path.join(ROOT, 'assets', 'img', 'airplane', "alv#{item.api_alv}.png")} />
+                else ''
+              }
           </span>
         </div>
     }
@@ -37,7 +46,7 @@ module.exports = React.createClass
 
       <td style={opacity: 1 - 0.6 * @props.isBack} className="prophet-info-content">
         <div className="ship-title">
-          <OverlayTrigger placement={if (window.layout == 'vertical') then 'left' else 'right'} overlay={
+          <OverlayTrigger placement='left' overlay={
             <Tooltip id="ship-pop-#{@props.ship.id}" className="ship-pop">
               <div className="item-name">
                 <Slotitems slot={@props.ship.slot} owner={@props.ship.owner}/>
