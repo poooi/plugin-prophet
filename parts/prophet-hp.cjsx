@@ -21,7 +21,7 @@ module.exports = React.createClass
     if @props.ship.id == -1
       <td>　</td>
     else
-      <td className="hp-progress" style={opacity: 1 - 0.6 * @props.isBack}>
+      <td className="hp-progress" style={opacity: 1 - 0.6 * @props.ship.back}>
         <div className={getLineStyle @props.ship.owner != 1 && (@props.ship.hp.now * 4 - @props.ship.hp.max > 0)}>
           <ProgressBar bsStyle={getHpStyle @props.ship.hp.now / @props.ship.hp.max * 100}
             now={@props.ship.hp.now / @props.ship.hp.max * 100}

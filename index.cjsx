@@ -100,6 +100,7 @@ class Ship
     @slot = []
     # owener: 0 ours 1 enemy
     @owner = 1
+    @back = 0
 
 
 class Fleet
@@ -350,9 +351,6 @@ simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeC
       TorpedoSalvo mainFleet, enemyFleet, body.api_raigeki
   getResult mainFleet, enemyFleet, escortFleet
 
-escapeId = -1
-towId = -1
-
 module.exports =
   name: 'prophet'
   priority: 1
@@ -386,7 +384,6 @@ module.exports =
       enableProphetDamaged: config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow: config.get 'plugin.prophet.show.cond', true
       combinedFlag: 0
-      goBack: Object.clone initData
       compactMode: false
       # Compass
       mapArea: NaN
@@ -398,7 +395,7 @@ module.exports =
 
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
-      {mainFleet, enemyFleet, escortFleet, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, goBack, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
+      {mainFleet, enemyFleet, escortFleet, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
       {$useitems} = window
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
@@ -448,11 +445,6 @@ module.exports =
           nowSpot = nextSpot
           nextSpot = body.api_no
           nextSpotKind = getCellInfo body.api_event_id, body.api_event_kind, body.api_bosscell_no, body.api_no
-        # Some ship while go back
-        when '/kcsapi/api_req_combined_battle/goback_port'
-          shouldRender = true
-          if escapeId != -1 && towId != -1
-            goBack[escapeId] = goBack[towId] = 1
         # Normal battle
         when '/kcsapi/api_req_sortie/airbattle', '/kcsapi/api_req_battle_midnight/sp_midnight', '/kcsapi/api_req_sortie/battle', '/kcsapi/api_req_battle_midnight/battle', '/kcsapi/api_req_sortie/ld_airbattle'
           shouldRender = true
@@ -489,7 +481,6 @@ module.exports =
         # Combined battle
         when '/kcsapi/api_req_combined_battle/airbattle', '/kcsapi/api_req_combined_battle/sp_midnight', '/kcsapi/api_req_combined_battle/battle', '/kcsapi/api_req_combined_battle/battle_water', '/kcsapi/api_req_combined_battle/midnight_battle', '/kcsapi/api_req_combined_battle/ld_airbattle'
           shouldRender = true
-          escapeId = towId = -1
           if path != '/kcsapi/api_req_combined_battle/midnight_battle'
             getEnemyInfo enemyFleet, body, false
           for i in [0..5]
@@ -506,15 +497,23 @@ module.exports =
           shouldRender = true
           if path != '/kcsapi/api_req_practice/battle_result'
             if body.api_escape_flag? && body.api_escape_flag > 0
-              escapeId = body.api_escape.api_escape_idx[0] - 1
-              towId = body.api_escape.api_tow_idx[0] - 1
+              idx = body.api_escape.api_escape_idx[0] - 1
+              if idx < 6
+                mainFleet.ship[idx].back = 1
+              else
+                escortFleet.ship[idx - 6].back = 1
+              idx = body.api_escape.api_tow_idx[0] - 1
+              if idx < 6
+                mainFleet.ship[idx].back = 1
+              else
+                escortFleet.ship[idx - 6].back = 1
             tmpShip = ""
             for i in [0..5]
               ship = mainFleet.ship[i]
-              if ship.hp.now < (0.2500001 * ship.hp.max) && goBack[i] == 0
+              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 1
                 tmpShip = tmpShip + ship.name + " "
               ship = escortFleet.ship[i]
-              if ship.hp.now < (0.2500001 * ship.hp.max) && goBack[i] == 0
+              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 1
                 tmpShip = tmpShip + ship.name + " "
             if tmpShip != "" and @state.enableProphetDamaged
               notify "#{tmpShip}" + __('Heavily damaged'),
@@ -537,11 +536,12 @@ module.exports =
         ,    '/kcsapi/api_req_kousyou/destroyship' # In case if any ship in the fleet is destroyed
         ,    '/kcsapi/api_req_hensei/combined' # When combined fleet is formed/disbanded
           shouldRender = true
-          goBack = Object.clone initData
-          combinedFlag = switch path
-            when '/kcsapi/api_port/port' then body.api_combined_flag
-            when '/kcsapi/api_req_hensei/combined' then parseInt(postBody.api_combined_type)
-            else @state.combinedFlag
+          if path == '/kcsapi/api_port/port'
+            combinedFlag = body.api_combined_flag
+            ship.back = 0 for ship in mainFleet.ship
+            ship.back = 0 for ship in escortFleet.ship
+          if path == '/kcsapi/api_req_hensei/combined'
+            combinedFlag = parseInt(postBody.api_combined_type)
           if combinedFlag <= 0
             getShipInfo mainFleet, 0
             getShipInfo escortFleet, -1
@@ -592,7 +592,6 @@ module.exports =
           enableProphetDamaged: enableProphetDamaged
           prophetCondShow: prophetCondShow
           combinedFlag: combinedFlag
-          goBack: goBack
           # Compass
           mapArea: mapArea
           mapCell: mapCell
@@ -633,7 +632,6 @@ module.exports =
           enemyPlane={@state.enemyPlane}
           cols={if @state.combinedFlag == 0 then 0 else 1}
           lay={if layout == 'horizontal' || window.doubleTabbed then 0 else 1}
-          goBack={@state.goBack}
           compactMode={@state.compactMode}/>
         <BottomAlert
           admiral={__ "Admiral"}

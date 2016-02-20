@@ -44,7 +44,7 @@ module.exports = React.createClass
       nameText += "★#{@props.ship.cond} " if showCond
       nameText += "- Lv.#{@props.ship.lv} " if !@props.compactMode
 
-      <td style={opacity: 1 - 0.6 * @props.isBack} className="prophet-info-content">
+      <td style={opacity: 1 - 0.6 * @props.ship.back} className="prophet-info-content">
         <div className="ship-title">
           <OverlayTrigger placement='left' overlay={
             <Tooltip id="ship-pop-#{@props.ship.id}" className="ship-pop">

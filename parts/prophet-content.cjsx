@@ -27,37 +27,31 @@ module.exports = React.createClass
                       key={++k}
                       ship={@props.enemyFleet.ship[j]}
                       condShow={0}
-                      isBack={0}
                       compactMode={@props.compactMode}
                       mvp={if @props.enemyFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
-                      ship={@props.enemyFleet.ship[j]}
-                      isBack={0}/>
+                      ship={@props.enemyFleet.ship[j]}/>
                   else if i == 1
                     list.push <ProphetInfo
                       key={++k}
                       ship={@props.escortFleet.ship[j]}
                       condShow={1}
-                      isBack={@props.goBack[j + 6]}
                       compactMode={@props.compactMode}
                       mvp={if @props.escortFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
-                      ship={@props.escortFleet.ship[j]}
-                      isBack={@props.goBack[j + 6]}/>
+                      ship={@props.escortFleet.ship[j]}/>
                   else if i == 0
                     list.push <ProphetInfo
                       key={++k}
                       ship={@props.mainFleet.ship[j]}
                       condShow={1}
-                      isBack={@props.goBack[j]}
                       compactMode={@props.compactMode}
                       mvp={if @props.mainFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
                       key={++k}
-                      ship={@props.mainFleet.ship[j]}
-                      isBack={@props.goBack[j]}/>
+                      ship={@props.mainFleet.ship[j]}/>
                 <tr key={j + 1}>
                   {list}
                 </tr>
@@ -77,13 +71,11 @@ module.exports = React.createClass
                     key={++k}
                     ship={@props.enemyFleet.ship[j]}
                     condShow={0}
-                    isBack={0}
                     compactMode={@props.compactMode}
                     mvp={if @props.enemyFleet.mvp == j then true else false}/>
                   list.push <ProphetHp
                     key={++k}
-                    ship={@props.enemyFleet.ship[j]}
-                    isBack={0}/>
+                    ship={@props.enemyFleet.ship[j]}/>
                 <tr key={j + 6}>
                   {list}
                 </tr>
