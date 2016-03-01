@@ -351,6 +351,8 @@ simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeC
       TorpedoSalvo mainFleet, enemyFleet, body.api_raigeki
   getResult mainFleet, enemyFleet, escortFleet
 
+escapeId = towId = -1
+
 module.exports =
   name: 'prophet'
   priority: 1
@@ -427,6 +429,7 @@ module.exports =
         # ship_deck in map
         when '/kcsapi/api_get_member/ship_deck'
           shouldRender = true
+          escapeId = towId = -1
           for i in [0..5]
             enemyFleet.ship[i].id = -1
             updateShip enemyFleet.ship[i]
@@ -497,16 +500,8 @@ module.exports =
           shouldRender = true
           if path != '/kcsapi/api_req_practice/battle_result'
             if body.api_escape_flag? && body.api_escape_flag > 0
-              idx = body.api_escape.api_escape_idx[0] - 1
-              if idx < 6
-                mainFleet.ship[idx].back = 1
-              else
-                escortFleet.ship[idx - 6].back = 1
-              idx = body.api_escape.api_tow_idx[0] - 1
-              if idx < 6
-                mainFleet.ship[idx].back = 1
-              else
-                escortFleet.ship[idx - 6].back = 1
+              escapeId = body.api_escape.api_escape_idx[0] - 1
+              towId = body.api_escape.api_tow_idx[0] - 1
             tmpShip = ""
             for i in [0..5]
               ship = mainFleet.ship[i]
@@ -529,6 +524,18 @@ module.exports =
           if body.api_mvp_combined?
             escortFleet.mvp = if body.api_mvp_combined >= 2 then body.api_mvp_combined - 1 else 0
           result = body.api_win_rank
+        # Some ship while go back
+        when '/kcsapi/api_req_combined_battle/goback_port'
+          shouldRender = true
+          if escapeId != -1 && towId != -1
+            if escapeId < 6
+              mainFleet.ship[escapeId].back = 1
+            else
+              escortFleet.ship[escapeId - 6].back = 1
+            if towId < 6
+              mainFleet.ship[towId].back = 1
+            else
+              escortFleet.ship[towId - 6].back = 1
         # Refresh deck status
         when '/kcsapi/api_port/port'
         ,    '/kcsapi/api_req_hensei/change', '/kcsapi/api_req_hensei/preset_select' # Refresh if hensei changes
@@ -537,6 +544,7 @@ module.exports =
         ,    '/kcsapi/api_req_hensei/combined' # When combined fleet is formed/disbanded
           shouldRender = true
           if path == '/kcsapi/api_port/port'
+            escapeId = towId = -1
             if body.api_combined_flag?
               combinedFlag = body.api_combined_flag
             else
