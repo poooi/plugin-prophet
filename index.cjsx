@@ -537,7 +537,10 @@ module.exports =
         ,    '/kcsapi/api_req_hensei/combined' # When combined fleet is formed/disbanded
           shouldRender = true
           if path == '/kcsapi/api_port/port'
-            combinedFlag = body.api_combined_flag
+            if body.api_combined_flag?
+              combinedFlag = body.api_combined_flag
+            else
+              combinedFlag = 0
             ship.back = 0 for ship in mainFleet.ship
             ship.back = 0 for ship in escortFleet.ship
           if path == '/kcsapi/api_req_hensei/combined'
