@@ -679,7 +679,7 @@ module.exports =
       angle = angle + 90
 
     render: ->
-      <div onDoubleClick={@handleDisplayModeSwitch}>
+      <div id='prophet' className="form-group prophet" onDoubleClick={@handleDisplayModeSwitch}>
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'prophet.css')} />
         <ProphetPanel
           sortieHp={@state.sortieHp}
@@ -729,7 +729,7 @@ module.exports =
       @setState
         prophetCondShow: !prophetCondShow
     render: ->
-      <div id='prophet' className="form-group prophet">
+      <div>
         <Grid>
           <Col xs={6}>
             <Button bsStyle={if @state.enableProphetDamaged then 'success' else 'danger'} onClick={@handleSetProphetDamaged} style={width: '100%'}>
