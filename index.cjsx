@@ -8,14 +8,7 @@ CSON = require 'cson'
 {_, $, $$, React, ReactBootstrap, ROOT, resolveTime, layout, toggleModal} = window
 {Table, ProgressBar, Grid, Input, Col, Alert, Button, Divider} = ReactBootstrap
 {APPDATA_PATH, SERVER_HOSTNAME} = window
-window.i18n.prophet = new(require 'i18n-2')
-  locales: ['en-US', 'ja-JP', 'zh-CN', 'zh-TW']
-  defaultLocale: 'zh-CN'
-  directory: path.join(__dirname, 'assets', 'i18n')
-  devMode: false
-  extension: '.json'
-window.i18n.prophet.setLocale(window.language)
-__ = window.i18n.prophet.__.bind(window.i18n.prophet)
+__ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
 BottomAlert = require './parts/bottom-alert'
 ProphetPanel = require './parts/prophet-panel'
@@ -377,13 +370,6 @@ escapeId = -1
 towId = -1
 
 module.exports =
-  name: 'prophet'
-  priority: 1
-  displayName: <span><FontAwesome key={0} name='compass' />{' ' + __("Prophet")}</span>
-  description: __ "Sortie Prophet"
-  version: '3.8.5'
-  author: 'Chiba'
-  link: 'https://github.com/Chibaheit'
   reactClass: React.createClass
     getInitialState: ->
       # Load map data
@@ -743,7 +729,7 @@ module.exports =
       @setState
         prophetCondShow: !prophetCondShow
     render: ->
-      <div className="form-group">
+      <div id='prophet' className="form-group prophet">
         <Grid>
           <Col xs={6}>
             <Button bsStyle={if @state.enableProphetDamaged then 'success' else 'danger'} onClick={@handleSetProphetDamaged} style={width: '100%'}>

@@ -13,10 +13,19 @@
     "type": "git",
     "url": "git+https://github.com/poooi/plugin-prophet.git"
   },
-  "author": "Chiba",
+  "author": {
+    "name": "Chiba",
+    "link": "https://github.com/Chibaheit"
+  },
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/poooi/plugin-prophet/issues"
   },
-  "homepage": "https://github.com/poooi/plugin-prophet#readme"
+  "homepage": "https://github.com/poooi/plugin-prophet#readme",
+  "poiPlugin": {
+    "title": "Prophet",
+    "description": "Sortie Prophet",
+    "icon": "fa/compass",
+    "priority": 1
+  }
 }

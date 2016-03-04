@@ -1,4 +1,4 @@
-__ = window.i18n.prophet.__.bind(window.i18n.prophet)
+__ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
 {Panel} = ReactBootstrap
 module.exports = React.createClass
@@ -10,8 +10,8 @@ module.exports = React.createClass
           if @props.getItem?
             messages.push __ "Item get", window.i18n.resources.__(@props.getItem)
           if @props.getShip?
-            messages.push __ "Join fleet", 
-                window.i18n.resources.__(@props.getShip.api_ship_type), 
+            messages.push __ "Join fleet",
+                window.i18n.resources.__(@props.getShip.api_ship_type),
                 window.i18n.resources.__(@props.getShip.api_ship_name)
           <Panel>
             {messages.join " "}
