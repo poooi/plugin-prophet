@@ -36,7 +36,7 @@ Slotitems = React.createClass
 
 module.exports = React.createClass
   render: ->
-    if @props.lv == -1
+    if @props.ship.id == -1
       <td>　</td>
     else
       nameText = "#{@props.ship.name} "
