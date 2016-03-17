@@ -358,7 +358,7 @@ module.exports =
   priority: 1
   displayName: <span><FontAwesome key={0} name='compass' />{' ' + __("Prophet")}</span>
   description: __ "Sortie Prophet"
-  version: '4.0.2'
+  version: '4.0.3'
   author: 'Chiba'
   link: 'https://github.com/Chibaheit'
   reactClass: React.createClass
