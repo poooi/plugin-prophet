@@ -505,10 +505,10 @@ module.exports =
             tmpShip = ""
             for i in [0..5]
               ship = mainFleet.ship[i]
-              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 1
+              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 0
                 tmpShip = tmpShip + ship.name + " "
               ship = escortFleet.ship[i]
-              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 1
+              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 0
                 tmpShip = tmpShip + ship.name + " "
             if tmpShip != "" and @state.enableProphetDamaged
               notify "#{tmpShip}" + __('Heavily damaged'),
