@@ -359,7 +359,7 @@ module.exports =
       # Load map data
       mapspot = null
       try
-        mapspot = CSON.parseCSONFile path.join(__dirname, 'assets', 'data', 'mapspot.cson')
+        mapspot = CSON.parseCSONFile join(__dirname, 'assets', 'data', 'mapspot.cson')
       catch
         console.log 'Failed to load map data!'
 
