@@ -347,6 +347,13 @@ simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeC
 escapeId = towId = -1
 
 module.exports =
+  name: 'prophet'
+  priority: 1
+  displayName: <span><FontAwesome key={0} name='compass' />{' ' + __("Prophet")}</span>
+  description: __ "Sortie Prophet"
+  version: '4.0.3'
+  author: 'Chiba'
+  link: 'https://github.com/Chibaheit'
   reactClass: React.createClass
     getInitialState: ->
       # Load map data
@@ -491,10 +498,10 @@ module.exports =
             tmpShip = ""
             for i in [0..5]
               ship = mainFleet.ship[i]
-              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 1
+              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 0
                 tmpShip = tmpShip + ship.name + " "
               ship = escortFleet.ship[i]
-              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 1
+              if ship.hp.now < (0.2500001 * ship.hp.max) && ship.back == 0
                 tmpShip = tmpShip + ship.name + " "
             if tmpShip != "" and @state.enableProphetDamaged
               notify "#{tmpShip}" + __('Heavily damaged'),
@@ -627,7 +634,7 @@ module.exports =
           enemyName={@state.enemyName}
           sortiePlane={@state.sortiePlane}
           enemyPlane={@state.enemyPlane}
-          cols={if @state.combinedFlag == 0 then 0 else 1}
+          cols={if @state.combinedFlag <= 0 then 0 else 1}
           lay={if layout == 'horizontal' || window.doubleTabbed then 0 else 1}
           compactMode={@state.compactMode}/>
         <BottomAlert
