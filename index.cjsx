@@ -309,6 +309,12 @@ simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeC
       SupportFire enemyFleet, body.api_support_info.api_support_hourai.api_damage
     else
       SupportFire enemyFleet, body.api_support_info.api_damage
+  else if body.api_air_base_attack?
+    if body.api_air_base_attack.length == 1
+      SupportFire enemyFleet, body.api_air_base_attack[0].api_stage3.api_edam
+    else if body.api_air_base_attack.length == 2
+      SupportFire enemyFleet, body.api_air_base_attack[0].api_stage3.api_edam
+      SupportFire enemyFleet, body.api_air_base_attack[1].api_stage3.api_edam
   # Opening battle
   if body.api_opening_atack?
     if combinedFlag > 0
