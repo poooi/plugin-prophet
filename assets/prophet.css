@@ -27,7 +27,7 @@
   width: 100%;
   display: block;
 }
-#prophet .hp-progress .progress-bar {
+#prophet .hp-progress .progress-bar span {
   position: absolute;
   width: 100%;
   left: 50%;
