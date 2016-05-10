@@ -36,7 +36,7 @@ module.exports = React.createClass
                     list.push <ProphetInfo
                       key={++k}
                       ship={@props.escortFleet.ship[j]}
-                      condShow={1}
+                      condShow={!@props.destructionBattleFlag}
                       compactMode={@props.compactMode}
                       mvp={if @props.escortFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
@@ -46,7 +46,7 @@ module.exports = React.createClass
                     list.push <ProphetInfo
                       key={++k}
                       ship={@props.mainFleet.ship[j]}
-                      condShow={1}
+                      condShow={!@props.destructionBattleFlag}
                       compactMode={@props.compactMode}
                       mvp={if @props.mainFleet.mvp == j then true else false}/>
                     list.push <ProphetHp
