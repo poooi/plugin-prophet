@@ -91,7 +91,7 @@ class Ship
     @cond = 0
     @name = "Null"
     @slot = []
-    # owener: 0 ours 1 enemy
+    # owner: 0 ours 1 enemy
     @owner = 1
     @back = 0
 
@@ -118,7 +118,7 @@ updateShip = (ship) ->
     ship.cond = 0
     ship.name = "Null"
     ship.slot = []
-  else
+  else if ship.id > 0
     _ship = window._ships[ship.id]
     ship.hp.now = _ship.api_nowhp
     ship.hp.max = _ship.api_maxhp
@@ -127,6 +127,7 @@ updateShip = (ship) ->
     ship.name = window.i18n.resources.__ _ship.api_name
     ship.slot = _ship.api_slot.concat(_ship.api_slot_ex || -1)
     ship.owner = 0
+  # else == -2: do nothing
 
 updateResult = (fleet, result) ->
   fleet.mvp = 0
@@ -274,21 +275,51 @@ getShipInfo = (mainFleet, deckId) ->
       mainFleet.ship[i].id = shipId
       updateShip mainFleet.ship[i]
 
+getAirBaseInfo = (airBaseFleet, body) ->
+  for i in [0..5]
+    airbase = body[i]
+    ship = airBaseFleet.ship[i]
+
+    if airbase?
+      ship.id = -2
+      ship.hp.max = ship.hp.now = 200
+      ship.hp.damage = ship.hp.injure = 0
+      ship.name = airbase.api_name
+      ship.slot = airbase.api_plane_info.map (p) ->
+        if p.api_slotid <= 0 then 0 else _slotitems[p.api_slotid].api_slotitem_id
+    else
+      ship.id = -1
+      updateShip ship
+
+simulateDestructionBattle = (airBaseFleet, enemyFleet, body, planeCount) ->
+  for ship, i in airBaseFleet.ship
+    ship.hp.injure = ship.hp.damage = 0
+    ship.hp.now = body.api_nowhps[i + 1]
+    ship.hp.max = body.api_maxhps[i + 1]
+    ship.lv = body.api_ship_lv[i + 1]
+  if body.api_air_base_attack?
+    attack = body.api_air_base_attack
+    simulateKoukuStage1 attack.api_stage1, planeCount if attack.api_stage1?
+    AerialCombat airBaseFleet, enemyFleet, attack.api_stage3 if attack.api_stage3?
+
+
 simulateAerial = (kouku, planeCount) ->
   if kouku.api_stage2?
     planeCount.sortie[0] -= kouku.api_stage2.api_f_lostcount
     planeCount.enemy[0] -= kouku.api_stage2.api_e_lostcount
 
+simulateKoukuStage1 = (body, planeCount) ->
+    planeCount.seiku = body.api_disp_seiku
+    planeCount.sortie[0] = body.api_f_count - body.api_f_lostcount
+    planeCount.sortie[1] = body.api_f_count
+    planeCount.enemy[0] = body.api_e_count - body.api_e_lostcount
+    planeCount.enemy[1] = body.api_e_count
+
 simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeCount) ->
   # First air battle
   if body.api_kouku?
     if body.api_kouku.api_stage1?
-      tmp = body.api_kouku.api_stage1
-      planeCount.seiku = tmp.api_disp_seiku
-      planeCount.sortie[0] = tmp.api_f_count - tmp.api_f_lostcount
-      planeCount.sortie[1] = tmp.api_f_count
-      planeCount.enemy[0] = tmp.api_e_count - tmp.api_e_lostcount
-      planeCount.enemy[1] = tmp.api_e_count
+      simulateKoukuStage1 body.api_kouku.api_stage1, planeCount
     simulateAerial body.api_kouku, planeCount
     if body.api_kouku.api_stage3?
       AerialCombat mainFleet, enemyFleet, body.api_kouku.api_stage3
@@ -370,6 +401,7 @@ module.exports =
       mainFleet: new Fleet()
       enemyFleet: new Fleet()
       escortFleet: new Fleet()
+      airBaseFleet: new Fleet()
       getShip: null
       getItem: null
       planeCount: Object.clone initPlaneCount
@@ -384,6 +416,7 @@ module.exports =
       prophetCondShow: config.get 'plugin.prophet.show.cond', true
       combinedFlag: 0
       compactMode: false
+      destructionBattleFlag: false
       # Compass
       mapArea: NaN
       mapCell: NaN
@@ -394,10 +427,11 @@ module.exports =
 
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
-      {mainFleet, enemyFleet, escortFleet, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
+      {mainFleet, enemyFleet, escortFleet, airBaseFleet, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
       {$useitems} = window
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
+      destructionBattleFlag = false
       shouldRender = false
       switch path
         # First enter map in battle
@@ -423,6 +457,9 @@ module.exports =
           nowSpot = 0
           nextSpot = body.api_no
           nextSpotKind = getCellInfo body.api_event_id, body.api_event_kind, body.api_bosscell_no, body.api_no
+        when '/kcsapi/api_get_member/base_air_corps'
+          shouldRender = false
+          getAirBaseInfo airBaseFleet, body
         # ship_deck in map
         when '/kcsapi/api_get_member/ship_deck'
           shouldRender = true
@@ -441,7 +478,13 @@ module.exports =
         # Enter next point in battle
         when '/kcsapi/api_req_map/next'
           shouldRender = true
-          # Comapss
+          # Destruction battle
+          if body.api_destruction_battle?
+            destructionBattleFlag = true
+            getEnemyInfo enemyFleet, body.api_destruction_battle, false
+            simulateDestructionBattle airBaseFleet, enemyFleet, body.api_destruction_battle, planeCount
+
+          # Compass
           nowSpot = nextSpot
           nextSpot = body.api_no
           nextSpotKind = getCellInfo body.api_event_id, body.api_event_kind, body.api_bosscell_no, body.api_no
@@ -587,6 +630,7 @@ module.exports =
           mainFleet: mainFleet
           enemyFleet: enemyFleet
           escortFleet: escortFleet
+          airBaseFleet: airBaseFleet
           getShip: getShip
           getItem: getItem
           planeCount: planeCount
@@ -600,6 +644,7 @@ module.exports =
           enableProphetDamaged: enableProphetDamaged
           prophetCondShow: prophetCondShow
           combinedFlag: combinedFlag
+          destructionBattleFlag: destructionBattleFlag
           # Compass
           mapArea: mapArea
           mapCell: mapCell
@@ -630,15 +675,16 @@ module.exports =
       <div id='prophet' className="form-group prophet" onDoubleClick={@handleDisplayModeSwitch}>
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'prophet.css')} />
         <ProphetPanel
-          mainFleet={@state.mainFleet}
+          mainFleet={if @state.destructionBattleFlag then @state.airBaseFleet else @state.mainFleet}
           enemyFleet={@state.enemyFleet}
           escortFleet={@state.escortFleet}
+          destructionBattleFlag={@state.destructionBattleFlag}
           HP={__ "HP"}
           sortieFleet={__ "Sortie Fleet"}
           enemyName={@state.enemyName}
           sortiePlane={@state.sortiePlane}
           enemyPlane={@state.enemyPlane}
-          cols={if @state.combinedFlag <= 0 then 0 else 1}
+          cols={if @state.destructionBattleFlag || @state.combinedFlag <= 0 then 0 else 1}
           lay={if layout == 'horizontal' || window.doubleTabbed then 0 else 1}
           compactMode={@state.compactMode}/>
         <BottomAlert
