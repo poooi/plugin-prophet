@@ -45,7 +45,7 @@
   flex-flow: row nowrap;
   justify-content: space-between;
 }
-#prophet .ship-name {
+#prophet .ship-title {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
