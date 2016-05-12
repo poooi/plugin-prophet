@@ -83,7 +83,7 @@
 #prophet .progress {
   width: 100%;
 }
-#prophet .red-line {
+#prophet .friend-hp .red-line {
   border-right: 1px solid red;
   position: relative;
   left: -75%;
