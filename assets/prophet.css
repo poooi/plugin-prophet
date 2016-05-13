@@ -22,7 +22,7 @@
   position: relative;
   margin-bottom: 1px;
 }
-#prophet .hp-progress .progress-bar span {
+#prophet .hp-progress .progress-bar > span {
   position: absolute;
   width: 100%;
   display: block;
