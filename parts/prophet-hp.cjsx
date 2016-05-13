@@ -26,5 +26,6 @@ module.exports = React.createClass
           <ProgressBar bsStyle={getHpStyle @props.ship.hp.now / @props.ship.hp.max * 100}
             now={@props.ship.hp.now / @props.ship.hp.max * 100}
             label={if @props.ship.hp.injure > 0 then "#{@props.ship.hp.now} / #{@props.ship.hp.max} (-#{@props.ship.hp.injure})" else "#{@props.ship.hp.now} / #{@props.ship.hp.max}"} />
+          <div className='red-line' />
         </div>
       </td>

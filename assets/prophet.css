@@ -22,7 +22,7 @@
   position: relative;
   margin-bottom: 1px;
 }
-#prophet .hp-progress .progress-bar span {
+#prophet .hp-progress .progress-bar > span {
   position: absolute;
   width: 100%;
   display: block;
@@ -76,13 +76,17 @@
   white-space: nowrap;
 }
 
-#prophet .friend-hp .progress-bar::after {
-  content: "";
-  display: block;
-  position: absolute;
-  left: 0;
-  width: 25%;
-  height: 100%;
+#prophet .friend-hp,
+#prophet .enemy-hp {
+  display: flex;
+}
+#prophet .progress {
+  width: 100%;
+}
+#prophet .friend-hp .red-line {
   border-right: 1px solid red;
+  position: relative;
+  left: -75%;
   z-index: 10;
+  height: 22px;
 }
