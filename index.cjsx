@@ -344,6 +344,12 @@ simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeC
     for airBase in body.api_air_base_attack
       if airBase.api_stage3?.api_edam?
         SupportFire enemyFleet, airBase.api_stage3.api_edam
+  # Opening taisen
+  if body.api_opening_taisen?
+    if combinedFlag > 0
+      Shelling escortFleet, enemyFleet, body.api_opening_taisen
+    else
+      Shelling mainFleet, enemyFleet, body.api_opening_taisen
   # Opening battle
   if body.api_opening_atack?
     if combinedFlag > 0
