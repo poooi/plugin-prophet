@@ -1,6 +1,6 @@
 {
   "name": "poi-plugin-prophet",
-  "version": "5.2.1",
+  "version": "5.2.2",
   "description": "A prophet plugin for Poi",
   "main": "index.cjsx",
   "dependencies": {
@@ -26,6 +26,9 @@
     "title": "Prophet",
     "description": "Sortie Prophet",
     "icon": "fa/compass",
-    "priority": 1
+    "priority": 1,
+    "apiVer": {
+      "6.99.99": "5.2.1"
+    }
   }
 }

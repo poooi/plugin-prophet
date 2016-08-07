@@ -18,6 +18,8 @@ getLineStyle = (flag) ->
 
 module.exports = React.createClass
   render: ->
+    text = if @props.ship.hp.injure > 0 then "#{@props.ship.hp.now} / #{@props.ship.hp.max} (-#{@props.ship.hp.injure})" else "#{@props.ship.hp.now} / #{@props.ship.hp.max}"
+    label = <div style={position: 'absolute', width: '100%'}>{text}</div>
     if @props.ship.id == -1
       <td>　</td>
     else
@@ -25,7 +27,7 @@ module.exports = React.createClass
         <div className={getLineStyle @props.ship.owner != 1 && (@props.ship.hp.now * 4 - @props.ship.hp.max > 0)}>
           <ProgressBar bsStyle={getHpStyle @props.ship.hp.now / @props.ship.hp.max * 100}
             now={@props.ship.hp.now / @props.ship.hp.max * 100}
-            label={if @props.ship.hp.injure > 0 then "#{@props.ship.hp.now} / #{@props.ship.hp.max} (-#{@props.ship.hp.injure})" else "#{@props.ship.hp.now} / #{@props.ship.hp.max}"} />
+            label={label} />
           <div className='red-line' />
         </div>
       </td>
