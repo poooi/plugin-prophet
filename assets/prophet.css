@@ -27,6 +27,12 @@
   width: 100%;
   display: block;
 }
+#prophet .hp-progress .progress-bar span {
+  position: absolute;
+  width: 100%;
+  left: 50%;
+  margin-left: -50%;
+}
 #prophet .table {
   margin-bottom: 3px;
 }
