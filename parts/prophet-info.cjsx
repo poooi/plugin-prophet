@@ -19,8 +19,12 @@ Slotitems = React.createClass
           item = window.$slotitems[itemId]
         else
           item = window._slotitems[itemId]
+        itemType = item?.api_type?[3]
         <div key={i} className="slotitem-container-mini">
-          <SlotitemIcon key={itemId} className='slotitem-img' slotitemId={item.api_type[3]} />
+          {
+            if itemType?
+              <SlotitemIcon key={itemId} className='slotitem-img' slotitemId={itemType} />
+          }
           <span className="slotitem-name-mini">
             {window.i18n.resources.__ item.api_name}
               {if @props.owner != 1 && item.api_level > 0 then <strong style={color: '#45A9A5'}> ★{item.api_level}</strong> else ''}
