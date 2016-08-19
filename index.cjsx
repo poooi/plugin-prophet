@@ -165,6 +165,7 @@ checkRepair = (ship) ->
 
 updateInjure = (ship, damage) ->
   damage = Math.floor(damage)
+  damage = 0 if damage < 0
   if damage > 0
     ship.hp.injure += damage
     ship.hp.now -= damage
