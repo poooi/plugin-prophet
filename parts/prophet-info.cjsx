@@ -19,6 +19,10 @@ Slotitems = React.createClass
           item = window.$slotitems[itemId]
         else
           item = window._slotitems[itemId]
+        item ?= 
+          api_type: []
+          api_name: '???'
+          api_level: 0
         itemType = item?.api_type?[3]
         kiraValue = item.api_level ? item.api_level : 0
         <div key={i} className="slotitem-container-mini">
