@@ -20,6 +20,7 @@ Slotitems = React.createClass
         else
           item = window._slotitems[itemId]
         itemType = item?.api_type?[3]
+        kiraValue = item.api_level ? item.api_level : 0
         <div key={i} className="slotitem-container-mini">
           {
             if itemType?
@@ -27,7 +28,7 @@ Slotitems = React.createClass
           }
           <span className="slotitem-name-mini">
             {window.i18n.resources.__ item.api_name}
-              {if @props.owner != 1 && item.api_level > 0 then <strong style={color: '#45A9A5'}> ★{item.api_level}</strong> else ''}
+              {if @props.owner != 1 then <strong style={color: '#45A9A5'}> ★{kiraValue}</strong> else ''}
               &nbsp;&nbsp;{
                 if item.api_alv? and 1 <= item.api_alv <= 7
                   <img className='alv-img' src={path.join(ROOT, 'assets', 'img', 'airplane', "alv#{item.api_alv}.png")} />
