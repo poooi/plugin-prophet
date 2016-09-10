@@ -267,11 +267,10 @@ Shelling = (mainFleet, enemyFleet, hougeki) ->
 
 getShipInfo = (mainFleet, deckId) ->
   {_ships} = window
-  if deckId == -1
-    for i in [0..5]
-      mainFleet.ship[i].id = -1
-      updateShip mainFleet.ship[i]
-  else
+  for i in [0..5]
+    mainFleet.ship[i].id = -1
+    updateShip mainFleet.ship[i]
+  if deckId != -1
     for shipId, i in window._decks[deckId].api_ship
       mainFleet.ship[i].id = shipId
       updateShip mainFleet.ship[i]
