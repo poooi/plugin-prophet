@@ -468,7 +468,7 @@ module.exports =
           # Compass
           mapArea = body.api_maparea_id
           mapCell = body.api_mapinfo_no
-          nowSpot = 0
+          nowSpot = body.api_from_no || 0
           nextSpot = body.api_no
           nextSpotKind = getCellInfo body.api_event_id, body.api_event_kind, body.api_bosscell_no, body.api_no
         when '/kcsapi/api_get_member/base_air_corps'
