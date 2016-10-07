@@ -10,6 +10,7 @@ CSON = require 'cson'
 {APPDATA_PATH, SERVER_HOSTNAME} = window
 __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
+{store} = require 'views/create-store'
 BottomAlert = require './parts/bottom-alert'
 ProphetPanel = require './parts/prophet-panel'
 
@@ -394,12 +395,20 @@ module.exports =
   description: __ "Sortie Prophet"
   author: 'Chiba'
   link: 'https://github.com/Chibaheit'
+  reducer: (state={}, action) ->
+    if (action.type == '@@poi-plugin-prophet/updateMapspot')
+      return mapspot: action.data
+    state
+
   reactClass: React.createClass
     getInitialState: ->
       # Load map data
       mapspot = null
       try
         mapspot = CSON.parseCSONFile join(__dirname, 'assets', 'data', 'mapspot.cson')
+        store.dispatch
+          type: '@@poi-plugin-prophet/updateMapspot'
+          data: mapspot
       catch
         console.log 'Failed to load map data!'
 
