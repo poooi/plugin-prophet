@@ -193,7 +193,7 @@ getCellInfo = (eventId, eventKind, bossCell, CellNo) ->
       return 12
   return eventId + 1
 
-getEnemyInfo = (fleet, body, isPractice) ->
+getEnemyInfo = (fleet, escort, body, isPractice) ->
   {$ships, _ships} = window
   for i in [0..5]
     shipId = body.api_ship_ke[i + 1]
@@ -210,6 +210,21 @@ getEnemyInfo = (fleet, body, isPractice) ->
       fleet.ship[i].name = shipName + $ships[shipId].api_yomi
     else
       fleet.ship[i].name = shipName
+  for i in [0..5]
+    shipId = body.api_ship_ke_combined[i + 1]
+    continue if shipId == -1
+    escort.ship[i].hp.now = body.api_maxhps_combined[i + 7]
+    escort.ship[i].hp.max = body.api_maxhps_combined[i + 7]
+    escort.ship[i].hp.injure = escort.ship[i].hp.damage = 0
+    escort.ship[i].id = shipId
+    escort.ship[i].lv = body.api_ship_lv_combined[i + 1]
+    escort.ship[i].slot = body.api_eSlot_combined[i].slice()
+    escort.ship[i].owner = 1
+    shipName = window.i18n.resources.__ $ships[shipId].api_name
+    if $ships[shipId].api_yomi != '-' && !isPractice
+      escort.ship[i].name = shipName + $ships[shipId].api_yomi
+    else
+      escort.ship[i].name = shipName
 
 getResult = (mainFleet, enemyFleet, escortFleet) ->
   mainResult = new Result()
@@ -246,25 +261,45 @@ SupportFire = (enemyFleet, support) ->
     continue if i > 6
     updateInjure enemyFleet.ship[i - 1], damage
 
-TorpedoSalvo = (mainFleet, enemyFleet, raigeki) ->
+# TODO: our combined fleet
+TorpedoSalvo = (mainFleet, enemyFleet, enemyEscort, raigeki) ->
   # 雷撃ターゲット
   for target, i in raigeki.api_frai
     continue if target <= 0
-    mainFleet.ship[i - 1].hp.damage += updateInjure(enemyFleet.ship[target - 1], raigeki.api_fydam[i])
+    if target <= 6
+      mainFleet.ship[i - 1].hp.damage += updateInjure(enemyFleet.ship[target - 1], raigeki.api_fydam[i])
+    else
+      mainFleet.ship[i - 1].hp.damage += updateInjure(enemyEscort.ship[target - 7], raigeki.api_fydam[i])
   # 雷撃ターゲット
   for target, i in raigeki.api_erai
     continue if target <= 0
-    enemyFleet.ship[i - 1].hp.damage += updateInjure(mainFleet.ship[target - 1], raigeki.api_eydam[i])
+    if i <= 6
+      enemyFleet.ship[i - 1].hp.damage += updateInjure(mainFleet.ship[target - 1], raigeki.api_eydam[i])
+    else
+      enemyEscort.ship[i - 7].hp.damage += updateInjure(mainFleet.ship[target - 1], raigeki.api_eydam[i])
 
-Shelling = (mainFleet, enemyFleet, hougeki) ->
-  for damageFrom, i in hougeki.api_at_list
-    continue if damageFrom == -1
+Shelling = (mainFleet, enemyFleet, enemyEscort, hougeki) ->
+  for at, i in hougeki.api_at_list
+    continue if at == -1
+    at -= 1                             # Attacker
+    df = hougeki.api_df_list[i][0] - 1  # Defender
+    if hougeki.api_at_eflag?
+      fromEnemy = hougeki.api_at_eflag[i] == 1
+    else
+      fromEnemy = df < 6
+      if at >= 6 then at -= 6
+      if df >= 6 then df -= 6
     for damage, j in hougeki.api_damage[i]
-      target = hougeki.api_df_list[i][0]
-      if target < 7
-        enemyFleet.ship[damageFrom - 7].hp.damage += updateInjure(mainFleet.ship[target - 1], damage)
+      if fromEnemy
+        if at < 6
+          enemyFleet.ship[at].hp.damage += updateInjure(mainFleet.ship[df], damage)
+        else
+          enemyEscort.ship[at - 6].hp.damage += updateInjure(mainFleet.ship[df], damage)
       else
-        mainFleet.ship[damageFrom - 1].hp.damage += updateInjure(enemyFleet.ship[target - 7], damage)
+        if df < 6
+          mainFleet.ship[at].hp.damage += updateInjure(enemyFleet.ship[df], damage)
+        else
+          mainFleet.ship[at].hp.damage += updateInjure(enemyEscort.ship[df - 6], damage)
 
 getShipInfo = (mainFleet, deckId) ->
   {_ships} = window
@@ -316,7 +351,7 @@ simulateKoukuStage1 = (body, planeCount) ->
     planeCount.enemy[0] = body.api_e_count - body.api_e_lostcount
     planeCount.enemy[1] = body.api_e_count
 
-simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeCount) ->
+simulateBattle = (mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort, enemyCombined, body, planeCount) ->
   # First air battle
   if body.api_kouku?
     if body.api_kouku.api_stage1?
@@ -325,15 +360,16 @@ simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeC
     if body.api_kouku.api_stage3?
       AerialCombat mainFleet, enemyFleet, body.api_kouku.api_stage3
     if body.api_kouku.api_stage3_combined?
-      AerialCombat escortFleet, enemyFleet, body.api_kouku.api_stage3_combined
+      AerialCombat escortFleet, enemyEscort, body.api_kouku.api_stage3_combined
   # Second air battle
   if body.api_kouku2?
     simulateAerial body.api_kouku2, planeCount
     if body.api_kouku2.api_stage3?
       AerialCombat mainFleet, enemyFleet, body.api_kouku2.api_stage3
     if body.api_kouku2.api_stage3_combined?
-      AerialCombat escortFleet, enemyFleet, body.api_kouku2.api_stage3_combined
+      AerialCombat escortFleet, enemyEscort, body.api_kouku2.api_stage3_combined
   # Support battle
+  # TODO: No support fleet on 6-5, so...
   if body.api_support_info?
     if body.api_support_info.api_support_airatack?
       SupportFire enemyFleet, body.api_support_info.api_support_airatack.api_stage3.api_edam
@@ -343,47 +379,55 @@ simulateBattle = (mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeC
       SupportFire enemyFleet, body.api_support_info.api_damage
   if body.api_air_base_attack?
     for airBase in body.api_air_base_attack
-      if airBase.api_stage3?.api_edam?
-        SupportFire enemyFleet, airBase.api_stage3.api_edam
+      if airBase.api_stage3?
+        AerialCombat mainFleet, enemyFleet, airBase.api_stage3
+      if airBase.api_stage3_combined?
+        AerialCombat escortFleet, enemyEscort, airBase.api_stage3_combined
   # Opening taisen
   if body.api_opening_taisen?
     if combinedFlag > 0
-      Shelling escortFleet, enemyFleet, body.api_opening_taisen
+      Shelling escortFleet, enemyFleet, enemyEscort, body.api_opening_taisen
     else
-      Shelling mainFleet, enemyFleet, body.api_opening_taisen
+      Shelling mainFleet, enemyFleet, enemyEscort, body.api_opening_taisen
   # Opening battle
   if body.api_opening_atack?
     if combinedFlag > 0
-      TorpedoSalvo escortFleet, enemyFleet, body.api_opening_atack
+      TorpedoSalvo escortFleet, enemyFleet, enemyEscort, body.api_opening_atack
     else
-      TorpedoSalvo mainFleet, enemyFleet, body.api_opening_atack
+      TorpedoSalvo mainFleet, enemyFleet, enemyEscort, body.api_opening_atack
   # Night battle
   if body.api_hougeki?
-    if combinedFlag > 0
-      Shelling escortFleet, enemyFleet, body.api_hougeki
-    else
-      Shelling mainFleet, enemyFleet, body.api_hougeki
+     if enemyCombined > 0
+      if body.api_active_deck[1] == 1
+        Shelling escortFleet, enemyFleet, null, body.api_hougeki
+      else
+        Shelling escortFleet, enemyEscort, null, body.api_hougeki
+     else
+      if combinedFlag > 0
+        Shelling escortFleet, enemyFleet, enemyEscort, body.api_hougeki
+      else
+        Shelling mainFleet, enemyFleet, enemyEscort, body.api_hougeki
   # First hougeki battle
   if body.api_hougeki1?
     if combinedFlag > 0 && combinedFlag != 2
-      Shelling escortFleet, enemyFleet, body.api_hougeki1
+      Shelling escortFleet, enemyFleet, enemyEscort, body.api_hougeki1
     else
-      Shelling mainFleet, enemyFleet, body.api_hougeki1
+      Shelling mainFleet, enemyFleet, enemyEscort, body.api_hougeki1
   # Second hougeki battle
   if body.api_hougeki2?
-    Shelling mainFleet, enemyFleet, body.api_hougeki2
+    Shelling mainFleet, enemyFleet, enemyEscort, body.api_hougeki2
   # Combined hougeki battle
   if body.api_hougeki3?
     if combinedFlag == 2
-      Shelling escortFleet, enemyFleet, body.api_hougeki3
+      Shelling escortFleet, enemyFleet, enemyEscort, body.api_hougeki3
     else
-      Shelling mainFleet, enemyFleet, body.api_hougeki3
+      Shelling mainFleet, enemyFleet, enemyEscort, body.api_hougeki3
   # Raigeki battle
   if body.api_raigeki?
     if combinedFlag > 0
-      TorpedoSalvo escortFleet, enemyFleet, body.api_raigeki
+      TorpedoSalvo escortFleet, enemyFleet, enemyEscort, body.api_raigeki
     else
-      TorpedoSalvo mainFleet, enemyFleet, body.api_raigeki
+      TorpedoSalvo mainFleet, enemyFleet, enemyEscort, body.api_raigeki
   getResult mainFleet, enemyFleet, escortFleet
 
 escapeId = towId = -1
@@ -407,9 +451,10 @@ module.exports =
       # Load map data
       mapspot = null
       mainFleet: new Fleet()
-      enemyFleet: new Fleet()
       escortFleet: new Fleet()
       airBaseFleet: new Fleet()
+      enemyFleet: new Fleet()
+      enemyEscort: new Fleet()
       getShip: null
       getItem: null
       planeCount: Object.clone initPlaneCount
@@ -423,6 +468,7 @@ module.exports =
       enableProphetDamaged: config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow: config.get 'plugin.prophet.show.cond', true
       combinedFlag: 0
+      enemyCombined: 0
       compactMode: false
       destructionBattleFlag: false
       # Compass
@@ -454,7 +500,7 @@ module.exports =
 
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
-      {mainFleet, enemyFleet, escortFleet, airBaseFleet, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
+      {mainFleet, escortFleet, enemyFleet, enemyEscort, airBaseFleet, getShip, getItem, planeCount, enemyFormation, enemyIntercept, enemyName, result, enableProphetDamaged, prophetCondShow, combinedFlag, enemyCombined, mapArea, mapCell, nowSpot, nextSpot, nextSpotKind} = @state
       {$useitems} = window
       enableProphetDamaged = config.get 'plugin.prophet.notify.damaged', true
       prophetCondShow = config.get 'plugin.prophet.show.cond', true
@@ -474,6 +520,7 @@ module.exports =
             getShipInfo escortFleet, 1
           enemyFormation = enemyIntercept = 0
           enemyName = __ 'Enemy Vessel'
+          enemyCombined = 0
           result = null
           getShip = null
           getItem = null
@@ -492,12 +539,15 @@ module.exports =
           shouldRender = true
           escapeId = towId = -1
           for i in [0..5]
-            enemyFleet.ship[i].id = -1
-            updateShip enemyFleet.ship[i]
             updateShip mainFleet.ship[i]
             updateShip escortFleet.ship[i]
+            enemyFleet.ship[i].id = -1
+            updateShip enemyFleet.ship[i]
+            enemyEscort.ship[i].id = -1
+            updateShip enemyEscort.ship[i]
           enemyFormation = enemyIntercept = 0
           enemyName = __ 'Enemy Vessel'
+          enemyCombined = 0
           result = null
           getShip = null
           getItem = null
@@ -508,28 +558,33 @@ module.exports =
           # Destruction battle
           if body.api_destruction_battle?
             destructionBattleFlag = true
-            getEnemyInfo enemyFleet, body.api_destruction_battle, false
+            getEnemyInfo enemyFleet, enemyEscort, body.api_destruction_battle, false
             simulateDestructionBattle airBaseFleet, enemyFleet, body.api_destruction_battle, planeCount
-
           # Compass
           nowSpot = nextSpot
           nextSpot = body.api_no
           nextSpotKind = getCellInfo body.api_event_id, body.api_event_kind, body.api_bosscell_no, body.api_no
         # Normal battle
-        when '/kcsapi/api_req_sortie/airbattle', '/kcsapi/api_req_battle_midnight/sp_midnight', '/kcsapi/api_req_sortie/battle', '/kcsapi/api_req_battle_midnight/battle', '/kcsapi/api_req_sortie/ld_airbattle'
+        when '/kcsapi/api_req_sortie/airbattle', '/kcsapi/api_req_battle_midnight/sp_midnight', '/kcsapi/api_req_sortie/battle', '/kcsapi/api_req_battle_midnight/battle', '/kcsapi/api_req_sortie/ld_airbattle', '/kcsapi/api_req_combined_battle/ec_battle', '/kcsapi/api_req_combined_battle/ec_midnight_battle'
           shouldRender = true
           # The damage in day battle
-          if path != '/kcsapi/api_req_battle_midnight/battle'
-            getEnemyInfo enemyFleet, body, false
+          if path not in ['/kcsapi/api_req_battle_midnight/battle', '/kcsapi/api_req_combined_battle/ec_midnight_battle']
+            getEnemyInfo enemyFleet, enemyEscort, body, false
+          if path in ['/kcsapi/api_req_combined_battle/ec_battle', '/kcsapi/api_req_combined_battle/ec_midnight_battle']
+            enemyCombined = 1
+          else
+            enemyCombined = 0
           for i in [0..5]
             saveDayInjure mainFleet.ship[i]
-            saveDayInjure enemyFleet.ship[i]
             saveDayInjure escortFleet.ship[i]
-          result = simulateBattle mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeCount
+            saveDayInjure enemyFleet.ship[i]
+            saveDayInjure enemyEscort.ship[i]
+          result = simulateBattle mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort, enemyCombined, body, planeCount
           for i in [0..5]
             loadDayInjure mainFleet.ship[i]
-            loadDayInjure enemyFleet.ship[i]
             loadDayInjure escortFleet.ship[i]
+            loadDayInjure enemyFleet.ship[i]
+            loadDayInjure enemyEscort.ship[i]
         # Practice battle
         when '/kcsapi/api_req_practice/battle', '/kcsapi/api_req_practice/midnight_battle'
           shouldRender = true
@@ -538,12 +593,12 @@ module.exports =
             enemyName = __ 'PvP'
             combinedFlag = 0
             getShipInfo mainFleet, postBody.api_deck_id - 1
-            getEnemyInfo enemyFleet, body, true
+            getEnemyInfo enemyFleet, enemyEscort, body, true
           for i in [0..5]
             saveDayInjure mainFleet.ship[i]
             saveDayInjure enemyFleet.ship[i]
             saveDayInjure escortFleet.ship[i]
-          result = simulateBattle mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeCount
+          result = simulateBattle mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort, enemyCombined, body, planeCount
           for i in [0..5]
             loadDayInjure mainFleet.ship[i]
             loadDayInjure enemyFleet.ship[i]
@@ -552,12 +607,12 @@ module.exports =
         when '/kcsapi/api_req_combined_battle/airbattle', '/kcsapi/api_req_combined_battle/sp_midnight', '/kcsapi/api_req_combined_battle/battle', '/kcsapi/api_req_combined_battle/battle_water', '/kcsapi/api_req_combined_battle/midnight_battle', '/kcsapi/api_req_combined_battle/ld_airbattle'
           shouldRender = true
           if path != '/kcsapi/api_req_combined_battle/midnight_battle'
-            getEnemyInfo enemyFleet, body, false
+            getEnemyInfo enemyFleet, enemyEscort, body, false
           for i in [0..5]
             saveDayInjure mainFleet.ship[i]
             saveDayInjure enemyFleet.ship[i]
             saveDayInjure escortFleet.ship[i]
-          result = simulateBattle mainFleet, enemyFleet, escortFleet, combinedFlag, body, planeCount
+          result = simulateBattle mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort, enemyCombined, body, planeCount
           for i in [0..5]
             loadDayInjure mainFleet.ship[i]
             loadDayInjure enemyFleet.ship[i]
@@ -653,10 +708,12 @@ module.exports =
           enemyPlane = " #{planeCount.enemy[0]}/#{planeCount.enemy[1]}"
         seiku = dispSeiku[planeCount.seiku]
       if shouldRender
+        console.log(mainFleet, escortFleet, enemyFleet, enemyEscort)
         @setState
           mainFleet: mainFleet
-          enemyFleet: enemyFleet
           escortFleet: escortFleet
+          enemyFleet: enemyFleet
+          enemyEscort: enemyEscort
           airBaseFleet: airBaseFleet
           getShip: getShip
           getItem: getItem
@@ -671,6 +728,7 @@ module.exports =
           enableProphetDamaged: enableProphetDamaged
           prophetCondShow: prophetCondShow
           combinedFlag: combinedFlag
+          enemyCombined: enemyCombined
           destructionBattleFlag: destructionBattleFlag
           # Compass
           mapArea: mapArea
@@ -703,8 +761,10 @@ module.exports =
         <link rel="stylesheet" href={join(relative(ROOT, __dirname), 'assets', 'prophet.css')} />
         <ProphetPanel
           mainFleet={if @state.destructionBattleFlag then @state.airBaseFleet else @state.mainFleet}
-          enemyFleet={@state.enemyFleet}
           escortFleet={@state.escortFleet}
+          enemyFleet={@state.enemyFleet}
+          enemyEscort={@state.enemyEscort}
+          enemyCombined={@state.enemyCombined}
           destructionBattleFlag={@state.destructionBattleFlag}
           HP={__ "HP"}
           sortieFleet={__ "Sortie Fleet"}
