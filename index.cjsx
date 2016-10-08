@@ -405,7 +405,7 @@ module.exports =
   reactClass: React.createClass
     getInitialState: ->
       # Load map data
-      mapspot = CSON.parseCSONFile join(__dirname, 'assets', 'data', 'mapspot.cson')
+      mapspot = null
       mainFleet: new Fleet()
       enemyFleet: new Fleet()
       escortFleet: new Fleet()
@@ -437,7 +437,7 @@ module.exports =
       fs.readFileAsync(join(__dirname, 'assets', 'data', 'mapspot.cson'))
         .then (data) =>
           mapspot = CSON.parseCSONString data
-          @setState {mapspot}
+          @setState {MAPSPOT: mapspot}
           store.dispatch
             type: '@@poi-plugin-prophet/updateMapspot'
             data: mapspot
