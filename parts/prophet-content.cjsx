@@ -3,84 +3,71 @@ ProphetInfo = require './prophet-info'
 ProphetHp = require './prophet-hp'
 module.exports = React.createClass
   render: ->
-    if @props.isFirst == 1 || (@props.isFirst == 0 && @props.lay == 0)
-      if @props.isFirst == 1
-        <Table>
-          <tbody>
-            {
-              for j in [0..5]
-                if @props.lay == 0
-                  if @props.cols == 0 && @props.mainFleet.ship[j].id == -1
-                    continue
-                  if @props.cols == 1 && @props.mainFleet.ship[j].id == -1 && @props.escortFleet.ship[j].id == -1
-                    continue
-                if @props.lay == 1
-                  if @props.cols == 1 && @props.mainFleet.ship[j].id == -1 && @props.enemyFleet.ship[j].id == -1
-                    continue
-                  if @props.cols == 2 && @props.mainFleet.ship[j].id == -1 && @props.enemyFleet.ship[j].id == -1 && @props.escortFleet.ship[j].id == -1
-                    continue
-                list = []
-                k = 0
-                for i in [0..(@props.cols)]
-                  if (i == @props.cols) && (@props.lay == 1)
-                    list.push <ProphetInfo
-                      key={++k}
-                      ship={@props.enemyFleet.ship[j]}
-                      condShow={0}
-                      compactMode={@props.compactMode}
-                      mvp={if @props.enemyFleet.mvp == j then true else false}/>
-                    list.push <ProphetHp
-                      key={++k}
-                      ship={@props.enemyFleet.ship[j]}/>
-                  else if i == 1
-                    list.push <ProphetInfo
-                      key={++k}
-                      ship={@props.escortFleet.ship[j]}
-                      condShow={!@props.destructionBattleFlag}
-                      compactMode={@props.compactMode}
-                      mvp={if @props.escortFleet.mvp == j then true else false}/>
-                    list.push <ProphetHp
-                      key={++k}
-                      ship={@props.escortFleet.ship[j]}/>
-                  else if i == 0
-                    list.push <ProphetInfo
-                      key={++k}
-                      ship={@props.mainFleet.ship[j]}
-                      condShow={!@props.destructionBattleFlag}
-                      compactMode={@props.compactMode}
-                      mvp={if @props.mainFleet.mvp == j then true else false}/>
-                    list.push <ProphetHp
-                      key={++k}
-                      ship={@props.mainFleet.ship[j]}/>
-                <tr key={j + 1}>
-                  {list}
-                </tr>
-            }
-          </tbody>
-        </Table>
-      else
-        <Table>
-          <tbody>
-            {
-              for j in [0..5]
-                continue if @props.enemyFleet.ship[j].id == -1
-                list = []
-                k = 0
-                for i in [0..0]
-                  list.push <ProphetInfo
-                    key={++k}
-                    ship={@props.enemyFleet.ship[j]}
-                    condShow={0}
-                    compactMode={@props.compactMode}
-                    mvp={if @props.enemyFleet.mvp == j then true else false}/>
-                  list.push <ProphetHp
-                    key={++k}
-                    ship={@props.enemyFleet.ship[j]}/>
-                <tr key={j + 6}>
-                  {list}
-                </tr>
-            }
-          </tbody>
-        </Table>
-    else
-      <div></div>
+    list = []
+    if @props.isFirst == 1
+      for idx in [0..5]
+        tmp = []
+        if @props.isHorizontal == 0
+          if @props.sortieCount == 1 && @props.mainFleet.ship[idx].id == -1
+            continue
+          if @props.sortieCount == 2 && @props.mainFleet.ship[idx].id == -1 && @props.escortFleet.ship[idx].id == -1
+            continue
+        else
+          if @props.sortieCount == 1 && @props.mainFleet.ship[idx].id == -1 && @props.enemyCount == 1 && @props.enemyFleet.ship[idx].id == -1
+            continue
+          if @props.sortieCount == 1 && @props.mainFleet.ship[idx].id == -1 && @props.enemyCount == 2 && @props.enemyFleet.ship[idx].id == -1 && @props.enemyEscort.ship[idx].id == -1
+            continue
+          if @props.sortieCount == 2 && @props.mainFleet.ship[idx].id == -1 && @props.escortFleet.ship[idx].id == -1 && @props.enemyCount == 1 && @props.enemyFleet.ship[idx].id == -1
+            continue
+          if @props.sortieCount == 2 && @props.mainFleet.ship[idx].id == -1 && @props.escortFleet.ship[idx].id == -1 && @props.enemyCount == 2 && @props.enemyFleet.ship[idx].id == -1 && @props.enemyEscort.ship[idx].id == -1
+            continue
+        tmp.push <ProphetInfo
+          ship={@props.mainFleet.ship[idx]}
+          condShow={!@props.destructionBattleFlag}
+          compactMode={@props.compactMode}
+          mvp={if @props.mainFleet.mvp == idx then true else false}/>
+        tmp.push <ProphetHp ship={@props.mainFleet.ship[idx]}/>
+        if @props.sortieCount == 2
+          tmp.push <ProphetInfo
+            ship={@props.escortFleet.ship[idx]}
+            condShow={!@props.destructionBattleFlag}
+            compactMode={@props.compactMode}
+            mvp={if @props.escortFleet.mvp == idx then true else false}/>
+          tmp.push <ProphetHp ship={@props.escortFleet.ship[idx]}/>
+        if @props.isHorizontal == 1
+          if @props.enemyCount == 2
+            tmp.push <ProphetInfo
+              ship={@props.enemyEscort.ship[idx]}
+              condShow={0}
+              compactMode={@props.compactMode}
+              mvp={false}/>
+            tmp.push <ProphetHp ship={@props.enemyEscort.ship[idx]}/>
+          tmp.push <ProphetInfo
+            ship={@props.enemyFleet.ship[idx]}
+            condShow={0}
+            compactMode={@props.compactMode}
+            mvp={if @props.enemyFleet.mvp == idx then true else false}/>
+          tmp.push <ProphetHp ship={@props.enemyFleet.ship[idx]}/>
+        list.push <div className="prophet-content-row">{tmp}</div>
+    else if @props.enemyFleet.ship[0].id != -1 && @props.isHorizontal == 0
+      for idx in [0..5]
+        tmp = []
+        if @props.enemyCount == 1 && @props.enemyFleet.ship[idx].id == -1
+          continue
+        if @props.enemyCount == 2 && @props.enemyFleet.ship[idx].id == -1 && @props.enemyEscort.ship[idx].id == -1
+          continue
+        if @props.enemyCount == 2
+          tmp.push <ProphetInfo
+            ship={@props.enemyEscort.ship[idx]}
+            condShow={0}
+            compactMode={@props.compactMode}
+            mvp={false}/>
+          tmp.push <ProphetHp ship={@props.enemyEscort.ship[idx]}/>
+        tmp.push <ProphetInfo
+          ship={@props.enemyFleet.ship[idx]}
+          condShow={0}
+          compactMode={@props.compactMode}
+          mvp={if @props.enemyFleet.mvp == idx then true else false}/>
+        tmp.push <ProphetHp ship={@props.enemyFleet.ship[idx]}/>
+        list.push <div className="prophet-content-row">{tmp}</div>
+    <div className="prophet-content">{list}</div>

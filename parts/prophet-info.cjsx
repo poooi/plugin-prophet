@@ -19,7 +19,7 @@ Slotitems = React.createClass
           item = window.$slotitems[itemId]
         else
           item = window._slotitems[itemId]
-        item ?= 
+        item ?=
           api_type: []
           api_name: '???'
           api_level: 0
@@ -46,14 +46,14 @@ Slotitems = React.createClass
 module.exports = React.createClass
   render: ->
     if @props.ship.id == -1
-      <td>　</td>
+      <div className="prophet-info-content">　</div>
     else
       nameText = "#{@props.ship.name} "
       showCond = @props.condShow
       nameText += "★#{@props.ship.cond} " if showCond
       nameText += "- Lv.#{@props.ship.lv} " if !@props.compactMode
 
-      <td style={opacity: 1 - 0.6 * @props.ship.back} className="prophet-info-content">
+      <div style={opacity: 1 - 0.6 * @props.ship.back} className="prophet-info-content">
         <div className="ship-title">
           <OverlayTrigger placement='left' overlay={
             <Tooltip id="ship-pop-#{@props.ship.id}" className="ship-pop">
@@ -77,4 +77,4 @@ module.exports = React.createClass
               <span>{@props.ship.hp.damage}</span>
           }
         </div>
-      </td>
+      </div>

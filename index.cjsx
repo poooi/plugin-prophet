@@ -210,21 +210,22 @@ getEnemyInfo = (fleet, escort, body, isPractice) ->
       fleet.ship[i].name = shipName + $ships[shipId].api_yomi
     else
       fleet.ship[i].name = shipName
-  for i in [0..5]
-    shipId = body.api_ship_ke_combined[i + 1]
-    continue if shipId == -1
-    escort.ship[i].hp.now = body.api_maxhps_combined[i + 7]
-    escort.ship[i].hp.max = body.api_maxhps_combined[i + 7]
-    escort.ship[i].hp.injure = escort.ship[i].hp.damage = 0
-    escort.ship[i].id = shipId
-    escort.ship[i].lv = body.api_ship_lv_combined[i + 1]
-    escort.ship[i].slot = body.api_eSlot_combined[i].slice()
-    escort.ship[i].owner = 1
-    shipName = window.i18n.resources.__ $ships[shipId].api_name
-    if $ships[shipId].api_yomi != '-' && !isPractice
-      escort.ship[i].name = shipName + $ships[shipId].api_yomi
-    else
-      escort.ship[i].name = shipName
+  if body.api_ship_ke_combined
+    for i in [0..5]
+      shipId = body.api_ship_ke_combined[i + 1]
+      continue if shipId == -1
+      escort.ship[i].hp.now = body.api_maxhps_combined[i + 7]
+      escort.ship[i].hp.max = body.api_maxhps_combined[i + 7]
+      escort.ship[i].hp.injure = escort.ship[i].hp.damage = 0
+      escort.ship[i].id = shipId
+      escort.ship[i].lv = body.api_ship_lv_combined[i + 1]
+      escort.ship[i].slot = body.api_eSlot_combined[i].slice()
+      escort.ship[i].owner = 1
+      shipName = window.i18n.resources.__ $ships[shipId].api_name
+      if $ships[shipId].api_yomi != '-' && !isPractice
+        escort.ship[i].name = shipName + $ships[shipId].api_yomi
+      else
+        escort.ship[i].name = shipName
 
 getResult = (mainFleet, enemyFleet, escortFleet) ->
   mainResult = new Result()
@@ -233,6 +234,7 @@ getResult = (mainFleet, enemyFleet, escortFleet) ->
   updateResult mainFleet, mainResult
   updateResult escortFleet, mainResult
   updateResult enemyFleet, enemyResult
+  updateResult enemyEscort, enemyEscort
   enemyResult.rate = Math.floor(mainResult.injure / mainResult.totalHp * 100)
   mainResult.rate = Math.floor(enemyResult.injure / enemyResult.totalHp * 100)
   equalOrMore = mainResult.rate > 0.9 * enemyResult.rate
@@ -487,7 +489,7 @@ module.exports =
           store.dispatch
             type: '@@poi-plugin-prophet/updateMapspot'
             data: mapspot
-        .catch (e) => 
+        .catch (e) =>
           console.log 'Failed to load map data!', e.stack
       fs.readFileAsync(join(__dirname, 'assets', 'data', 'maproute.cson'))
         .then (data) =>
@@ -495,7 +497,7 @@ module.exports =
           store.dispatch
             type: '@@poi-plugin-prophet/updateMaproute'
             data: maproute
-        .catch (e) => 
+        .catch (e) =>
           console.log 'Failed to load map route!', e.stack
 
     handleResponse: (e) ->
@@ -683,7 +685,9 @@ module.exports =
             getShipInfo escortFleet, 1
           for i in [0..5]
             enemyFleet.ship[i].id = -1
+            enemyEscort.ship[i].id = -1
             updateShip enemyFleet.ship[i]
+            updateShip enemyEscort.ship[i]
           enemyFormation = enemyIntercept = 0
           enemyName = __ 'Enemy Vessel'
           result = null
@@ -771,8 +775,9 @@ module.exports =
           enemyName={@state.enemyName}
           sortiePlane={@state.sortiePlane}
           enemyPlane={@state.enemyPlane}
-          cols={if @state.destructionBattleFlag || @state.combinedFlag <= 0 then 0 else 1}
-          lay={if layout == 'horizontal' || window.doubleTabbed then 0 else 1}
+          sortieCount={if @state.destructionBattleFlag || @state.combinedFlag <= 0 then 1 else 2}
+          isHorizontal={if layout == 'horizontal' || window.doubleTabbed then 0 else 1}
+          enemyCount={if @state.enemyCombined <= 0 then 1 else 2}
           compactMode={@state.compactMode}/>
         <BottomAlert
           admiral={__ "Admiral"}
