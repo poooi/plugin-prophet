@@ -5,7 +5,7 @@
 # A route represents a line connecting 2 spots
 # These data are based on map images
 # Access by:
-#   mapspot[:MapArea:][:MapCell:][:RouteNo:] = [:Spot1:, :Spot2:]
+#   mapspot[:MapArea:][:MapCell:] = [[:Spot1:, :Spot2:]...]
 
 1: # MAP 1-x
   1:[
