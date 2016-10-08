@@ -3,8 +3,8 @@ async = Promise.coroutine
 request = Promise.promisifyAll require('request')
 {relative, join} = require 'path-extra'
 path = require 'path-extra'
-fs = require 'fs-extra'
-CSON = require 'cson'
+fs = Promise.promisifyAll require 'fs-extra'
+CSON = Promise.promisifyAll require 'cson'
 {_, $, $$, React, ReactBootstrap, ROOT, resolveTime, layout, toggleModal} = window
 {Table, ProgressBar, Grid, Input, Col, Alert, Button, Divider} = ReactBootstrap
 {APPDATA_PATH, SERVER_HOSTNAME} = window
@@ -417,21 +417,15 @@ module.exports =
   link: 'https://github.com/Chibaheit'
   reducer: (state={}, action) ->
     if (action.type == '@@poi-plugin-prophet/updateMapspot')
-      return mapspot: action.data
+      return Object.assign(state, mapspot: action.data)
+    if (action.type == '@@poi-plugin-prophet/updateMaproute')
+      return Object.assign(state, maproute: action.data)
     state
 
   reactClass: React.createClass
     getInitialState: ->
       # Load map data
       mapspot = null
-      try
-        mapspot = CSON.parseCSONFile join(__dirname, 'assets', 'data', 'mapspot.cson')
-        store.dispatch
-          type: '@@poi-plugin-prophet/updateMapspot'
-          data: mapspot
-      catch
-        console.log 'Failed to load map data!'
-
       mainFleet: new Fleet()
       escortFleet: new Fleet()
       airBaseFleet: new Fleet()
@@ -460,6 +454,25 @@ module.exports =
       nextSpot: NaN
       nextSpotKind: NaN
       MAPSPOT: mapspot
+
+    componentWillMount: ->
+      fs.readFileAsync(join(__dirname, 'assets', 'data', 'mapspot.cson'))
+        .then (data) =>
+          mapspot = CSON.parseCSONString data
+          @setState {mapspot}
+          store.dispatch
+            type: '@@poi-plugin-prophet/updateMapspot'
+            data: mapspot
+        .catch (e) => 
+          console.log 'Failed to load map data!', e.stack
+      fs.readFileAsync(join(__dirname, 'assets', 'data', 'maproute.cson'))
+        .then (data) =>
+          maproute = CSON.parseCSONString data
+          store.dispatch
+            type: '@@poi-plugin-prophet/updateMaproute'
+            data: maproute
+        .catch (e) => 
+          console.log 'Failed to load map route!', e.stack
 
     handleResponse: (e) ->
       {method, path, body, postBody} = e.detail
