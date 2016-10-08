@@ -405,7 +405,7 @@ module.exports =
   reactClass: React.createClass
     getInitialState: ->
       # Load map data
-      mapspot = null
+      mapspot = CSON.parseCSONFile join(__dirname, 'assets', 'data', 'mapspot.cson')
       mainFleet: new Fleet()
       enemyFleet: new Fleet()
       escortFleet: new Fleet()
@@ -441,7 +441,7 @@ module.exports =
           store.dispatch
             type: '@@poi-plugin-prophet/updateMapspot'
             data: mapspot
-        .catch (e) => 
+        .catch (e) =>
           console.log 'Failed to load map data!', e.stack
       fs.readFileAsync(join(__dirname, 'assets', 'data', 'maproute.cson'))
         .then (data) =>
@@ -449,7 +449,7 @@ module.exports =
           store.dispatch
             type: '@@poi-plugin-prophet/updateMaproute'
             data: maproute
-        .catch (e) => 
+        .catch (e) =>
           console.log 'Failed to load map route!', e.stack
 
     handleResponse: (e) ->
