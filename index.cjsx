@@ -33,18 +33,18 @@ spotInfo = [
   __('Aerial Recon')
 ]
 
-formation = [
-  __("Unknown Formation"),
-  __("Line Ahead"),
-  __("Double Line"),
-  __("Diamond"),
-  __("Echelon"),
-  __("Line Abreast"),
-  __("Cruising Formation 1"),
-  __("Cruising Formation 2"),
-  __("Cruising Formation 3"),
-  __("Cruising Formation 4")
-]
+formation = {
+  0: __("Unknown Formation"),
+  1: __("Line Ahead"),
+  2: __("Double Line"),
+  3: __("Diamond"),
+  4: __("Echelon"),
+  5: __("Line Abreast"),
+  11: __("Cruising Formation 1"),
+  12: __("Cruising Formation 2"),
+  13: __("Cruising Formation 3"),
+  14: __("Cruising Formation 4"),
+}
 
 intercept = [
   __("Unknown Engagement"),
