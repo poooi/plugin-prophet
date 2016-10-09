@@ -1,6 +1,6 @@
 {
   "name": "poi-plugin-prophet",
-  "version": "5.3.3",
+  "version": "5.3.5",
   "description": "A prophet plugin for Poi",
   "main": "index.cjsx",
   "dependencies": {

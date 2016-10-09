@@ -485,7 +485,7 @@ module.exports =
       fs.readFileAsync(join(__dirname, 'assets', 'data', 'mapspot.cson'))
         .then (data) =>
           mapspot = CSON.parseCSONString data
-          @setState {mapspot}
+          @setState {MAPSPOT: mapspot}
           store.dispatch
             type: '@@poi-plugin-prophet/updateMapspot'
             data: mapspot
