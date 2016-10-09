@@ -11,6 +11,9 @@
   border-radius: 0px;
   background-color: inherit;
 }
+#prophet .hp-progress {
+  flex: 1;
+}
 #prophet .hp-progress .progress {
   height: 22px;
 }
@@ -33,11 +36,28 @@
 #prophet .panel {
   margin: 0;
 }
-#prophet .panel-body {
-  padding: 6px;
+#prophet .navigator-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  padding: 8px;
+}
+#prophet .navigator-item {
+  flex: 1;
+}
+#prophet .prophet-content-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2px;
+  margin: 3px;
+  margin-left: 16px;
+  margin-right: 16px;
 }
 #prophet .prophet-info-content {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -49,9 +69,13 @@
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
+  float: left;
+}
+#prophet .ship-title {
+  flex: 5;
 }
 #prophet .attack-damage {
-  flex: none;
+  flex: 1;
 }
 #prophet .prophet-info-name {
   text-shadow: none;
@@ -89,4 +113,10 @@
   left: -75%;
   z-index: 10;
   height: 22px;
+}
+#prophet .bottom-alert {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
