@@ -401,9 +401,9 @@ simulateBattle = (mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort,
   if body.api_hougeki?
      if enemyCombined > 0
       if body.api_active_deck[1] == 1
-        Shelling escortFleet, enemyFleet, null, body.api_hougeki
+        Shelling mainFleet, enemyFleet, null, body.api_hougeki
       else
-        Shelling escortFleet, enemyEscort, null, body.api_hougeki
+        Shelling mainFleet, enemyEscort, null, body.api_hougeki
      else
       if combinedFlag > 0
         Shelling escortFleet, enemyFleet, enemyEscort, body.api_hougeki
