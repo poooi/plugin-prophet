@@ -227,14 +227,14 @@ getEnemyInfo = (fleet, escort, body, isPractice) ->
       else
         escort.ship[i].name = shipName
 
-getResult = (mainFleet, enemyFleet, escortFleet) ->
+getResult = (mainFleet, enemyFleet, escortFleet, enemyEscort) ->
   mainResult = new Result()
   enemyResult = new Result()
   mainFleet.mvp = enemyFleet.mvp = escortFleet.mvp = 0
   updateResult mainFleet, mainResult
   updateResult escortFleet, mainResult
   updateResult enemyFleet, enemyResult
-  updateResult enemyEscort, enemyEscort
+  updateResult enemyEscort, enemyResult
   enemyResult.rate = Math.floor(mainResult.injure / mainResult.totalHp * 100)
   mainResult.rate = Math.floor(enemyResult.injure / enemyResult.totalHp * 100)
   equalOrMore = mainResult.rate > 0.9 * enemyResult.rate
@@ -430,7 +430,7 @@ simulateBattle = (mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort,
       TorpedoSalvo escortFleet, enemyFleet, enemyEscort, body.api_raigeki
     else
       TorpedoSalvo mainFleet, enemyFleet, enemyEscort, body.api_raigeki
-  getResult mainFleet, enemyFleet, escortFleet
+  getResult mainFleet, enemyFleet, escortFleet, enemyEscort
 
 escapeId = towId = -1
 
@@ -600,11 +600,13 @@ module.exports =
             saveDayInjure mainFleet.ship[i]
             saveDayInjure enemyFleet.ship[i]
             saveDayInjure escortFleet.ship[i]
+            saveDayInjure enemyEscort.ship[i]
           result = simulateBattle mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort, enemyCombined, body, planeCount
           for i in [0..5]
             loadDayInjure mainFleet.ship[i]
             loadDayInjure enemyFleet.ship[i]
             loadDayInjure escortFleet.ship[i]
+            loadDayInjure enemyEscort.ship[i]
         # Combined battle
         when '/kcsapi/api_req_combined_battle/airbattle', '/kcsapi/api_req_combined_battle/sp_midnight', '/kcsapi/api_req_combined_battle/battle', '/kcsapi/api_req_combined_battle/battle_water', '/kcsapi/api_req_combined_battle/midnight_battle', '/kcsapi/api_req_combined_battle/ld_airbattle'
           shouldRender = true
@@ -614,11 +616,13 @@ module.exports =
             saveDayInjure mainFleet.ship[i]
             saveDayInjure enemyFleet.ship[i]
             saveDayInjure escortFleet.ship[i]
+            saveDayInjure enemyEscort.ship[i]
           result = simulateBattle mainFleet, escortFleet, combinedFlag, enemyFleet, enemyEscort, enemyCombined, body, planeCount
           for i in [0..5]
             loadDayInjure mainFleet.ship[i]
             loadDayInjure enemyFleet.ship[i]
             loadDayInjure escortFleet.ship[i]
+            loadDayInjure enemyEscort.ship[i]
         # Battle Result
         when '/kcsapi/api_req_practice/battle_result', '/kcsapi/api_req_sortie/battleresult', '/kcsapi/api_req_combined_battle/battleresult'
           shouldRender = true
