@@ -716,7 +716,6 @@ module.exports =
           enemyPlane = " #{planeCount.enemy[0]}/#{planeCount.enemy[1]}"
         seiku = dispSeiku[planeCount.seiku]
       if shouldRender
-        console.log(mainFleet, escortFleet, enemyFleet, enemyEscort)
         @setState
           mainFleet: mainFleet
           escortFleet: escortFleet
