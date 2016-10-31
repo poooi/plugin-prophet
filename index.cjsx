@@ -816,12 +816,12 @@ module.exports =
         <Grid>
           <Col xs={6}>
             <Button bsStyle={if @state.enableProphetDamaged then 'success' else 'danger'} onClick={@handleSetProphetDamaged} style={width: '100%'}>
-              {if @state.enableProphetDamaged then '√ ' else ''}开启大破通知
+              {if @state.enableProphetDamaged then '√ ' else ''}{__ 'Heavily damaged notification'}
             </Button>
           </Col>
           <Col xs={6}>
             <Button bsStyle={if @state.prophetCondShow then 'success' else 'danger'} onClick={@handleSetProphetCond} style={width: '100%'}>
-              {if @state.prophetCondShow then '√ ' else ''}开启Cond显示
+              {if @state.prophetCondShow then '√ ' else ''}{__ 'Condition display'}
             </Button>
           </Col>
         </Grid>
