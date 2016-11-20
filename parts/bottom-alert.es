@@ -29,9 +29,9 @@ class DropAlert extends Component {
 
     if (getItem) messages.push(__("Item get"), window.i18n.resources.__(getItem))
     if (api_ship_name) messages.push(
-      __("Join fleet"),
+      __("Join fleet",
       window.i18n.resources.__(api_ship_type),
-      window.i18n.resources.__(api_ship_name)
+      window.i18n.resources.__(api_ship_name))
     )
     return <span>{messages.join(" ")}</span>
   }
@@ -61,16 +61,16 @@ class BattleAlert extends Component {
 
 class NextSpotAlert extends Component {
   static propTypes = {
-    nextSpot: PropTypes.number.isRequired,
-    nextSpotInfo: PropTypes.number.isRequired,
-    compassPoint: PropTypes.number.isRequired,
+    nextSpot: PropTypes.string.isRequired,
+    nextSpotInfo: PropTypes.string.isRequired,
+    compassPoint: PropTypes.string.isRequired,
     compassAngle: PropTypes.number.isRequired,
   }
 
   static defaultProps = {
-    nextSpot: NaN,
+    nextSpot: '',
     nextSpotInfo: '',
-    compassPoint: NaN,
+    compassPoint: '',
     compassAngle: NaN,
   }
 
@@ -83,7 +83,7 @@ class NextSpotAlert extends Component {
           {Number.isNaN(compassAngle) ? 
             '?' : 
             <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
-                             style={`transform: "rotate(${compassAngle - 45}deg)"`} />
+                             style={{transform: `rotate(${compassAngle - 45}deg)"`}} />
           }
         </span>
         {` | ${nextSpot}: ${nextSpotInfo}`}
@@ -92,11 +92,11 @@ class NextSpotAlert extends Component {
   }
 }
 
-// BottomAlert will be splited to 3 Alerts
-export class BottomAlert extends Component{
+// BottomAlert might be splited to 3 Alerts
+export default class BottomAlert extends Component{
   render() {
     console.log('ES6-BottomAlert')
-    let alert
+    let alert = ''
     switch(true){
     case(this.props.getShip != null || this.props.getItem):
       alert = <DropAlert getShip={this.props.getShip} getItem={this.props.getItem} />
@@ -109,7 +109,7 @@ export class BottomAlert extends Component{
                 seiku = {this.props.seiku}
               />
       break
-    case(this.props.nextSpotInfo):
+    case(!!this.props.nextSpotInfo):
       alert = <NextSpotAlert
                 nextSpot = {this.props.nextSpot} 
                 nextSpotInfo = {this.props.nextSpotInfo} 
@@ -121,7 +121,7 @@ export class BottomAlert extends Component{
     
     return(
       <div className="bottom-alert">
-        { alert || '' }
+        { alert }
       </div>
       )
   }
