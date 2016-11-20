@@ -66,12 +66,6 @@ dispSeiku = [
   __("Air Denial")
 ]
 
-initHp =
-  now: [0, 0, 0, 0, 0, 0]
-  max: [0, 0, 0, 0, 0, 0]
-  dmg: [0, 0, 0, 0, 0, 0]
-  atk: [0, 0, 0, 0, 0, 0]
-
 initPlaneCount =
   seiku: -1
   sortie: [0, 0]
@@ -84,9 +78,9 @@ class Ship
     @hp =
       now: 0
       max: 0
-      injure: 0
-      damage: 0
-      dayInjure: 0
+      injure: 0 # the injure value
+      damage: 0  # the damage value that it makes
+      dayInjure: 0 # the daytime injure value has been got
     @id = -1
     @lv = -1
     @cond = 0
@@ -94,7 +88,7 @@ class Ship
     @slot = []
     # owner: 0 ours 1 enemy
     @owner = 1
-    @back = 0
+    @back = 0 # 1: be taken to port
 
 
 class Fleet
