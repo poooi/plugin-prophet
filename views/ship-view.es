@@ -1,14 +1,17 @@
-import {getShipName, getItemName} from './utils'
 import FontAwesome from 'react-fontawesome'
 import {join} from 'path'
 import React, {Component} from 'react'
-const { ROOT, $ships, $slotitems} = window
 import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
-import {SlotitemIcon} from 'views/components/etc/icon'
-import {FABar, HPBar} from './bar'
 import componentQueries from 'react-component-queries'
 
+
+import {SlotitemIcon} from 'views/components/etc/icon'
+import {getCondStyle} from 'views/utils/game-utils'
+const { ROOT, $ships, $slotitems} = window
+
 import ItemView from './item-view'
+import {getShipName, getItemName} from './utils'
+import {FABar, HPBar} from './bar'
 
 
 const { i18n } = window
@@ -19,19 +22,7 @@ const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-t
 const ShipView = componentQueries(
   ({width}) => ({compact: width <250})
 )(class ShipView extends React.Component {
-  getCondClass(cond) {
-    if (cond == null) {
-      return ''
-    } else if (cond >= 50) {
-      return 'poi-ship-cond-50'
-    } else if (cond >= 30) {
-      return 'poi-ship-cond-30'
-    } else if (cond >= 20) {
-      return 'poi-ship-cond-20'
-    } else {
-      return 'poi-ship-cond-0'
-    }
-  }
+
 
   render() {
     let {child: ship} = this.props
@@ -54,8 +45,7 @@ const ShipView = componentQueries(
         <div className='ship-info'>
           <span>Lv.</span>
           <span>{data.api_lv || '-'}</span>
-          <span>Cond.</span>
-          <span className={this.getCondClass(data.api_cond)}>{data.api_cond || '-'}</span>
+
           <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
           <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
 
@@ -78,8 +68,11 @@ const ShipView = componentQueries(
           trigger="click"
           >
             <span>
-              <span>{getShipName(data)}</span>
-              <span className="position-indicator">{ship.owner=='Ours'? '': `(${ship.id})`}</span>
+              <span className={data.api_cond && getCondStyle(data.api_cond)}>
+              {getShipName(data)}
+              {data.api_cond ? <span className="cond-indicator"><FontAwesome name="star"/> {data.api_cond}</span>  : ''}
+              </span>
+              <span className={"position-indicator"}>{ship.owner=='Ours'? '': `(${ship.id})`}</span>
             </span>
           </OverlayTrigger>
           </Col>
