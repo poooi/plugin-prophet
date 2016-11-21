@@ -14,7 +14,7 @@ import LBACView from './lbac-view'
 const { i18n } = window
 const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
 
-export default class OverviewArea extends React.Component {
+export default class BattleViewArea extends React.Component {
   constructor() {
     super()
 
@@ -33,10 +33,10 @@ export default class OverviewArea extends React.Component {
         {
           simulator ? (
             <Grid>
-              <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={fleetCount}/>
-              <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={fleetCount}/>
-              <FleetView fleet={simulator.enemyFleet} title={__('Enemy Fleet')} count={enemyCount}/>
-              <FleetView fleet={simulator.enemyEscort} title={__('Enemy Escort Fleet')} count={enemyCount}/>
+              <Row>
+                <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={fleetCount}/>
+                <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={fleetCount}/>
+              </Row>
             </Grid>
           ) : __("No battle")
         }
@@ -44,5 +44,3 @@ export default class OverviewArea extends React.Component {
     )
   }
 }
-
-

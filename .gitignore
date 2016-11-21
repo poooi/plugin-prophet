@@ -1,3 +1,4 @@
 node_modules/
 assets/enemyinfo.json
 npm-debug.log
+test/*.json
