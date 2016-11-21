@@ -9,12 +9,21 @@
   text-align: center;
   position: absolute;
   width: 100%;
+  z-index: 2;
 }
 #plugin-prophet .hp-text .black {
   font-color: #000;
 }
 #plugin-prophet .hp-text .white {
   font-color: #fff;
+}
+#plugin-prophet .hp-bar.progress,
+#plugin-prophet .hp-bar.progess-bar:before {
+  background-color: transparent !important;
+  height: 1.5em;
+}
+#plugin-prophet .cond-indicator {
+  margin-left: 0.5em;
 }
 .prophet-icon img.svg,
 .prophet-icon img.png {

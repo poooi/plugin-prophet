@@ -9,10 +9,19 @@
     text-align: center
     position: absolute
     width: 100%
+    z-index: 2
     .black
       font-color: black
     .white
       font-color: white
+
+  .hp-bar.progress,
+  .hp-bar.progess-bar:before
+    background-color: transparent !important
+    height: 1.5em
+
+  .cond-indicator
+    margin-left: 0.5em
 
 // make it glocal because of tooltip
 .prophet-icon
