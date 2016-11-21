@@ -42,6 +42,8 @@ export class HPBar extends React.Component {
     let now = 100 * to / max
     let lost = 100 * (from - to) / max
     let additions = []
+    let textColor = (now+lost) <= 45 ? 'black' : 'white'
+
     if (damage !== 0) {
       additions.push(`${-damage}`)
     }
@@ -63,10 +65,14 @@ export class HPBar extends React.Component {
     }
 
     return (
+      <div>
+      <div className={`hp-text ${textColor}`}>{labels}</div>
       <ProgressBar className="hp-bar">
-        <ProgressBar className="hp-bar" bsStyle={this.getHpStyle(now)} now={now} label={<span>{labels}</span>} />
+        <ProgressBar className="hp-bar" bsStyle={this.getHpStyle(now)} now={now}/>
         <ProgressBar className="hp-bar lost" now={lost} />
       </ProgressBar>
+      
+      </div>
     )
   }
 }

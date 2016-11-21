@@ -6,6 +6,7 @@ const { ROOT, $ships, $slotitems} = window
 import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {SlotitemIcon} from 'views/components/etc/icon'
 import {FABar, HPBar} from './bar'
+import componentQueries from 'react-component-queries'
 
 import ItemView from './item-view'
 
@@ -13,7 +14,11 @@ import ItemView from './item-view'
 const { i18n } = window
 const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
 
-export default class ShipView extends React.Component {
+// maybe can use compose for co-exist with redux connect
+
+const ShipView = componentQueries(
+  ({width}) => ({compact: width <250})
+)(class ShipView extends React.Component {
   getCondClass(cond) {
     if (cond == null) {
       return ''
@@ -64,9 +69,9 @@ export default class ShipView extends React.Component {
       </Tooltip>
 
     return (
-      <Row className="ship-view">
+      <Row className={"ship-view "+ (this.props.compact? "compact" : '')}>
 
-          <Col xs={5} className='ship-name'>
+          <Col xs={this.props.compact? 12 : 5} className='ship-name'>
           <OverlayTrigger
           placement="top"
           overlay={tooltip}
@@ -79,11 +84,13 @@ export default class ShipView extends React.Component {
           </OverlayTrigger>
           </Col>
 
-          <Col className='ship-hp'>
+          <Col xs={this.props.compact? 12 : 7} className='ship-hp'>
             <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} item={ship.useItem} />
-
         </Col>
+
       </Row>
     )
   }
-}
+})
+
+export default ShipView

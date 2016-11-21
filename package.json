@@ -3,7 +3,10 @@
   "version": "5.4.0",
   "description": "A prophet plugin for Poi",
   "main": "index.es",
-  "dependencies": {},
+  "dependencies": {
+    "react-component-queries": "^2.1.1",
+    "react-sizeme": "^2.2.0"
+  },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
     "babel-plugin-add-module-exports": "^0.2.1",
