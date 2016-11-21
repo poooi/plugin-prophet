@@ -1,18 +1,8 @@
 {
-  "name": "poi-plugin-prophet",
+  "name": "poi-plugin-prophet-testing",
   "version": "5.4.0",
   "description": "A prophet plugin for Poi",
-  "main": "index.cjsx",
-  "dependencies": {
-  },
-  "devDependencies": {},
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/poooi/plugin-prophet.git"
-  },
+  "main": "index.es",
   "dependencies": {},
   "devDependencies": {
     "babel-eslint": "^6.0.4",
@@ -22,7 +12,15 @@
     "babel-preset-stage-0": "^6.5.0",
     "eslint": "^2.12.0",
     "eslint-plugin-import": "^1.8.1",
-    "eslint-plugin-react": "^5.1.1"
+    "eslint-plugin-react": "^5.1.1",
+    "react-inspector": "^1.1.1"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/poooi/plugin-prophet.git"
   },
   "author": {
     "name": "Chiba",
@@ -34,9 +32,9 @@
   },
   "homepage": "https://github.com/poooi/plugin-prophet#readme",
   "poiPlugin": {
-    "title": "Prophet",
+    "title": "Prophet-Testing",
     "description": "Sortie Prophet",
-    "icon": "fa/compass",
+    "icon": "fa/flask",
     "priority": 1,
     "apiVer": {
       "6.99.99": "5.2.1"
