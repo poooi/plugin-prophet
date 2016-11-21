@@ -16,6 +16,7 @@
     "eslint": "^2.12.0",
     "eslint-plugin-import": "^1.8.1",
     "eslint-plugin-react": "^5.1.1",
+    "react-dom": "^15.4.0",
     "react-inspector": "^1.1.1"
   },
   "scripts": {

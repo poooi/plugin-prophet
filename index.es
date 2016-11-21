@@ -1,10 +1,12 @@
 import React, {Component} from 'react'
+import ReactDOM from 'react-dom'
 import Inspector from 'react-inspector'
 import {PacketManager, Simulator} from './lib/battle'
 import _ from 'lodash'
-import {Grid, Row, Col} from 'react-bootstrap'
+import {Grid, Row, Col, Button, Form, FormGroup, ControlLabel, FormControl} from 'react-bootstrap'
 import OverviewArea from './views/overview-area'
 import {join} from 'path'
+import fs from 'fs-extra'
 
 
 const { i18n } = window
@@ -35,8 +37,24 @@ export const reactClass = class Prophet extends Component {
     this.pm.removeListener('result', this.handlePacket)
   }
 
+  testProphet = (e) => {
+    console.log(e, ReactDOM.findDOMNode(this.fileName))
+    const fpath = join(__dirname, 'test', ReactDOM.findDOMNode(this.fileName).value +'.json')
+    try {
+      fs.accessSync(fpath)
+    
+      const data = fs.readJsonSync(fpath)
+      this.handlePacket(data)
+    }
+    catch(err) {
+      console.log(err)
+    }
+  }
+
+
   handlePacket = (e) => {
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
+    fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=>console.log(err))
     let stages = _.flatMap(e.packet, (packet) => simulator.simulate(packet) )
     this.setState({
       simulator,
@@ -60,6 +78,19 @@ export const reactClass = class Prophet extends Component {
             </Col>
           </Row>
         </Grid>
+        <Row>
+          <Col>
+              <Form inline>
+                <FormGroup controlId="formInlineEmail">
+                  <ControlLabel>Timestamp</ControlLabel>
+                  <FormControl type="number" ref={(ref) => this.fileName = ref}/>
+                </FormGroup>
+                <Button onClick={this.testProphet}>
+                  Simulate
+                </Button>
+              </Form>
+          </Col>
+        </Row>
       </div>
       )
   }
