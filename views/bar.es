@@ -66,10 +66,10 @@ export class HPBar extends React.Component {
 
     return (
       <div>
-      <div className={`hp-text ${textColor}`}>{labels}</div>
+      <div className={`hp-text `}>{labels}</div>
       <ProgressBar className="hp-bar">
         <ProgressBar className="hp-bar" bsStyle={this.getHpStyle(now)} now={now}/>
-        <ProgressBar className="hp-bar lost" now={lost} />
+        
       </ProgressBar>
       
       </div>
