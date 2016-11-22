@@ -50,7 +50,7 @@ const ShipView = componentQueries(
           <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
 
           {(data.poi_slot || []).map((item, i) =>
-          <ItemView key={i} item={item} extra={false} label={data.api_onslot[i]}
+          <ItemView key={i} item={item} extra={false}
             warn={data.api_onslot[i] !== data.api_maxeq[i]} />
           )}
           

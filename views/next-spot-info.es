@@ -3,37 +3,62 @@ const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-pro
 import {Panel} from 'react-bootstrap'
 import React, { Component, PropTypes } from 'react'
 import FontAwesome from 'react-fontawesome'
+import { connect } from 'react-redux'
+import _ from 'lodash'
+import {createSelector} from 'reselect'
+import {extensionSelectorFactory} from 'views/utils/selectors'
+
+const sortieDataSelector = (state) => {
+  const {sortie} = state
+  const {currentNode, bossNode, spotHistory} = sortie
+  const lastSpot = _.takeRight(spotHistory,2)[0]
+  return({
+    lastSpot,
+    nextSpot: currentNode,
+    bossNode,
+  })
+}
+
+const mapSpotSelector = createSelector(
+  [extensionSelectorFactory('poi-plugin-prophet')],
+  (state) => ({mapspot: state.mapspot})
+)
 
 
-export class NextSpotInfo extends Component {
+
+
+const NextSpotInfo = connect(
+  (state) => ({
+    ...sortieDataSelector(state),
+    ...mapSpotSelector(state),
+  })
+)(class NextSpotInfo extends Component {
   static propTypes = {
-    nextSpot: PropTypes.string.isRequired,
-    nextSpotInfo: PropTypes.string.isRequired,
-    compassPoint: PropTypes.string.isRequired,
-    compassAngle: PropTypes.number.isRequired,
+    lastSpot: PropTypes.number.isRequired,
+    nextSpot: PropTypes.number.isRequired,
+    bossNode: PropTypes.number.isRequired,
+    spotKind: PropTypes.string.isRequired,
+    mapspot: PropTypes.object.isRequired,
   }
 
   static defaultProps = {
-    nextSpot: '',
-    nextSpotInfo: '',
-    compassPoint: '',
-    compassAngle: NaN,
+    lastSpot: 0,
+    nextSpot: 0,
+    bossNode: 0,
+    spotKind: '',
+    mapspot: {},
   }
 
   render() {
-    const {nextSpot, compassPoint, nextSpotInfo, compassAngle} = this.props
+    const {nextSpot, spotKind} = this.props
     return(
       <span>
-        {`${compassPoint}: `}
-        <span className="compass">
-          {Number.isNaN(compassAngle) ? 
-            '?' : 
-            <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
-                             style={{transform: `rotate(${compassAngle - 45}deg)"`}} />
-          }
-        </span>
-        {` | ${nextSpot}: ${nextSpotInfo}`}
+        {`${__("compass point")}: `}
+
+        {` | ${nextSpot}: ${spotKind}`}
       </span>
     )
   }
-}
+})
+
+export default NextSpotInfo
