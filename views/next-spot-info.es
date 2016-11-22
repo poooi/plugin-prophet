@@ -8,6 +8,17 @@ import _ from 'lodash'
 import {createSelector} from 'reselect'
 import {extensionSelectorFactory} from 'views/utils/selectors'
 
+const getCompassAngle = (mapspot, sortieMapId, lastSpot, nextSpot) =>{
+  if (lastSpot == nextSpot) return NaN
+  const mapspots = _.get(mapspot, [Math.floor(sortieMapId / 10), sortieMapId % 10], [])
+  if (!mapspots || !Object.keys(mapspots).length) return NaN
+  let last = mapspots[lastSpot]
+  let next = mapspots[nextSpot]
+  if (!last || !next || !Object.keys(last).length || !Object.keys(next).length) return NaN
+
+  return Math.atan2(next[1]-last[1], next[0] - last[0]) / Math.PI * 180 + 90
+}
+
 const sortieDataSelector = (state) => {
   const {sortie} = state
   const {currentNode, bossNode, spotHistory, sortieMapId} = sortie
@@ -22,7 +33,7 @@ const sortieDataSelector = (state) => {
 
 const mapSpotSelector = createSelector(
   [extensionSelectorFactory('poi-plugin-prophet')],
-  (state) => ({mapspot: state.mapspot})
+  (state) => ({mapspot: (state.mapspot || {}) })
 )
 
 
@@ -53,12 +64,23 @@ const NextSpotInfo = connect(
   }
 
   render() {
-    const {nextSpot, spotKind} = this.props
+    const {lastSpot, nextSpot, sortieMapId, mapspot, spotKind} = this.props
+    let compassAngle = getCompassAngle(mapspot, sortieMapId, lastSpot, nextSpot)
+    console.log(compassAngle)
     return(
       <span>
         {`${__("compass")}: `}
 
-        {` | ${nextSpot}: ${spotKind}`}
+        <span className="compass">
+         {
+           Number.isNaN(compassAngle) ? 
+           '?' : 
+          <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
+                            style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
+          }
+          </span>
+
+          {` | ${nextSpot}: ${spotKind}`}
       </span>
     )
   }
