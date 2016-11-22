@@ -21,21 +21,6 @@ const { i18n } = window
 const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
 
 // information related to spot info, will move to utils or something later
-const eventKind = {
-  '1': 'day battle',
-  '2': 'start at night battle',
-  '4': 'aerial exchange',
-  '5': 'enemy combined',
-  '6': 'defensive aerial',
-}
-
-const eventId = {
-  '4': 'normal battle',
-  '5': 'boss',
-  'api_event_id': 'aerial battle or reconnaissance',
-  '10': 'long distance aerial battle',
-}
-
 
 const spotInfo = {
   '0': '',
@@ -56,6 +41,7 @@ const spotInfo = {
   '15': 'Enemy Combined Fleet',
 }
 
+// give spot kind according to api_event_id and api_event_kind
 // update according to https://github.com/andanteyk/ElectronicObserver/blob/1052a7b177a62a5838b23387ff35283618f688dd/ElectronicObserver/Other/Information/apilist.txt
 const getSpotKind = (api_event_id, api_event_kind) => {
   console.log(api_event_id, api_event_kind)
@@ -78,6 +64,17 @@ const getSpotKind = (api_event_id, api_event_kind) => {
   }
   return api_event_id + 1
 }
+
+
+// extracts necessary information from its stages, returns a new simulator
+// infomation: 
+const synthesizeStage = (simulator) => {
+  _.each(simulator.stages, (stage) => {
+
+  })
+}
+
+
 
 // reducer for mapspot and maproute data
 export const reducer = (state, action) => {
@@ -119,7 +116,6 @@ export const reactClass = connect(
     super()
     this.state ={
       simulator:{},
-      stages:{},
       sortiePhase: 0,
       spotKind: '',
     }
@@ -180,12 +176,11 @@ export const reactClass = connect(
 
   handlePacket = (e) => {
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
-    fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=>console.log(err))
+    fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.log(err)})
     let stages = _.flatMap(e.packet, (packet) => simulator.simulate(packet) )
     this.setState({
       sortiePhase: 2,
       simulator,
-      stages,
     })
   }
 
@@ -193,60 +188,21 @@ export const reactClass = connect(
     const {path, body, postBody} = e.detail
 
     // used in determining next spot type
-    let {api_event_kind, api_event_id, api_select_route, api_itemget, api_itemget_eo_comment, api_happening} = body
-    let {bossSpot} = this.props.sortie
-    let spotKind = ''
+    let {api_event_kind, api_event_id} = body
 
     switch(path){
 
     case '/kcsapi/api_port/port':
       this.setState({
         sortiePhase: 0,
+        simulator: {},
       })
       break
 
     case '/kcsapi/api_req_map/start':
     case '/kcsapi/api_req_map/next':
       // here just determines next spot kind, as we also use store.sortie
-      // this version will use string to represent next spot type
-      // use code from kc3kai
-
-      
-      // switch(true){
-      // case (api_select_route != null):
-      //   // api_event_id = 6
-      //   // api_event_kind = 2
-      //   spotKind = "Selector"
-      //   break
-      // case (_.includes([1,2,4,5,6], api_event_kind)):
-      //   // api_event_kind = 1 (day battle)
-      //   // api_event_kind = 2 (start at night battle)
-      //   // api_event_kind = 4 (aerial exchange)
-      //   // api_event_kind = 5 (enemy combined)
-      //   // api_event_kind = 6 (defensive aerial)
-      //   // api_event_id = 4 (normal battle)
-      //   // api_event_id = 5 (boss)
-      //   // api_event_id = 7 (aerial battle or reconnaissance)
-      //   // api_event_id = 10 (long distance aerial battle)
-      //   spotKind = `Battle : ${eventKind[api_event_kind]} ${api_event_id !=4 ? eventId[api_event_id] || '': ''}`
-      //   break
-      // case (api_itemget != null):
-      //   // api_event_id = 2
-      //   spotKind = "resource"
-      //   break
-      // case (api_itemget_eo_comment != null):
-      //   // api_event_id = 8
-      //   spotKind = "Bounty"
-      //   break
-      // case (api_event_id == 9):
-      //   // api_event_id = 9
-      //   spotKind = "Transport"
-      //   break
-      // case (api_happening != null):
-      //   // api_event_id = 3
-      //   spotKind = "Maelstorm"
-      //   break
-      // }
+      // use string to represent next spot type
 
       this.setState({
         sortiePhase: 1,

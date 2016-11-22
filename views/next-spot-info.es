@@ -10,12 +10,13 @@ import {extensionSelectorFactory} from 'views/utils/selectors'
 
 const sortieDataSelector = (state) => {
   const {sortie} = state
-  const {currentNode, bossNode, spotHistory} = sortie
+  const {currentNode, bossNode, spotHistory, sortieMapId} = sortie
   const lastSpot = _.takeRight(spotHistory,2)[0]
   return({
     lastSpot,
     nextSpot: currentNode,
     bossNode,
+    sortieMapId,
   })
 }
 
@@ -37,6 +38,7 @@ const NextSpotInfo = connect(
     lastSpot: PropTypes.number.isRequired,
     nextSpot: PropTypes.number.isRequired,
     bossNode: PropTypes.number.isRequired,
+    sortieMapId: PropTypes.number.isRequired,
     spotKind: PropTypes.string.isRequired,
     mapspot: PropTypes.object.isRequired,
   }
@@ -45,6 +47,7 @@ const NextSpotInfo = connect(
     lastSpot: 0,
     nextSpot: 0,
     bossNode: 0,
+    sortieMapId: 0,
     spotKind: '',
     mapspot: {},
   }
@@ -53,7 +56,7 @@ const NextSpotInfo = connect(
     const {nextSpot, spotKind} = this.props
     return(
       <span>
-        {`${__("compass point")}: `}
+        {`${__("compass")}: `}
 
         {` | ${nextSpot}: ${spotKind}`}
       </span>
