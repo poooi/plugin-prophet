@@ -11,6 +11,7 @@ import { connect } from 'react-redux'
 
 import FleetView from './fleet-view'
 import LBACView from './lbac-view'
+import SquadView from './squad-view'
 
 const { i18n } = window
 const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
@@ -30,7 +31,8 @@ const BattleViewArea = connect(
   }
 
   render() {
-    const {simulator, layout} = this.props
+    const {simulator, layout, sortiePhase} = this.props
+    let View = sortiePhase == 1 ? SquadView : null
     const times = layout == 'horizontal' ? 1 : 2
     // adapt the view according to layout by setting FleetView's Col xs = 12/count
     // this can support 12v6, 6v12 and 12v12
@@ -39,11 +41,11 @@ const BattleViewArea = connect(
     return (
       <div id="overview-area">
         {
-          simulator ? (
+          (simulator && sortiePhase != 0) ? (
             <Grid>
               <Row>
-                <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount}/>
-                <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount}/>
+                <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
+                <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
               </Row>
               <Row>
                 <FleetView fleet={simulator.enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>

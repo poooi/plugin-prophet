@@ -66,7 +66,6 @@ const NextSpotInfo = connect(
   render() {
     const {lastSpot, nextSpot, sortieMapId, mapspot, spotKind} = this.props
     let compassAngle = getCompassAngle(mapspot, sortieMapId, lastSpot, nextSpot)
-    console.log(compassAngle)
     return(
       <span>
         {`${__("compass")}: `}

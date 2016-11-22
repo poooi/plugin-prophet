@@ -16,6 +16,7 @@ import NextSpotInfo from './views/next-spot-info'
 
 
 import {PacketManager, Simulator} from './lib/battle'
+import {Ship, ShipOwner} from './lib/battle/models'
 
 const { i18n } = window
 const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
@@ -41,6 +42,14 @@ const spotInfo = {
   '15': 'Enemy Combined Fleet',
 }
 
+const dispSeiku = {
+  '1': "Air Parity",
+  '2': "AS+",
+  '3': "AS",
+  '4': "Air Incapability",
+  '5': "Air Denial",
+}
+
 // give spot kind according to api_event_id and api_event_kind
 // update according to https://github.com/andanteyk/ElectronicObserver/blob/1052a7b177a62a5838b23387ff35283618f688dd/ElectronicObserver/Other/Information/apilist.txt
 const getSpotKind = (api_event_id, api_event_kind) => {
@@ -53,7 +62,7 @@ const getSpotKind = (api_event_id, api_event_kind) => {
   }
   if (api_event_id === 6) { //6=気のせいだった
     if (api_event_kind === 1) { //1="敵影を見ず。"
-      return 10
+      return 7
     } else if (api_event_kind === 2) { // 2=能動分岐
       return 12
     }
@@ -65,6 +74,34 @@ const getSpotKind = (api_event_id, api_event_kind) => {
   return api_event_id + 1
 }
 
+
+const initEnemy = (intl=0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv) => {
+  if (!(api_ship_ke != null)) return
+  let fleet = []
+  for (const i of _.range(1, 7)) {
+    let id    = api_ship_ke[i]
+    let slots = api_eSlot[i - 1] || []
+    let ship, raw
+    if (Number.isInteger(id) && id > 0) {
+      raw = {
+        api_ship_id: id,
+        api_lv: api_ship_lv[i],
+        poi_slot: slots.map(id => window.$slotitems[id]),
+      }
+      ship = new Ship({
+        id   : id,
+        owner: ShipOwner.Enemy,
+        pos  : intl + i,
+        maxHP: api_maxhps[i + 6],
+        nowHP: api_nowhps[i + 6],
+        items: [],  // We dont care
+        raw  : raw,
+      })
+    }
+    fleet.push(ship)
+  }
+  return fleet
+}
 
 // extracts necessary information from its stages, returns a new simulator
 // infomation: 
@@ -188,31 +225,71 @@ export const reactClass = connect(
     const {path, body, postBody} = e.detail
 
     // used in determining next spot type
-    let {api_event_kind, api_event_id} = body
+    let {api_event_kind, api_event_id, api_destruction_battle} = body
+    let simulator = {}
 
     switch(path){
 
     case '/kcsapi/api_port/port':
       this.setState({
         sortiePhase: 0,
-        simulator: {},
+        simulator,
       })
       break
 
     case '/kcsapi/api_req_map/start':
     case '/kcsapi/api_req_map/next':
-      // here just determines next spot kind, as we also use store.sortie
-      // use string to represent next spot type
+      if (api_destruction_battle != null) {
+        // construct virtual fleet to reprsent the base attack
+        let {api_air_base_attack, api_maxhps, api_nowhps} = api_destruction_battle
+        let landBase = []
+
+        _.each(api_air_base_attack.api_squadron_plane, (squad, index)=>{
+          if (!Array.isArray(squad)) return
+          landBase.push(new Ship({
+            id: -1,
+            owner: ShipOwner.Ours,
+            pos: index,
+            maxHP: api_maxhps[index] || 200,
+            nowHP: api_nowhps[index] || 0,
+            items: _.map(squad, plane => plane != null ? plane.mst_id : null), // only $items id, may copy from store?
+            raw: squad,
+          }))
+        })
+
+
+        const {api_ship_ke, api_eSlot, api_ship_lv} = api_destruction_battle
+        let enemy = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
+
+
+
+        // simulation
+        const {api_stage1, api_stage3} = api_air_base_attack
+        simulator.air_result = api_stage1
+        
+        const {api_fdam} = api_stage3
+        landBase = _.map(landBase, (squad, index) =>{
+          squad.lostHP = api_fdam[index+1] || 0
+          squad.nowHP -= squad.lostHP
+          return squad
+        })
+
+        simulator.mainFleet = landBase
+        simulator.enemyFleet = enemy
+
+      }
 
       this.setState({
         sortiePhase: 1,
         spotKind: spotInfo[getSpotKind(api_event_id, api_event_kind)] || '',
+        simulator,
       })
       break
     }
 
 
   }
+
 
   render() {
     return (
@@ -221,7 +298,7 @@ export const reactClass = connect(
         <Grid>
         <Row>
           <Col xs={12}>
-            <BattleViewArea simulator={this.state.simulator || {}}/>
+            <BattleViewArea simulator={this.state.simulator || {}} sortiePhase={this.state.sortiePhase}/>
           </Col>
         </Row>
         <Row>
@@ -241,7 +318,7 @@ export const reactClass = connect(
               <Form inline>
                 <FormGroup controlId="formInlineEmail">
                   <ControlLabel>Timestamp</ControlLabel>
-                  <FormControl type="number" ref={(ref) => this.fileName = ref}/>
+                  <FormControl type="text" ref={(ref) => this.fileName = ref}/>.json
                 </FormGroup>
                 <Button onClick={this.testProphet}>
                   Simulate
