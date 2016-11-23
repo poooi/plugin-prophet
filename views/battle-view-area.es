@@ -38,14 +38,23 @@ const BattleViewArea = connect(
     // this can support 12v6, 6v12 and 12v12
     let fleetCount = 1 && _.sumBy([simulator.mainFleet, simulator.escortFleet], (fleet) => fleet != null)
     let enemyCount = 1 && _.sumBy([simulator.enemyFleet, simulator.enemyEscort], (fleet) => fleet != null)
+
+    const {api_stage1} = simulator
+    let {api_f_count, api_f_lostcount, api_e_count, api_e_lostcount} = _.pick(api_stage1, ['api_f_count', 'api_f_lostcount', 'api_e_count', 'api_e_lostcount'])
     return (
       <div id="overview-area">
         {
           (simulator && sortiePhase != 0) ? (
             <Grid>
               <Row>
+                <Col xs={12}>{`${__("Sortie Fleet")} [${api_f_count - api_f_lostcount}/${api_f_count}]`}</Col>
+              </Row>
+              <Row>
                 <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
                 <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
+              </Row>
+              <Row>
+                <Col xs={12}>{`${__("Enemy Vessel")} [${api_e_count - api_e_lostcount}/${api_e_count}]`}</Col>
               </Row>
               <Row>
                 <FleetView fleet={simulator.enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>

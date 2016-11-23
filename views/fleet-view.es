@@ -30,7 +30,7 @@ export default class FleetView extends React.Component {
     }
     return (
       <Col xs={12/count} className="fleet-view">
-        <div className="fleet-title">{title}</div>
+        
         <Grid>
         {fleet.map((ship, i) =>
 
