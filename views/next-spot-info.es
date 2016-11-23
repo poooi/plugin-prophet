@@ -70,7 +70,7 @@ const NextSpotInfo = connect(
       <Row className="next-spot-info">
         <Col xs={12}>
           <span>
-            {`${__("compass")}: `}
+            {`${__("Compass")}: `}
 
             <span className="compass">
             {

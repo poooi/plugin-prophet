@@ -33,10 +33,10 @@ const BattleViewArea = connect(
   }
 
   render() {
-    const {simulator, layout, sortiePhase} = this.props
-    let View = sortiePhase == 1 ? SquadView : null
-    let friendTitle = sortiePhase == 1 ? 'Land Base' : 'Sortie Fleet'
-    let enemyTitle = sortiePhase == 3 ? 'PvP' : 'Enemy Vessel'
+    const {simulator, layout, sortieState} = this.props
+    let View = sortieState == 1 ? SquadView : null
+    let friendTitle = 'Sortie Fleet'
+    let enemyTitle = sortieState == 3 ? 'PvP' : 'Enemy Vessel'
     const times = layout == 'horizontal' ? 1 : 2
     // adapt the view according to layout by setting FleetView's Col xs = 12/count
     // this can support 12v6, 6v12 and 12v12
@@ -49,14 +49,14 @@ const BattleViewArea = connect(
     return (
       <div id="overview-area">
         {
-          (simulator && sortiePhase != 0) ? (
+          (simulator && sortieState != 0) ? (
             <Grid>
               
                 {
-                  sortiePhase ? 
+                  sortieState ? 
                   <Row className="friend-title title">
                     <Col xs={12}>
-                      {__(friendTitle) + api_f_count ? `[${api_f_count - api_f_lostcount}/${api_f_count}]`: ''}
+                      {__(friendTitle) + (api_f_count ? ` [${api_f_count - api_f_lostcount}/${api_f_count}]`: '')}
                     </Col>
                   </Row> : 
                   ''
@@ -68,10 +68,10 @@ const BattleViewArea = connect(
               </Row>
               
                 {
-                  sortiePhase ? 
+                  sortieState ? 
                   <Row className="enemy-title title">
                     <Col xs={12}>
-                      {__(enemyTitle) + api_e_count ? `[${api_e_count - api_f_lostcount}/${api_e_count}]`: ''}
+                      {__(enemyTitle) + (api_e_count ? ` [${api_e_count - api_e_lostcount}/${api_e_count}]`: '')}
                     </Col>
                   </Row> : 
                   ''
@@ -82,13 +82,14 @@ const BattleViewArea = connect(
                 <FleetView fleet={simulator.enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
               </Row>
               { 
-                sortiePhase > 1 &&
+                sortieState > 1 &&
                 <BattleInfo 
                   result = {result && result.rank }
                   formation ={api_formation && api_formation[1]}
                   intercept = {api_formation && api_formation[2]}
                   seiku = {api_stage1 && api_stage1.api_disp_seiku}
-                />}
+                />
+              }
               {
                 (getShip || getItem) &&
                   <DropInfo
@@ -97,7 +98,7 @@ const BattleViewArea = connect(
                   />
               }
             </Grid>
-          ) : __("No in sortie")
+          ) : __("Not in sortie")
         }
       </div>
     )

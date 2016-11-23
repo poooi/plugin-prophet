@@ -12,8 +12,9 @@ const CSON = promisifyAll(require('cson'))
 import {store} from 'views/create-store'
 
 import BattleViewArea from './views/battle-view-area'
-import NextSpotInfo from './views/next-spot-info'
-import {initEnemy, spotInfo, getSpotKind} from './utils'
+import SortieViewArea from './views/sortie-view-area'
+
+import {initEnemy, spotInfo, getSpotKind, lostKind} from './utils'
 
 
 import {PacketManager, Simulator} from './lib/battle'
@@ -86,7 +87,7 @@ export const reducer = (state, action) => {
 }
 
 
-// sortiePhase
+// sortieState
 // 0: port, switch on when /kcsapi/api_port/port
 // 1: before battle, switch on when /kcsapi/api_req_map/start or /kcsapi/api_req_map/next
 // 2: battle, switch on with PM emit type
@@ -112,7 +113,7 @@ export const reactClass = connect(
   }
   static initState ={
     simulator:{},
-    sortiePhase: 0,
+    sortieState: 0,
     spotKind: '',
     result: {},
   }
@@ -171,7 +172,7 @@ export const reactClass = connect(
 
 
   handlePacket = (e) => {
-    let sortiePhase = e.type == BattleType.Practice ? 3 : 2
+    let sortieState = e.type == BattleType.Practice ? 3 : 2
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
     fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.log(err)})
     let stage = _.map(e.packet, (packet) => simulator.simulate(packet) )
@@ -180,7 +181,7 @@ export const reactClass = connect(
     // Attention, aynthesizeStage will break object prototype, put it to last
     simulator = synthesizeStage(simulator, result)
     this.setState({
-      sortiePhase,
+      sortieState,
       simulator,
       result,
     })
@@ -198,7 +199,7 @@ export const reactClass = connect(
     _.each(friendShips, (ship)=>{
       
       if (ship == null) return
-      if ((ship.nowHP / ship.maxHP < 0.25) && !_.includes(escapedPos, ship.pos -1) ) {
+      if ((ship.nowHP / ship.maxHP < 0.25) && !_.includes(escapedPos, ship.pos -1) && this.state.sortieState != 3 ) {
         let shipName = _.get(window.$ships, `${ship.raw.api_ship_id}.api_name`,' ')
         damageList.push(i18n.resources.__(shipName))
       }
@@ -218,7 +219,7 @@ export const reactClass = connect(
 
     // used in determining next spot type
     let {api_event_kind, api_event_id, api_destruction_battle} = body
-    let simulator = this.state.simulator
+    let simulator = {}
 
     switch(path){
 
@@ -250,15 +251,15 @@ export const reactClass = connect(
           }))
         })
 
-
-        const {api_ship_ke, api_eSlot, api_ship_lv} = api_destruction_battle
+        // construct enemy
+        const {api_ship_ke, api_eSlot, api_ship_lv, api_formation, api_lost_kind} = api_destruction_battle
         let enemy = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
 
 
 
         // simulation
         const {api_stage1, api_stage3} = api_air_base_attack
-        simulator.air_result = api_stage1
+        simulator.api_stage1 = api_stage1
         
         const {api_fdam} = api_stage3
         landBase = _.map(landBase, (squad, index) =>{
@@ -269,11 +270,13 @@ export const reactClass = connect(
 
         simulator.mainFleet = landBase
         simulator.enemyFleet = enemy
+        simulator.api_formation = api_formation
+        simulator.result={rank: lostKind[api_lost_kind] || ''}
 
       }
 
       this.setState({
-        sortiePhase: 1,
+        sortieState: 1,
         spotKind: spotInfo[getSpotKind(api_event_id, api_event_kind)] || '',
         simulator,
       })
@@ -298,15 +301,14 @@ export const reactClass = connect(
         <Grid>
         <Row>
           <Col xs={12}>
-            <BattleViewArea simulator={this.state.simulator || {}} sortiePhase={this.state.sortiePhase}/>
-          </Col>
-        </Row>
+            
         {
-          this.state.sortiePhase == 1 ?
-            <NextSpotInfo spotKind={this.state.spotKind}/>
-              : ''
+          this.state.sortieState == 1 ?
+            <SortieViewArea simulator={this.state.simulator || {}} spotKind={this.state.spotKind}/>
+              : 
+            <BattleViewArea simulator={this.state.simulator || {}} sortieState={this.state.sortieState}/>
         }
-          <Row>
+        </Col>
             <Col xs={12}>
               <Inspector data={this.state}/>
               <Inspector data={this.props}/>
