@@ -32,28 +32,10 @@ export class HPBar extends React.Component {
       return 'success'
   }
 
-  // constructor and componentWillReceiveProps are for respectively 
-  // showing damage in day battle and night battle, a side effect is that when 
-  // battle ends, the damage will disappear
-  constructor(props){
-    super(props)
-    this.state={
-      damage: props.damage || 0,
-    }
-  }
-
-  componentWillReceiveProps (nextProps) {
-    const {damage} = nextProps
-    const _damage = this.state.damage
-    this.setState({
-      damage: damage - _damage,
-    })
-  }
 
 
   render() {
-    let {max, from, to, item} = this.props
-    let {damage} = this.state
+    let {max, from, to, damage, item} = this.props
     if (from < 0) from = 0
     if (from > max) from = max
     if (to < 0) to = 0
