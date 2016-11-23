@@ -18,6 +18,7 @@ module.exports = {
   ],
   'globals': {
     'html2canvas': false,
+    'config': true,
   },
   'rules': {
     'comma-dangle': ['error', 'always-multiline'],
@@ -51,6 +52,8 @@ module.exports = {
       'fs-extra',
       'lodash',
       'cson',
+      'react-dom',
+      'redux',
     ],
   },
 }
