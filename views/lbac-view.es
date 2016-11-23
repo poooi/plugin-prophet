@@ -1,18 +1,11 @@
-import {getShipName, getItemName} from './utils'
-import FontAwesome from 'react-fontawesome'
-import {join} from 'path'
+import { getItemName} from './utils'
 import React, {Component} from 'react'
-const { ROOT, $ships, $slotitems} = window
-import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
-import {SlotitemIcon} from 'views/components/etc/icon'
-import {FABar, HPBar} from './bar'
-
+import { Grid, Row, Col} from 'react-bootstrap'
 import ItemView from './item-view'
 
-const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
 
-export default class LBACView extends React.Component {
+
+export default class LBACView extends Component {
   render() {
     let {child: corps} = this.props
     if (! (corps && corps.api_plane_info)) {

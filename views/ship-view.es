@@ -1,29 +1,25 @@
 import FontAwesome from 'react-fontawesome'
-import {join} from 'path'
 import React, {Component} from 'react'
-import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
-import componentQueries from 'react-component-queries'
-import {compose} from 'redux'
+import { Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {connect} from 'react-redux'
 import _ from 'lodash'
 
-import {SlotitemIcon} from 'views/components/etc/icon'
+
 import {getCondStyle} from 'views/utils/game-utils'
-const { ROOT, $ships, $slotitems} = window
+const { $ships} = window
 
 import ItemView from './item-view'
-import {getShipName, getItemName} from './utils'
+import {getShipName} from './utils'
 import {FABar, HPBar} from './bar'
 
 
 const { i18n } = window
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
-// maybe can use compose for co-exist with redux connect
 
 const ShipView = connect(
   (state) => ({escapedPos: state.sortie.escapedPos || []})
-)(class ShipView extends React.Component {
+)(class ShipView extends Component {
 
 
   render() {

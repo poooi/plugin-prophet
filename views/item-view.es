@@ -1,17 +1,11 @@
-import {getShipName, getItemName} from './utils'
-import FontAwesome from 'react-fontawesome'
+import {getShipName} from './utils'
 import {join} from 'path'
 import React, {Component} from 'react'
-const { ROOT, $ships, $slotitems} = window
-import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
+const { ROOT, $slotitems} = window
 import {SlotitemIcon} from 'views/components/etc/icon'
-import {FABar, HPBar} from './bar'
 
 
-const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
-
-export default class ItemView extends React.Component {
+export default class ItemView extends Component {
   render() {
     let {item, extra, label, warn} = this.props
     if (! item) {

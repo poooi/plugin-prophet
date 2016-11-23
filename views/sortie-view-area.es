@@ -1,28 +1,22 @@
-import {getShipName, getItemName} from './utils'
-import FontAwesome from 'react-fontawesome'
-import {join} from 'path'
 import React, {Component} from 'react'
-const { ROOT, $ships, $slotitems} = window
-import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
-import {SlotitemIcon} from 'views/components/etc/icon'
-import {FABar, HPBar} from './bar'
+
+import { Grid, Row, Col} from 'react-bootstrap'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 
 import FleetView from './fleet-view'
-import LBACView from './lbac-view'
 import BattleInfo from './battle-info'
 import NextSpotInfo from './next-spot-info'
 import SquadView from './squad-view'
 
 const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
+const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const SortieViewArea = connect(
   (state, props) => ({
     layout: _.get(state, 'config.poi.layout', 'horizontal'),
   })
-)(class SortieViewArea extends React.Component {
+)(class SortieViewArea extends Component {
   constructor() {
     super()
 

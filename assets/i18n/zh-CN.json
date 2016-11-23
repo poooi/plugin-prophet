@@ -48,5 +48,9 @@
   "Item get": "「%s」入手！",
   "Heavily damaged notification": "开启大破通知",
   "Condition display": "显示疲劳值",
-  "": ""
+  "Not in sortie": "未出击",
+  "Your resources have sustained losses due to the air-raid!": "空襲により備蓄資源に損害を受けました！",
+  "Your resources, as well as your land-based air fleets, have sustained losses due to the air-raid!": "空襲により備蓄資源に損害を受け、基地航空隊にも地上撃破の損害が発生しました！",
+  "Your land-based air fleets have sustained losses due to the air-raid!": "空襲により基地航空隊に地上撃破の損害が発生しました！",
+  "The air-raid has inflicted no damage to the land base.":"空襲による基地の損害はありません。"
 }

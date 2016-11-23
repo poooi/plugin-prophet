@@ -23,6 +23,7 @@ import {Ship, ShipOwner, StageType, BattleType} from './lib/battle/models'
 const { i18n, ROOT } = window
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
+
 // information related to spot info, will move to utils or something later
 
 
@@ -288,13 +289,6 @@ export const reactClass = connect(
 
 
   render() {
-    let simulator = this.state.simulator
-    let result = this.state.result
-
-    let api_stage1 = simulator.api_stage1
-    let getShip = result.getShip
-    let getItem = result.getItem
-
     return (
       <div id="plugin-prophet">
       <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
