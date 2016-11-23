@@ -21,13 +21,8 @@ const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 // maybe can use compose for co-exist with redux connect
 
-const ShipView = compose(
-componentQueries(
-  ({width}) => ({compact: width < 250})
-),
-connect(
+const ShipView = connect(
   (state) => ({escapedPos: state.sortie.escapedPos || []})
-)
 )(class ShipView extends React.Component {
 
 
@@ -36,7 +31,7 @@ connect(
     if (! (ship && ship.id > 0)) {
       return <div />
     }
-    let isEscaped = _.includes(this.props.escapedPos, ship.pos)
+    let isEscaped = _.includes(this.props.escapedPos, ship.pos-1) && ship.owner == 'Ours'
     let raw = ship.raw || {}
     let mst = $ships[ship.id] || {}
     let data = Object.assign(Object.clone(mst), raw)
@@ -67,9 +62,9 @@ connect(
       </Tooltip>
 
     return (
-      <Row className={"ship-view "+ (this.props.compact? "compact " : ' ') + (isEscaped ? "escaped" : '' )}>
+      <Row className={"ship-view " + (isEscaped ? "escaped" : '' )}>
 
-          <Col xs={this.props.compact? 10 : 4} className='ship-name'>
+          <Col xs={6} className='ship-name'>
           <OverlayTrigger
           placement="top"
           overlay={tooltip}
@@ -85,12 +80,12 @@ connect(
           </OverlayTrigger>
           </Col>
 
-            <Col xs={this.props.compact? 2 : 1} className='ship-damage'>
+            <Col xs={1} className='ship-damage'>
               {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
             </Col>
 
 
-          <Col xs={this.props.compact? 12 : 7} className='ship-hp'>
+          <Col xs={4} className='ship-hp'>
             <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} item={ship.useItem} />
         </Col>
 
