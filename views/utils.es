@@ -1,7 +1,7 @@
 
 
 const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
+const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 export function getShipName(ship) {
   if (ship == null) {
