@@ -33,6 +33,8 @@ const BattleViewArea = connect(
   render() {
     const {simulator, layout, sortiePhase} = this.props
     let View = sortiePhase == 1 ? SquadView : null
+    let friendTitle = sortiePhase == 1 ? 'Land Base' : 'Sortie Fleet'
+    let enemyTitle = sortiePhase == 3 ? 'PvP' : 'Enemy Vessel'
     const times = layout == 'horizontal' ? 1 : 2
     // adapt the view according to layout by setting FleetView's Col xs = 12/count
     // this can support 12v6, 6v12 and 12v12
@@ -47,14 +49,14 @@ const BattleViewArea = connect(
           (simulator && sortiePhase != 0) ? (
             <Grid>
               <Row>
-                <Col xs={12}>{`${__("Sortie Fleet")} [${api_f_count - api_f_lostcount}/${api_f_count}]`}</Col>
+                <Col xs={12}>{`${__(friendTitle)} [${api_f_count - api_f_lostcount}/${api_f_count}]`}</Col>
               </Row>
               <Row>
                 <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
                 <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
               </Row>
               <Row>
-                <Col xs={12}>{`${__("Enemy Vessel")} [${api_e_count - api_e_lostcount}/${api_e_count}]`}</Col>
+                <Col xs={12}>{`${__(enemyTitle)} [${api_e_count - api_e_lostcount}/${api_e_count}]`}</Col>
               </Row>
               <Row>
                 <FleetView fleet={simulator.enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>

@@ -17,7 +17,7 @@ import BattleInfo from './views/battle-info'
 
 
 import {PacketManager, Simulator} from './lib/battle'
-import {Ship, ShipOwner, StageType} from './lib/battle/models'
+import {Ship, ShipOwner, StageType, BattleType} from './lib/battle/models'
 
 const { i18n } = window
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
@@ -158,7 +158,8 @@ export const reducer = (state, action) => {
 // sortiePhase
 // 0: port, switch on when /kcsapi/api_port/port
 // 1: before battle, switch on when /kcsapi/api_req_map/start or /kcsapi/api_req_map/next
-// 2: battle/practice, switch on with PacketManager's emit
+// 2: battle, switch on with PM emit type
+// 3: practice, switch on with PM emit type
 
 
 
@@ -233,6 +234,7 @@ export const reactClass = connect(
 
 
   handlePacket = (e) => {
+    let sortiePhase = e.type == BattleType.Practice ? 3 : 2
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
     fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.log(err)})
     let stage = _.map(e.packet, (packet) => simulator.simulate(packet) )
@@ -241,7 +243,7 @@ export const reactClass = connect(
     // Attention, aynthesizeStage will break object prototype, put it to last
     simulator = synthesizeStage(simulator)
     this.setState({
-      sortiePhase: 2,
+      sortiePhase,
       simulator,
       result,
     })
