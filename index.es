@@ -167,8 +167,10 @@ export const reducer = (state, action) => {
 export const reactClass = connect(
   (state) => {
     const sortie = state.sortie || {} 
+    const airbase = state.info.airbase || {}
     return {
       sortie,
+      airbase,
     }
   }
 )(class Prophet extends Component {
@@ -270,18 +272,20 @@ export const reactClass = connect(
     case '/kcsapi/api_req_map/next':
       if (api_destruction_battle != null) {
         // construct virtual fleet to reprsent the base attack
+        let {sortie, airbase} = this.props
+        let mapArea = Math.floor((sortie.sortieMapId || 0) / 10)
         let {api_air_base_attack, api_maxhps, api_nowhps} = api_destruction_battle
         let landBase = []
 
-        _.each(api_air_base_attack.api_squadron_plane, (squad, index)=>{
-          if (!Array.isArray(squad)) return
+        _.each(airbase, (squad)=>{
+          if (squad.api_area_id != mapArea) return
           landBase.push(new Ship({
             id: -1,
             owner: ShipOwner.Ours,
-            pos: index,
-            maxHP: api_maxhps[index] || 200,
-            nowHP: api_nowhps[index] || 0,
-            items: _.map(squad, plane => plane != null ? plane.mst_id : null), // only $items id, may copy from store?
+            pos: squad.api_rid,
+            maxHP: api_maxhps[squad.api_rid] || 200,
+            nowHP: api_nowhps[squad.api_rid] || 0,
+            items: _.map(squad.api_plane_info, plane => plane.api_slotid), 
             raw: squad,
           }))
         })

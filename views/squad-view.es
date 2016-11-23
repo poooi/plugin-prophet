@@ -38,6 +38,7 @@ const SquadView = componentQueries(
     }
     let pos = ship.pos || 0
 
+    let name = ship.raw.api_name || `${order[pos] || ''} Squadron`
 
 
     return (
@@ -46,7 +47,7 @@ const SquadView = componentQueries(
           <Col xs={this.props.compact? 12 : 5} className='ship-name'>
 
               <span>
-              {`${order[pos] || ''} Squadron`}
+              {`${name}`}
             </span>
           </Col>
 
