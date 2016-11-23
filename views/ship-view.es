@@ -22,11 +22,11 @@ const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 // maybe can use compose for co-exist with redux connect
 
 const ShipView = compose(
-connect(
-  state => ({toEscapeIndex: state.sortie._toEscapeIndex || []})
-),
 componentQueries(
   ({width}) => ({compact: width < 250})
+),
+connect(
+  (state) => ({toEscapeIndex: state.sortie._toEscapeIndex || []})
 )
 )(class ShipView extends React.Component {
 
