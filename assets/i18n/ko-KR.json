@@ -23,7 +23,7 @@
   "HP": "내구",
   "PvP": "연습상대",
   "Admiral": "사령관님 ",
-  "Join fleet": "%s「%s」이(가) 착임했습니다.",
+  "%s \"%s\" joined your fleet": "%s「%s」이(가) 착임했습니다.",
   "Unknown FC": "불명",
   "AS+": "제공권 확보",
   "AS": "항공 우세",
@@ -31,7 +31,6 @@
   "Air Incapability": "항공 열세",
   "Air Denial": "제공권 상실",
   "Start": "초기 위치",
-  "Unknown": "불명",
   "Obtain Resources": "자원 획득",
   "Lose Resources": "소용돌이",
   "Battle": "적군 조우",
@@ -44,6 +43,6 @@
   "Aerial Recon": "항공 정찰",
   "Compass Point": "나침반",
   "Next Spot": "다음 지점",
-  "Item get": "「%s」을(를) 얻었습니다!",
+  "Item \"%s:\" got! ": "「%s」을(를) 얻었습니다!",
   "Not in sortie": "출격중이 아닙니다"
 }

@@ -63,7 +63,7 @@ const ShipView = connect(
 
           <Col xs={6} className='ship-name'>
           <OverlayTrigger
-          placement="top"
+          placement="left"
           overlay={tooltip}
           trigger="click"
           >

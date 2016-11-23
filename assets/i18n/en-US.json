@@ -23,7 +23,7 @@
   "HP": "HP",
   "PvP": "PvP",
   "Admiral": "Admiral",
-  "Join fleet": "%s \"%s\" joined your fleet",
+  "%s \"%s\" joined your fleet": "%s \"%s\" joined your fleet",
   "Unknown FC": "Unknown FC",
   "AS+": "AS+",
   "AS": "AS",

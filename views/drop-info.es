@@ -23,9 +23,9 @@ export default class DropInfo extends Component {
     let ship = _.get(window.$ships, getShip)
     let item = _.get(window.$slotitems, getItem)
     let shipMessage = ship != null ? 
-      __('%s [%s] joined your fleet', i18n.resources.__(window.$shipTypes[ship.api_stype].api_name), i18n.resources.__(ship.api_name)) 
+      __("%s \"%s\" joined your fleet", i18n.resources.__(window.$shipTypes[ship.api_stype].api_name), i18n.resources.__(ship.api_name)) 
       : ''
-    let itemMessage = item != null ? __('%s got', i18n.resources.__(item.api_name)) : ''
+    let itemMessage = item != null ? __("Item \"%s:\" got! ", i18n.resources.__(item.api_name)) : ''
     return (
       <Row className="drop-info">
         <Col xs={12}> 
