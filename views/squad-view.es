@@ -25,6 +25,14 @@ const order = {
   '3': '3rd',
 }
 
+const actionKind = {
+  '0': 'Standby',
+  '1': 'Sortie',
+  '2': 'Air Defense',
+  '3': 'Retreat',
+  '4': 'Rest',
+}
+
 // TODO: connect store airbase
 const SquadView = componentQueries(
   ({width}) => ({compact: width <250})
@@ -39,6 +47,7 @@ const SquadView = componentQueries(
     let pos = ship.pos || 0
 
     let name = ship.raw.api_name || `${order[pos] || ''} Squadron`
+    let action_kind = ship.raw.api_action_kind
 
 
     return (
@@ -47,7 +56,7 @@ const SquadView = componentQueries(
           <Col xs={this.props.compact? 12 : 5} className='ship-name'>
 
               <span>
-              {`${name}`}
+              {`${name} [${actionKind[action_kind]}]`}
             </span>
           </Col>
 
