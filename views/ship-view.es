@@ -3,7 +3,9 @@ import {join} from 'path'
 import React, {Component} from 'react'
 import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import componentQueries from 'react-component-queries'
-
+import {compose} from 'redux'
+import {connect} from 'react-redux'
+import _ from 'lodash'
 
 import {SlotitemIcon} from 'views/components/etc/icon'
 import {getCondStyle} from 'views/utils/game-utils'
@@ -19,8 +21,13 @@ const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 // maybe can use compose for co-exist with redux connect
 
-const ShipView = componentQueries(
-  ({width}) => ({compact: width <250})
+const ShipView = compose(
+connect(
+  state => ({toEscapeIndex: state.sortie._toEscapeIndex || []})
+),
+componentQueries(
+  ({width}) => ({compact: width < 250})
+)
 )(class ShipView extends React.Component {
 
 
@@ -29,6 +36,7 @@ const ShipView = componentQueries(
     if (! (ship && ship.id > 0)) {
       return <div />
     }
+    let isEscape = _.includes(this.props.toEscapeIndex, ship.id)
     let raw = ship.raw || {}
     let mst = $ships[ship.id] || {}
     let data = Object.assign(Object.clone(mst), raw)
@@ -59,7 +67,7 @@ const ShipView = componentQueries(
       </Tooltip>
 
     return (
-      <Row className={"ship-view "+ (this.props.compact? "compact" : '')}>
+      <Row className={"ship-view "+ (this.props.compact? "compact " : ' ') + (isEscape ? "escape" : '' )}>
 
           <Col xs={this.props.compact? 10 : 4} className='ship-name'>
           <OverlayTrigger
