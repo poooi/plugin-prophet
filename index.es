@@ -13,13 +13,14 @@ import {store} from 'views/create-store'
 
 import BattleViewArea from './views/battle-view-area'
 import NextSpotInfo from './views/next-spot-info'
+import BattleInfo from './views/battle-info'
 
 
 import {PacketManager, Simulator} from './lib/battle'
-import {Ship, ShipOwner} from './lib/battle/models'
+import {Ship, ShipOwner, StageType} from './lib/battle/models'
 
 const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
+const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 // information related to spot info, will move to utils or something later
 
@@ -105,10 +106,23 @@ const initEnemy = (intl=0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_s
 
 // extracts necessary information from its stages, returns a new simulator
 // infomation: 
-const synthesizeStage = (simulator) => {
+const synthesizeStage = (_simulator) => {
+  let simulator = Object.clone(_simulator)
   _.each(simulator.stages, (stage) => {
+    if (! (stage != null)) return
+    if(stage.type == StageType.Engagement) {
+      let {api_search, api_formation} = stage.api
+      simulator = {
+        ...simulator,
+        api_search,
+        api_formation,
+      }
+    }
+
 
   })
+
+  return simulator
 }
 
 
@@ -214,10 +228,15 @@ export const reactClass = connect(
   handlePacket = (e) => {
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
     fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.log(err)})
-    let stages = _.flatMap(e.packet, (packet) => simulator.simulate(packet) )
+    let stage = _.map(e.packet, (packet) => simulator.simulate(packet) )
+    let result = simulator.result
+    simulator = synthesizeStage(simulator)
+    
+    console.log(result)
     this.setState({
       sortiePhase: 2,
       simulator,
+      result,
     })
   }
 
@@ -292,6 +311,9 @@ export const reactClass = connect(
 
 
   render() {
+    const {simulator, result} = this.state
+    let {api_search, api_formation} = simulator
+
     return (
       <div id="plugin-prophet">
       <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
@@ -304,6 +326,17 @@ export const reactClass = connect(
         <Row>
           <Col xs={12}>
             <NextSpotInfo spotKind={this.state.spotKind}/>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>{
+            simulator &&
+            <BattleInfo 
+              result = {result && result.rank }
+              formation ={api_formation && api_formation[1]}
+              intercept = {api_formation && api_formation[2]}
+            />
+          }
           </Col>
         </Row>
           <Row>

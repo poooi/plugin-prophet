@@ -15,7 +15,7 @@ import {FABar, HPBar} from './bar'
 
 
 const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
+const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 // maybe can use compose for co-exist with redux connect
 
@@ -61,7 +61,7 @@ const ShipView = componentQueries(
     return (
       <Row className={"ship-view "+ (this.props.compact? "compact" : '')}>
 
-          <Col xs={this.props.compact? 12 : 5} className='ship-name'>
+          <Col xs={this.props.compact? 10 : 4} className='ship-name'>
           <OverlayTrigger
           placement="top"
           overlay={tooltip}
@@ -75,6 +75,10 @@ const ShipView = componentQueries(
               <span className={"position-indicator"}>{ship.owner=='Ours'? '': `(${ship.id})`}</span>
             </span>
           </OverlayTrigger>
+          </Col>
+
+          <Col xs={this.props.compact? 2 : 1} className='ship-damage'>
+            {ship.damage != null ? ship.damage : '' }
           </Col>
 
           <Col xs={this.props.compact? 12 : 7} className='ship-hp'>

@@ -79,7 +79,7 @@ const NextSpotInfo = connect(
           }
           </span>
 
-          {` | ${nextSpot}: ${spotKind}`}
+          {` | ${nextSpot}: ${__(spotKind)}`}
       </span>
     )
   }

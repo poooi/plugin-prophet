@@ -15,7 +15,7 @@ import {FABar, HPBar} from './bar'
 
 
 const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
+const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 // maybe can use compose for co-exist with redux connect
 

@@ -25,6 +25,12 @@
 #plugin-prophet .cond-indicator {
   margin-left: 0.5em;
 }
+#plugin-prophet .fleet-view {
+  min-height: 20em;
+}
+#plugin-prophet .ship-damage {
+  text-align: right;
+}
 .prophet-icon img.svg,
 .prophet-icon img.png {
   width: 15px;

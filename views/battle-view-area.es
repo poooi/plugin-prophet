@@ -14,7 +14,7 @@ import LBACView from './lbac-view'
 import SquadView from './squad-view'
 
 const { i18n } = window
-const __ = i18n["poi-plugin-prophet-testing"].__.bind(i18n["poi-plugin-prophet-testing"])
+const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const BattleViewArea = connect(
   (state, props) => ({
