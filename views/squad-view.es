@@ -2,7 +2,6 @@ import FontAwesome from 'react-fontawesome'
 import {join} from 'path'
 import React, {Component} from 'react'
 import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
-import componentQueries from 'react-component-queries'
 
 
 import {SlotitemIcon} from 'views/components/etc/icon'
@@ -34,9 +33,7 @@ const actionKind = {
 }
 
 // TODO: connect store airbase
-const SquadView = componentQueries(
-  ({width}) => ({compact: width <250})
-)(class SquadView extends React.Component {
+class SquadView extends React.Component {
 
 
   render() {
@@ -67,6 +64,6 @@ const SquadView = componentQueries(
       </Row>
     )
   }
-})
+}
 
 export default SquadView

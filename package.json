@@ -1,12 +1,10 @@
 {
-  "name": "poi-plugin-prophet-testing",
+  "name": "poi-plugin-prophet",
   "version": "5.4.0",
   "description": "A prophet plugin for Poi",
   "main": "index.es",
   "dependencies": {
-    "react-component-queries": "^2.1.1",
-    "react-inspector": "^1.1.1",
-    "react-sizeme": "^2.2.0"
+    "react-inspector": "^1.1.1"
   },
   "devDependencies": {
     "babel-eslint": "^6.0.4",
@@ -36,7 +34,7 @@
   },
   "homepage": "https://github.com/poooi/plugin-prophet#readme",
   "poiPlugin": {
-    "title": "Prophet-Testing",
+    "title": "Prophet",
     "description": "Sortie Prophet",
     "icon": "fa/flask",
     "priority": 1,
