@@ -42,8 +42,8 @@ const EngagementName = {
 // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
 export const AirControlName = {
   '0': __('Air Parity'),
-  '1': __('Air Supremacy'),
-  '2': __('Air Superiority'),
+  '1': __('AS+'),
+  '2': __('AS'),
   '3': __('Air Incapability'),
   '4': __('Air Denial'),
 }
@@ -61,7 +61,7 @@ export default class BattleInfo extends Component {
     result: '',
     formation: 0,
     intercept: 0,
-    seiku: 0,
+    seiku: -1,
   }
 
   render(){

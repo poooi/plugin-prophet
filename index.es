@@ -108,18 +108,25 @@ const initEnemy = (intl=0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_s
 // infomation: 
 const synthesizeStage = (_simulator) => {
   let simulator = Object.clone(_simulator)
+  
   _.each(simulator.stages, (stage) => {
-    if (! (stage != null)) return
+    if (_.isNil(stage)) return
+    let api_stage1 = _.get(stage,'kouku.api_stage1')
+    let {api_search, api_formation} = _.pick(stage.api, ['api_search', 'api_formation'])
     if(stage.type == StageType.Engagement) {
-      let {api_search, api_formation} = stage.api
       simulator = {
         ...simulator,
         api_search,
         api_formation,
       }
     }
+    if (!_.isNil(api_stage1)) {
+      simulator = {
+        ...simulator,
+        api_stage1,
+      }
 
-
+    }
   })
 
   return simulator
@@ -230,9 +237,9 @@ export const reactClass = connect(
     fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.log(err)})
     let stage = _.map(e.packet, (packet) => simulator.simulate(packet) )
     let result = simulator.result
+
+    // Attention, aynthesizeStage will break object prototype, put it to last
     simulator = synthesizeStage(simulator)
-    
-    console.log(result)
     this.setState({
       sortiePhase: 2,
       simulator,
@@ -312,7 +319,7 @@ export const reactClass = connect(
 
   render() {
     const {simulator, result} = this.state
-    let {api_search, api_formation} = simulator
+    let {api_search, api_formation, api_stage1} = simulator
 
     return (
       <div id="plugin-prophet">
@@ -335,6 +342,7 @@ export const reactClass = connect(
               result = {result && result.rank }
               formation ={api_formation && api_formation[1]}
               intercept = {api_formation && api_formation[2]}
+              seiku = {api_stage1 && api_stage1.api_disp_seiku}
             />
           }
           </Col>
