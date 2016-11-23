@@ -25,7 +25,7 @@ export const FormationName = {
   '5': __('Line Abreast'),
   '11': __('Cruising Formation 1 (anti-sub)'),
   '12': __('Cruising Formation 2 (forward)'),
-  '13': __('Cruising Formation 3 (ring)'),
+  '13': __('Cruising Formation 3 (Diamond)'),
   '14': __('Cruising Formation 4 (battle)'),
 }
 

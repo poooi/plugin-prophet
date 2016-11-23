@@ -20,7 +20,7 @@ import DropInfo from './views/drop-info'
 import {PacketManager, Simulator} from './lib/battle'
 import {Ship, ShipOwner, StageType, BattleType} from './lib/battle/models'
 
-const { i18n } = window
+const { i18n, ROOT } = window
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 // information related to spot info, will move to utils or something later
@@ -111,8 +111,8 @@ const synthesizeStage = (_simulator, result) => {
   let simulator = Object.clone(_simulator)
   // assign mvp to specific ship
   let [mainMvp, escortMvp] = result.mvp || [0, 0]
-  if (!( mainMvp<1 || mainMvp >6 )) simulator.mainFleet[mainMvp].isMvp = true
-  if (!( escortMvp<1 || escortMvp >6 )) simulator.escortFleet[escortMvp].isMvp = true
+  if (!( mainMvp<0 || mainMvp >6 )) simulator.mainFleet[mainMvp].isMvp = true
+  if (!( escortMvp<0 || escortMvp >6 )) simulator.escortFleet[escortMvp].isMvp = true
   
   _.each(simulator.stages, (stage) => {
     if (_.isNil(stage)) return
@@ -213,7 +213,7 @@ export const reactClass = connect(
     // initialize PacketManager
     this.pm = new PacketManager()
     this.pm.addListener('battle', this.handlePacket)
-    this.pm.addListener('result', this.handlePacket)
+    this.pm.addListener('result', this.handlePacketResult)
 
     // initialize repsonse listener
     window.addEventListener('game.response', this.handleGameResponse)
@@ -221,7 +221,7 @@ export const reactClass = connect(
 
   componentWillUnmount() {
     this.pm.removeListener('battle', this.handlePacket)
-    this.pm.removeListener('result', this.handlePacket)
+    this.pm.removeListener('result', this.handlePacketResult)
 
     window.removeEventListener('game.response', this.handleGameResponse)
   }
@@ -254,6 +254,33 @@ export const reactClass = connect(
       simulator,
       result,
     })
+  }
+
+  handlePacketResult = (e) => {
+    this.handlePacket(e)
+    // notify heavily damaged
+    // as battle result does not touch hps, it is safe to notify here?
+    const {mainFleet, escortFleet} = this.state.simulator
+    const escapedPos = this.props.sortie.escapedPos || []
+    const friendShips = _.concat(mainFleet, escortFleet)
+    let damageList = []
+
+    _.each(friendShips, (ship)=>{
+      
+      if (ship == null) return
+      if ((ship.nowHP / ship.maxHP < 0.25) && !_.includes(escapedPos, ship.pos -1) ) {
+        let shipName = _.get(window.$ships, `${ship.raw.api_ship_id}.api_name`)
+        damageList.push(i18n.resources.__(shipName))
+      }
+    })
+
+    if (!_.isEmpty(damageList)) {
+      window.notify(`${damageList.join(', ')} ${__('Heavily damaged')}`,{
+        type: 'damaged',
+        icon: join(ROOT, 'views', 'components', 'main', 'assets', 'img', 'state', '4.png'),
+        audio: config.get('plugin.prophet.notify.damagedAudio'),
+      })
+    }
   }
 
   handleGameResponse = (e) => {
