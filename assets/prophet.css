@@ -25,6 +25,9 @@
 #plugin-prophet .cond-indicator {
   margin-left: 0.5em;
 }
+#plugin-prophet .ship-view.escape {
+  opacity: 0.4;
+}
 #plugin-prophet .ship-damage {
   text-align: right;
 }

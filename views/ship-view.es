@@ -26,7 +26,7 @@ componentQueries(
   ({width}) => ({compact: width < 250})
 ),
 connect(
-  (state) => ({toEscapeIndex: state.sortie._toEscapeIndex || []})
+  (state) => ({escapedPos: state.sortie.escapedPos || []})
 )
 )(class ShipView extends React.Component {
 
@@ -36,7 +36,7 @@ connect(
     if (! (ship && ship.id > 0)) {
       return <div />
     }
-    let isEscape = _.includes(this.props.toEscapeIndex, ship.id)
+    let isEscaped = _.includes(this.props.escapedPos, ship.pos)
     let raw = ship.raw || {}
     let mst = $ships[ship.id] || {}
     let data = Object.assign(Object.clone(mst), raw)
@@ -67,7 +67,7 @@ connect(
       </Tooltip>
 
     return (
-      <Row className={"ship-view "+ (this.props.compact? "compact " : ' ') + (isEscape ? "escape" : '' )}>
+      <Row className={"ship-view "+ (this.props.compact? "compact " : ' ') + (isEscaped ? "escaped" : '' )}>
 
           <Col xs={this.props.compact? 10 : 4} className='ship-name'>
           <OverlayTrigger
@@ -85,9 +85,10 @@ connect(
           </OverlayTrigger>
           </Col>
 
-          <Col xs={this.props.compact? 2 : 1} className='ship-damage'>
-            {ship.damage != null ? ship.damage : '' }
-          </Col>
+            <Col xs={this.props.compact? 2 : 1} className='ship-damage'>
+              {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
+            </Col>
+
 
           <Col xs={this.props.compact? 12 : 7} className='ship-hp'>
             <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} item={ship.useItem} />
