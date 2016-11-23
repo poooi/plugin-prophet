@@ -1,6 +1,6 @@
 const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
-import {Panel} from 'react-bootstrap'
+import {Row, Col} from 'react-bootstrap'
 import React, { Component, PropTypes } from 'react'
 import FontAwesome from 'react-fontawesome'
 
@@ -66,6 +66,14 @@ export default class BattleInfo extends Component {
 
   render(){
     const {result, formation, intercept, seiku} = this.props
-    return <span>{`${result} | ${FormationName[formation] || ''} | ${EngagementName[intercept] || ''} | ${AirControlName[seiku] || '' }`}</span>
+    return (
+      <Row className="battle-info">
+        <Col xs={12}>
+          <span>
+            {`${result} | ${FormationName[formation] || ''} | ${EngagementName[intercept] || ''} | ${AirControlName[seiku] || '' }`}
+          </span>
+        </Col>
+      </Row>
+    )
   }
 }

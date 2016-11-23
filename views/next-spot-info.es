@@ -1,6 +1,6 @@
 const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
-import {Panel} from 'react-bootstrap'
+import {Row, Col} from 'react-bootstrap'
 import React, { Component, PropTypes } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { connect } from 'react-redux'
@@ -67,20 +67,24 @@ const NextSpotInfo = connect(
     const {lastSpot, nextSpot, sortieMapId, mapspot, spotKind} = this.props
     let compassAngle = getCompassAngle(mapspot, sortieMapId, lastSpot, nextSpot)
     return(
-      <span>
-        {`${__("compass")}: `}
+      <Row className="next-spot-info">
+        <Col xs={12}>
+          <span>
+            {`${__("compass")}: `}
 
-        <span className="compass">
-         {
-           Number.isNaN(compassAngle) ? 
-           '?' : 
-          <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
-                            style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
-          }
+            <span className="compass">
+            {
+              Number.isNaN(compassAngle) ? 
+              '?' : 
+              <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
+                                style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
+              }
+              </span>
+
+              {` | ${nextSpot}: ${__(spotKind)}`}
           </span>
-
-          {` | ${nextSpot}: ${__(spotKind)}`}
-      </span>
+        </Col>
+      </Row>
     )
   }
 })

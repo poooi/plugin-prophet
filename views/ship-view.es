@@ -77,7 +77,7 @@ const ShipView = connect(
               {getShipName(data)}
               {data.api_cond ? <span className="cond-indicator"><FontAwesome name="star"/> {data.api_cond}</span>  : ''}
               </span>
-              <span className={"position-indicator"}>{ship.owner=='Ours'? '': `(${ship.id})`}</span>
+              <span className={"position-indicator"}>{ship.owner=='Ours'? '': ` (${ship.id})`}</span>
             </span>
           </OverlayTrigger>
           </Col>

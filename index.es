@@ -181,10 +181,15 @@ export const reactClass = connect(
   constructor(){
     super()
     this.state ={
-      simulator:{},
-      sortiePhase: 0,
-      spotKind: '',
+      ...this.constructor.initState,
     }
+    console.log(this.state)
+  }
+  static initState ={
+    simulator:{},
+    sortiePhase: 0,
+    spotKind: '',
+    result: {},
   }
 
   componentWillMount() {
@@ -294,8 +299,7 @@ export const reactClass = connect(
 
     case '/kcsapi/api_port/port':
       this.setState({
-        sortiePhase: 0,
-        simulator,
+        ...this.constructor.initState,
       })
       break
 
@@ -356,10 +360,12 @@ export const reactClass = connect(
 
 
   render() {
-    const {simulator, result} = this.state
-    let {api_search, api_formation, api_stage1} = simulator
-    let getShip, getItem
-    if (result != null) [getShip,getItem] = [result.getShip, result.getItem]
+    let simulator = this.state.simulator
+    let result = this.state.result
+    let api_formation = simulator.api_formation
+    let api_stage1 = simulator.api_stage1
+    let getShip = result.getShip
+    let getItem = result.getItem
 
     return (
       <div id="plugin-prophet">
@@ -370,33 +376,27 @@ export const reactClass = connect(
             <BattleViewArea simulator={this.state.simulator || {}} sortiePhase={this.state.sortiePhase}/>
           </Col>
         </Row>
-        <Row>
-          <Col xs={12}>
+        {
+          this.state.sortiePhase == 1 ?
             <NextSpotInfo spotKind={this.state.spotKind}/>
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12}>{
-            simulator &&
+              : ''
+        }
+        {
+          this.state.sortiePhase >1 && simulator ?
             <BattleInfo 
               result = {result && result.rank }
               formation ={api_formation && api_formation[1]}
               intercept = {api_formation && api_formation[2]}
               seiku = {api_stage1 && api_stage1.api_disp_seiku}
-            />
-          }
-          </Col>
-        </Row>
-        <Row>
-          <Col xs={12}>{
-            (getShip || getItem) &&
+            /> : ''
+        }
+        {
+          (getShip || getItem) &&
             <DropInfo
               getShip = {getShip}
               getItem = {getItem} 
             />
-          }
-          </Col>
-        </Row>
+        }
           <Row>
             <Col xs={12}>
               <Inspector data={this.state}/>
