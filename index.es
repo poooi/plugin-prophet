@@ -107,8 +107,12 @@ const initEnemy = (intl=0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_s
 
 // extracts necessary information from its stages, returns a new simulator
 // infomation: 
-const synthesizeStage = (_simulator) => {
+const synthesizeStage = (_simulator, result) => {
   let simulator = Object.clone(_simulator)
+  // assign mvp to specific ship
+  let [mainMvp, escortMvp] = result.mvp || [0, 0]
+  if (!( mainMvp<1 || mainMvp >6 )) simulator.mainFleet[mainMvp].isMvp = true
+  if (!( escortMvp<1 || escortMvp >6 )) simulator.escortFleet[escortMvp].isMvp = true
   
   _.each(simulator.stages, (stage) => {
     if (_.isNil(stage)) return
@@ -244,7 +248,7 @@ export const reactClass = connect(
     let result = simulator.result
 
     // Attention, aynthesizeStage will break object prototype, put it to last
-    simulator = synthesizeStage(simulator)
+    simulator = synthesizeStage(simulator, result)
     this.setState({
       sortiePhase,
       simulator,

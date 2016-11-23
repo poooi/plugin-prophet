@@ -61,6 +61,7 @@ const ShipView = connect(
         </div>
       </Tooltip>
 
+
     return (
       <Row className={"ship-view " + (isEscaped ? "escaped" : '' )}>
 
@@ -72,6 +73,7 @@ const ShipView = connect(
           >
             <span>
               <span className={data.api_cond && getCondStyle(data.api_cond)}>
+              
               {getShipName(data)}
               {data.api_cond ? <span className="cond-indicator"><FontAwesome name="star"/> {data.api_cond}</span>  : ''}
               </span>
@@ -79,9 +81,9 @@ const ShipView = connect(
             </span>
           </OverlayTrigger>
           </Col>
-
-            <Col xs={1} className='ship-damage'>
+            <Col xs={1} className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
               {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
+              {ship.isMvp ? <FontAwesome name='trophy' /> : ''}
             </Col>
 
 
