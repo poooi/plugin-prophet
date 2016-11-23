@@ -14,6 +14,7 @@ import {store} from 'views/create-store'
 import BattleViewArea from './views/battle-view-area'
 import NextSpotInfo from './views/next-spot-info'
 import BattleInfo from './views/battle-info'
+import DropInfo from './views/drop-info'
 
 
 import {PacketManager, Simulator} from './lib/battle'
@@ -322,6 +323,8 @@ export const reactClass = connect(
   render() {
     const {simulator, result} = this.state
     let {api_search, api_formation, api_stage1} = simulator
+    let getShip, getItem
+    if (result != null) [getShip,getItem] = [result.getShip, result.getItem]
 
     return (
       <div id="plugin-prophet">
@@ -345,6 +348,16 @@ export const reactClass = connect(
               formation ={api_formation && api_formation[1]}
               intercept = {api_formation && api_formation[2]}
               seiku = {api_stage1 && api_stage1.api_disp_seiku}
+            />
+          }
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={12}>{
+            (getShip || getItem) &&
+            <DropInfo
+              getShip = {getShip}
+              getItem = {getItem} 
             />
           }
           </Col>

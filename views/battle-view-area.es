@@ -48,16 +48,32 @@ const BattleViewArea = connect(
         {
           (simulator && sortiePhase != 0) ? (
             <Grid>
-              <Row>
-                <Col xs={12}>{`${__(friendTitle)} [${api_f_count - api_f_lostcount}/${api_f_count}]`}</Col>
-              </Row>
+              
+                {
+                  sortiePhase > 1 ? 
+                  <Row>
+                    <Col xs={12}>
+                      {`${__(friendTitle)} [${api_f_count - api_f_lostcount}/${api_f_count}]`}
+                    </Col>
+                  </Row> : 
+                  ''
+                }
+              
               <Row>
                 <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
                 <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
               </Row>
-              <Row>
-                <Col xs={12}>{`${__(enemyTitle)} [${api_e_count - api_e_lostcount}/${api_e_count}]`}</Col>
-              </Row>
+              
+                {
+                  sortiePhase > 1 ? 
+                  <Row>
+                    <Col xs={12}>
+                      {`${__(enemyTitle)} [${api_e_count - api_e_lostcount}/${api_e_count}]`}
+                    </Col>
+                  </Row> : 
+                  ''
+                }
+              
               <Row>
                 <FleetView fleet={simulator.enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
                 <FleetView fleet={simulator.enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
