@@ -78,8 +78,8 @@ const BattleViewArea = connect(
                 }
               
               <Row>
-                <FleetView fleet={simulator.enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
                 <FleetView fleet={simulator.enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
+                <FleetView fleet={simulator.enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
               </Row>
               { 
                 sortieState > 1 &&
