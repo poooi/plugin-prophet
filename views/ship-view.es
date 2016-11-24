@@ -22,8 +22,10 @@ const ShipView = connect(
 )(class ShipView extends Component {
 
 
+
   render() {
-    let {child: ship, omitDamage} = this.props
+    let {child: ship} = this.props
+
     if (! (ship && ship.id > 0)) {
       return <div />
     }
@@ -78,7 +80,7 @@ const ShipView = connect(
           </OverlayTrigger>
           </Col>
             {
-              omitDamage ?
+              ship.damage < 0 ?
                '' :
               <Col xs={1} className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
                 {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
