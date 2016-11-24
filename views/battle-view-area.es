@@ -55,7 +55,7 @@ const BattleViewArea = connect(
                 {
                   sortieState ? 
                   <Row className="friend-title title">
-                    <Col xs={12}>
+                    <Col xs={12/times}>
                       {__(friendTitle) + (api_f_count ? ` [${api_f_count - api_f_lostcount}/${api_f_count}]`: '')}
                     </Col>
                   </Row> : 
@@ -70,7 +70,7 @@ const BattleViewArea = connect(
                 {
                   sortieState ? 
                   <Row className="enemy-title title">
-                    <Col xs={12}>
+                    <Col xs={12/times}>
                       {__(enemyTitle) + (api_e_count ? ` [${api_e_count - api_e_lostcount}/${api_e_count}]`: '')}
                     </Col>
                   </Row> : 
