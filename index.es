@@ -173,7 +173,7 @@ export const reactClass = connect(
 
 
   handlePacket = (e) => {
-    let sortieState = e.type == BattleType.Practice ? 3 : 2
+    let sortieState = e.type == (BattleType.Practice || BattleType.Pratice ) ? 3 : 2
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
     fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.log(err)})
     let stage = _.map(e.packet, (packet) => simulator.simulate(packet) )
