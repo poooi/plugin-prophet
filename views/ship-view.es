@@ -23,7 +23,7 @@ const ShipView = connect(
 
 
   render() {
-    let {child: ship} = this.props
+    let {child: ship, omitDamage} = this.props
     if (! (ship && ship.id > 0)) {
       return <div />
     }
@@ -77,10 +77,14 @@ const ShipView = connect(
             </span>
           </OverlayTrigger>
           </Col>
-            <Col xs={1} className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
-              {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
-              {ship.isMvp ? <FontAwesome name='trophy' /> : ''}
-            </Col>
+            {
+              omitDamage ?
+               '' :
+              <Col xs={1} className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
+                {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
+                {ship.isMvp ? <FontAwesome name='trophy' /> : ''}
+              </Col> 
+            }
 
 
           <Col xs={4} className='ship-hp'>

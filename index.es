@@ -220,7 +220,7 @@ export const reactClass = connect(
 
     // used in determining next spot type
     let {api_event_kind, api_event_id, api_destruction_battle} = body
-    let simulator = {}
+    let simulator = this.state.simulator
 
     switch(path){
 
@@ -232,6 +232,7 @@ export const reactClass = connect(
 
     case '/kcsapi/api_req_map/start':
     case '/kcsapi/api_req_map/next':
+      // land base air raid
       if (api_destruction_battle != null) {
         // construct virtual fleet to reprsent the base attack
         let {sortie, airbase} = this.props
@@ -273,6 +274,7 @@ export const reactClass = connect(
         simulator.enemyFleet = enemy
         simulator.api_formation = api_formation
         simulator.result={rank: lostKind[api_lost_kind] || ''}
+        simulator.isAirRaid = true
 
       }
 

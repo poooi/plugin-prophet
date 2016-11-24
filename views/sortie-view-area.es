@@ -36,7 +36,7 @@ const SortieViewArea = connect(
     return (
       <div id="overview-area">
         {
-          simulator.mainFleet ? 
+          simulator.isAirRaid ? 
             <Grid>
               <Row className="friend-title title">
                 <Col xs={12}>
@@ -61,7 +61,21 @@ const SortieViewArea = connect(
               <NextSpotInfo spotKind={this.props.spotKind}/>
             </Grid>
            : 
+           <Grid>
+              {
+                simulator.mainFleet &&
+                <Row className="friend-title title">
+                    <Col xs={12/times}>
+                      {__('Sortie Fleet')}
+                    </Col>
+                  </Row>
+              }
+              <Row>
+                <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} omitDamage={true}/>
+                <FleetView fleet={simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount} omitDamage={true}/>
+              </Row>
           <NextSpotInfo spotKind={this.props.spotKind}/>
+          </Grid>
         }
       </div>
     )
