@@ -68,7 +68,6 @@ const ShipView = connect(
           <OverlayTrigger
             placement="left"
             overlay={tooltip}
-            trigger="click"
           >
             <div className="ship-info">
               <div className='ship-name'>
