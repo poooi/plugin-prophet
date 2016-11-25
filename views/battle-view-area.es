@@ -34,7 +34,7 @@ const BattleViewArea = connect(
   render() {
     const {simulator, layout, sortieState} = this.props
     let View = simulator.isAirRaid ? SquadView : null
-    let friendTitle = 'Sortie Fleet'
+    let friendTitle = simulator.isAirRaid ? 'Land Base' : 'Sortie Fleet'
     let enemyTitle = sortieState == 3 ? 'PvP' : 'Enemy Vessel'
     const times = layout == 'horizontal' ? 1 : 2
     // adapt the view according to layout by setting FleetView's div xs = 12/count
