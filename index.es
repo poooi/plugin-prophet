@@ -183,6 +183,9 @@ export const reactClass = connect(
 
     // initialize repsonse listener
     window.addEventListener('game.response', this.handleGameResponse)
+
+    // for debug (ugly)
+    if (window.dbg.isEnabled()) window.prophetTest = (e) => this.handlePacket(JSON.parse(e))
   }
 
   componentWillUnmount() {
@@ -190,6 +193,8 @@ export const reactClass = connect(
     this.pm.removeListener('result', this.handlePacketResult)
 
     window.removeEventListener('game.response', this.handleGameResponse)
+
+    delete window.prophetTest
   }
 
   transFormToBattleLibClass = (fleets, equips) =>
