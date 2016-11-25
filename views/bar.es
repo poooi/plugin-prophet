@@ -74,7 +74,7 @@ export class HPBar extends React.Component {
               {labels}
             </span>
             {
-              cond ? <div className="status-cond">
+              typeof cond !== 'undefined' ? <div className="status-cond">
                 <span className={"ship-cond " + getCondStyle(cond)}>
                   ★{cond}
                 </span>
