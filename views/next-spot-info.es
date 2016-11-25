@@ -9,7 +9,7 @@ import {createSelector} from 'reselect'
 import {extensionSelectorFactory} from 'views/utils/selectors'
 
 const getCompassAngle = (mapspot, sortieMapId, lastSpot, nextSpot) =>{
-  if (lastSpot == nextSpot) return NaN
+  if (lastSpot == nextSpot || nextSpot == -1) return NaN
   const mapspots = _.get(mapspot, [Math.floor(sortieMapId / 10), sortieMapId % 10], [])
   if (!mapspots || !Object.keys(mapspots).length) return NaN
   let last = mapspots[lastSpot]
@@ -25,7 +25,7 @@ const sortieDataSelector = (state) => {
   const lastSpot = _.takeRight(spotHistory,2)[0]
   return({
     lastSpot,
-    nextSpot: currentNode,
+    nextSpot: currentNode || -1,
     bossNode,
     sortieMapId,
   })
