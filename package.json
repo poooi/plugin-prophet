@@ -33,7 +33,7 @@
   "poiPlugin": {
     "title": "Prophet",
     "description": "Sortie Prophet",
-    "icon": "fa/flask",
+    "icon": "fa/compass",
     "priority": 1,
     "apiVer": {
       "6.99.99": "5.2.1",
