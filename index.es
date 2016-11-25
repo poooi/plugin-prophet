@@ -1,8 +1,6 @@
 import React, {Component} from 'react'
 import ReactDOM from 'react-dom'
-import Inspector from 'react-inspector'
 import _ from 'lodash'
-import {Grid, Row, Col, Button, Form, FormGroup, ControlLabel, FormControl} from 'react-bootstrap'
 import {join} from 'path'
 // import fs from 'fs-extra'
 import { connect } from 'react-redux'
@@ -210,24 +208,9 @@ export const reactClass = connect(
       )
     ).concat(undefined).slice(0, 2)
 
-  testProphet = (e) => {
-    const fpath = join(__dirname, 'test', ReactDOM.findDOMNode(this.fileName).value +'.json')
-    try {
-      fs.accessSync(fpath)
-
-      const data = fs.readJsonSync(fpath)
-      this.handlePacket(data)
-    }
-    catch(err) {
-      console.error(err)
-    }
-  }
-
-
   handlePacket = (e) => {
     let sortieState = e.type == (BattleType.Practice || BattleType.Pratice ) ? 3 : 2
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
-    fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.error(err)})
     let stage = _.map(e.packet, (packet) => simulator.simulate(packet) )
     let result = simulator.result
 
@@ -341,26 +324,7 @@ export const reactClass = connect(
     return (
       <div id="plugin-prophet">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
-          <div>
-            <div>
-              <BattleViewArea simulator={this.state.simulator || {}} sortieState={this.state.sortieState} spotKind={this.state.spotKind}/>
-            </div>
-            <div>
-              <Inspector data={this.state}/>
-              <Inspector data={this.props}/>
-            </div>
-          </div>
-          <div>
-            <Form inline>
-              <FormGroup controlId="formInlineEmail">
-                <ControlLabel>Timestamp</ControlLabel>
-                <FormControl type="text" ref={(ref) => this.fileName = ref}/>.json
-              </FormGroup>
-              <Button onClick={this.testProphet}>
-                Simulate
-              </Button>
-            </Form>
-        </div>
+        <BattleViewArea simulator={this.state.simulator || {}} sortieState={this.state.sortieState} spotKind={this.state.spotKind}/>
       </div>
     )
   }
