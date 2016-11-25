@@ -89,7 +89,7 @@ const BattleViewArea = connect(
           }
           <div className="alert">
             {
-              sortieState === 1 || !simulator.isAirRaid ?
+              sortieState === 1 && !simulator.isAirRaid ?
               <NextSpotInfo spotKind={this.props.spotKind}/>
               : (getShip || getItem) ?
               <DropInfo
