@@ -297,12 +297,14 @@ export const reactClass = connect(
         // simulation
         const {api_stage1, api_stage3} = api_air_base_attack
         simulator.api_stage1 = api_stage1
-        const {api_fdam} = api_stage3
-        landBase = _.map(landBase, (squad, index) =>{
-          squad.lostHP = api_fdam[index+1] || 0
-          squad.nowHP -= squad.lostHP
-          return squad
-        })
+        if (!_.isNil(api_stage3)) {
+          const {api_fdam} = api_stage3
+          landBase = _.map(landBase, (squad, index) =>{
+            squad.lostHP = api_fdam[index+1] || 0
+            squad.nowHP -= squad.lostHP
+            return squad
+          })
+        }
         simulator.mainFleet = landBase
         simulator.enemyFleet = enemy
         simulator.api_formation = api_formation
