@@ -51,7 +51,7 @@ const synthesizeStage = (_simulator, result) => {
         api_formation,
       }
     }
-    if (!_.isNil(api_stage1)) {
+    if (!_.isNil(api_stage1) && stage.type == StageType.Aerial ) {
       simulator = {
         ...simulator,
         api_stage1,
