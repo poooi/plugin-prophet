@@ -48,20 +48,20 @@ class SquadView extends React.Component {
 
 
     return (
-      <Row className={"ship-view "+ (this.props.compact? "compact" : '')}>
-
-          <Col xs={this.props.compact? 12 : 5} className='ship-name'>
-
+      <div className="div-row ship-item">
+        <div className={"ship-view "+ (this.props.compact? "compact" : '')}>
+          <div className="ship-info">
+            <div className='ship-name'>
               <span>
-              {`${name} [${actionKind[action_kind]}]`}
-            </span>
-          </Col>
-
-          <Col xs={this.props.compact? 12 : 7} className='ship-hp'>
-            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} />
-        </Col>
-
-      </Row>
+                {`${name} [${actionKind[action_kind]}]`}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className='ship-hp'>
+          <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} />
+        </div>
+      </div>
     )
   }
 }

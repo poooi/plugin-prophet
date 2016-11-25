@@ -67,24 +67,20 @@ const NextSpotInfo = connect(
     const {lastSpot, nextSpot, sortieMapId, mapspot, spotKind} = this.props
     let compassAngle = getCompassAngle(mapspot, sortieMapId, lastSpot, nextSpot)
     return(
-      <Row className="next-spot-info">
-        <Col xs={12}>
-          <span>
-            {`${__("Compass Point")}: `}
+      <span>
+        {`${__("Compass Point")}: `}
 
-            <span className="compass">
-            {
-              Number.isNaN(compassAngle) ? 
-              '?' : 
-              <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
-                                style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
-              }
-              </span>
-
-              {` | ${nextSpot}: ${__(spotKind)}`}
+        <span className="compass">
+        {
+          Number.isNaN(compassAngle) ?
+          '?' :
+          <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
+                            style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
+          }
           </span>
-        </Col>
-      </Row>
+
+          {` | ${nextSpot}: ${__(spotKind)}`}
+      </span>
     )
   }
 })

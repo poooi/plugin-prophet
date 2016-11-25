@@ -3,9 +3,8 @@ import React, {Component} from 'react'
 import { Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {connect} from 'react-redux'
 import _ from 'lodash'
-
-
 import {getCondStyle} from 'views/utils/game-utils'
+
 const { $ships} = window
 
 import ItemView from './item-view'
@@ -18,7 +17,10 @@ const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 
 const ShipView = connect(
-  (state) => ({escapedPos: state.sortie.escapedPos || []})
+  (state, props) => ({
+    escapedPos: state.sortie.escapedPos || [],
+    child: props.child,
+  })
 )(class ShipView extends Component {
 
 
@@ -41,7 +43,7 @@ const ShipView = connect(
       data.api_onslot = data.api_maxeq
     }
 
-    const tooltip = 
+    const tooltip =
       <Tooltip id={`slotinfo-${data.api_id}`}>
         <div className='ship-info'>
           <span>Lv.</span>
@@ -54,46 +56,36 @@ const ShipView = connect(
           <ItemView key={i} item={item} extra={false}
             warn={data.api_onslot[i] !== data.api_maxeq[i]} />
           )}
-          
+
           <ItemView item={data.poi_slot_ex} extra={true} label={'+'} warn={false} />
         </div>
       </Tooltip>
 
 
     return (
-      <Row className={"ship-view " + (isEscaped ? "escaped" : '' )}>
-
-          <Col xs={6} className='ship-name'>
+      <div className="div-row ship-item">
+        <div className={"ship-view " + (isEscaped ? "escaped" : '' )}>
           <OverlayTrigger
-          placement="left"
-          overlay={tooltip}
-          trigger="click"
+            placement="left"
+            overlay={tooltip}
+            trigger="click"
           >
-            <span>
-              <span className={data.api_cond && getCondStyle(data.api_cond)}>
-              
-              {getShipName(data)}
-              {data.api_cond ? <span className="cond-indicator"><FontAwesome name="star"/> {data.api_cond}</span>  : ''}
-              </span>
-              <span className={"position-indicator"}>{ship.owner=='Ours'? '': ` (${ship.id})`}</span>
-            </span>
-          </OverlayTrigger>
-          </Col>
-            {
-              ship.damage < 0 ?
-               '' :
-              <Col xs={1} className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
-                {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
+            <div className="ship-info">
+              <div className='ship-name'>
+                {getShipName(data)}
+                <span className="position-indicator">{ship.owner=='Ours'? '': ` (${ship.id})`}</span>
+              </div>
+              <div className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
                 {ship.isMvp ? <FontAwesome name='trophy' /> : ''}
-              </Col> 
-            }
-
-
-          <Col xs={4} className='ship-hp'>
-            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} item={ship.useItem} />
-        </Col>
-
-      </Row>
+                {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
+              </div>
+            </div>
+          </OverlayTrigger>
+        </div>
+        <div className='ship-hp'>
+            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} item={ship.useItem} cond={data.api_cond} />
+        </div>
+      </div>
     )
   }
 })

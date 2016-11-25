@@ -1,6 +1,7 @@
-
-const {React, ReactBootstrap, ROOT, $slotitems} = window
-const {ProgressBar} = ReactBootstrap
+import {getCondStyle, getHpStyle} from 'views/utils/game-utils'
+import React from 'react'
+import { ProgressBar } from 'react-bootstrap'
+const { ROOT, $slotitems } = window
 const {MaterialIcon, SlotitemIcon} = require(`${ROOT}/views/components/etc/icon`)
 
 export class FABar extends React.Component {
@@ -35,7 +36,7 @@ export class HPBar extends React.Component {
 
 
   render() {
-    let {max, from, to, damage, item} = this.props
+    let {max, from, to, damage, item, cond} = this.props
     if (from < 0) from = 0
     if (from > max) from = max
     if (to < 0) to = 0
@@ -44,7 +45,6 @@ export class HPBar extends React.Component {
     let now = 100 * to / max
     let lost = 100 * (from - to) / max
     let additions = []
-    let textColor = (now+lost) <= 45 ? 'black' : 'white'
 
     if (damage !== 0) {
       additions.push(`${-damage}`)
@@ -68,12 +68,24 @@ export class HPBar extends React.Component {
 
     return (
       <div>
-      <div className={`hp-text `}>{labels}</div>
-      <ProgressBar className="hp-bar">
-        <ProgressBar className="hp-bar" bsStyle={this.getHpStyle(now)} now={now}/>
-        
-      </ProgressBar>
-      
+        <div className="ship-stat">
+          <div className="div-row">
+            <span className="ship-hp">
+              {labels}
+            </span>
+            {
+              cond ? <div className="status-cond">
+                <span className={"ship-cond " + getCondStyle(cond)}>
+                  ★{cond}
+                </span>
+              </div> : <noscript />
+            }
+          </div>
+          <span className="hp-progress top-space">
+            <ProgressBar bsStyle={getHpStyle(now)}
+                         now={now} />
+          </span>
+        </div>
       </div>
     )
   }

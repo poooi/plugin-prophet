@@ -21,7 +21,7 @@ export default class FleetView extends React.Component {
   }
 
   render() {
-    let {fleet, title, View, count} = this.props
+    let {fleet, View} = this.props
     if (! (fleet && fleet.length > 0)) {
       return <div />
     }
@@ -29,15 +29,13 @@ export default class FleetView extends React.Component {
       View = ShipView
     }
     return (
-      <Col xs={12/count} className="fleet-view">
-        
-        <Grid>
+      <div className="fleet-view">
+        <div>
         {fleet.map((ship, i) =>
-
-            <View child={ship} key={i}/>
+          <View child={ship} key={i}/>
         )}
-        </Grid>
-      </Col>
+        </div>
+      </div>
     )
   }
 }

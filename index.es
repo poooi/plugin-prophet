@@ -12,15 +12,17 @@ const CSON = promisifyAll(require('cson'))
 import {store} from 'views/create-store'
 
 import BattleViewArea from './views/battle-view-area'
-import SortieViewArea from './views/sortie-view-area'
 
 import {initEnemy, spotInfo, getSpotKind, lostKind} from './utils'
 
 
 import {PacketManager, Simulator} from './lib/battle'
 import {Ship, ShipOwner, StageType, BattleType} from './lib/battle/models'
+import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 
 const { i18n, ROOT } = window
+//const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
+
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 
@@ -31,14 +33,14 @@ const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 
 // extracts necessary information from its stages, returns a new simulator
-// infomation: 
+// infomation:
 const synthesizeStage = (_simulator, result) => {
   let simulator = Object.clone(_simulator)
   // assign mvp to specific ship
   let [mainMvp, escortMvp] = result.mvp || [0, 0]
   if (!( mainMvp<0 || mainMvp >6 )) simulator.mainFleet[mainMvp].isMvp = true
   if (!( escortMvp<0 || escortMvp >6 )) simulator.escortFleet[escortMvp].isMvp = true
-  
+
   _.each(simulator.stages, (stage) => {
     if (_.isNil(stage)) return
     let api_stage1 = _.get(stage,'kouku.api_stage1')
@@ -98,11 +100,26 @@ export const reducer = (state, action) => {
 
 export const reactClass = connect(
   (state) => {
-    const sortie = state.sortie || {} 
+    const sortie = state.sortie || {}
+    const sortieStatus = sortie.sortieStatus || []
     const airbase = state.info.airbase || {}
+    const fleet = []
+    if (sortie.combinedFlag) {
+      fleet.push(0, 1)
+    } else if (sortieStatus.reduce((a, b) => a || b)) {
+      sortieStatus.forEach((a, i) => {
+        if (a) fleet.push(i)
+      })
+    } else {
+      fleet.push(0)
+    }
+    const fleets = fleet.map(i => fleetShipsDataSelectorFactory(i)(state))
+    const equips = fleet.map(i => fleetShipsEquipDataSelectorFactory(i)(state))
     return {
       sortie,
       airbase,
+      fleets,
+      equips,
     }
   }
 )(class Prophet extends Component {
@@ -128,7 +145,7 @@ export const reactClass = connect(
         data: mapspot,
       })
     })
-    .catch ((e) => console.log('Failed to load map data!', e.stack))
+    .catch ((e) => console.warn('Failed to load map data!', e.stack))
 
     fs.readFileAsync(join(__dirname, 'assets', 'data', 'maproute.cson'))
     .then ((data) =>{
@@ -138,7 +155,20 @@ export const reactClass = connect(
         data: mapspot,
       })
     })
-    .catch ((e) => console.log('Failed to load map route!', e.stack))
+    .catch ((e) => console.warn('Failed to load map route!', e.stack))
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (this.props.fleets !== nextProps.fleets || this.props.equips !== nextProps.equips) {
+      const [mainFleet, escortFleet] = this.transFormToBattleLibClass(nextProps.fleets, nextProps.equips)
+      this.setState({
+        simulator: {
+          ...this.state.simulator,
+          mainFleet,
+          escortFleet,
+        },
+      })
+    }
   }
 
   componentDidMount() {
@@ -158,16 +188,38 @@ export const reactClass = connect(
     window.removeEventListener('game.response', this.handleGameResponse)
   }
 
+  transFormToBattleLibClass = (fleets, equips) =>
+    fleets.map((fleet, fleetPos) =>
+      fleet.map(([_ship, $ship], shipPos) =>
+        new Ship({
+          id: _ship.api_ship_id,
+          owner: ShipOwner.Ours,
+          pos: fleetPos * 6 + shipPos + 1,
+          maxHP: _ship.api_maxhp,
+          nowHP: _ship.api_nowhp,
+          initHP: _ship.api_nowhp,
+          lostHP: 0,
+          damage: 0,
+          items: equips[fleetPos][shipPos].map(e => e ? e[0].api_slotitem_id : null),
+          useItem: null,
+          raw: {
+            ..._ship,
+            poi_slot: equips[fleetPos][shipPos].map(e => e ? e[0] : null),
+          },
+        })
+      )
+    ).concat(undefined).slice(0, 2)
+
   testProphet = (e) => {
     const fpath = join(__dirname, 'test', ReactDOM.findDOMNode(this.fileName).value +'.json')
     try {
       fs.accessSync(fpath)
-    
+
       const data = fs.readJsonSync(fpath)
       this.handlePacket(data)
     }
     catch(err) {
-      console.log(err)
+      console.error(err)
     }
   }
 
@@ -175,7 +227,7 @@ export const reactClass = connect(
   handlePacket = (e) => {
     let sortieState = e.type == (BattleType.Practice || BattleType.Pratice ) ? 3 : 2
     let simulator = new Simulator(e.fleet, {usePoiAPI: true})
-    fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.log(err)})
+    fs.outputJson(join(__dirname, 'test', Date.now()+'.json'), e, (err)=> {if (err != null) console.error(err)})
     let stage = _.map(e.packet, (packet) => simulator.simulate(packet) )
     let result = simulator.result
 
@@ -198,7 +250,7 @@ export const reactClass = connect(
     let damageList = []
 
     _.each(friendShips, (ship)=>{
-      
+
       if (ship == null) return
       if ((ship.nowHP / ship.maxHP < 0.25) && !_.includes(escapedPos, ship.pos -1) && this.state.sortieState != 3 ) {
         let shipName = _.get(window.$ships, `${ship.raw.api_ship_id}.api_name`,' ')
@@ -216,22 +268,26 @@ export const reactClass = connect(
   }
 
   handleGameResponse = (e) => {
-    const {path, body, postBody} = e.detail
-
+    const {path, body} = e.detail
     // used in determining next spot type
     let {api_event_kind, api_event_id, api_destruction_battle} = body
-    let simulator = this.state.simulator
-
-    switch(path){
-
+    let {simulator} = {...this.state}
+    switch (path) {
     case '/kcsapi/api_port/port':
       this.setState({
-        ...this.constructor.initState,
+        simulator: {
+          mainFleet: this.state.simulator.mainFleet,
+          escortFleet: this.state.simulator.escortFleet,
+        },
+        sortieState: 0,
+        spotKind: '',
+        result: {},
       })
       break
-
     case '/kcsapi/api_req_map/start':
     case '/kcsapi/api_req_map/next':
+      delete simulator.enemyFleet
+      delete simulator.enemyEscort
       // land base air raid
       if (api_destruction_battle != null) {
         // construct virtual fleet to reprsent the base attack
@@ -239,8 +295,7 @@ export const reactClass = connect(
         let mapArea = Math.floor((sortie.sortieMapId || 0) / 10)
         let {api_air_base_attack, api_maxhps, api_nowhps} = api_destruction_battle
         let landBase = []
-
-        _.each(airbase, (squad)=>{
+        _.each(airbase, (squad) => {
           if (squad.api_area_id != mapArea) return
           landBase.push(new Ship({
             id: -1,
@@ -248,36 +303,30 @@ export const reactClass = connect(
             pos: squad.api_rid,
             maxHP: api_maxhps[squad.api_rid] || 200,
             nowHP: api_nowhps[squad.api_rid] || 0,
-            items: _.map(squad.api_plane_info, plane => plane.api_slotid), 
+            items: _.map(squad.api_plane_info, plane => plane.api_slotid),
             raw: squad,
           }))
         })
-
         // construct enemy
         const {api_ship_ke, api_eSlot, api_ship_lv, api_formation, api_lost_kind} = api_destruction_battle
         let enemy = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
-
-
-
         // simulation
         const {api_stage1, api_stage3} = api_air_base_attack
         simulator.api_stage1 = api_stage1
-        
         const {api_fdam} = api_stage3
         landBase = _.map(landBase, (squad, index) =>{
           squad.lostHP = api_fdam[index+1] || 0
           squad.nowHP -= squad.lostHP
           return squad
         })
-
         simulator.mainFleet = landBase
         simulator.enemyFleet = enemy
         simulator.api_formation = api_formation
         simulator.result={rank: lostKind[api_lost_kind] || ''}
         simulator.isAirRaid = true
-
+      } else {
+        simulator.isAirRaid = false
       }
-
       this.setState({
         sortieState: 1,
         spotKind: spotInfo[getSpotKind(api_event_id, api_event_kind)] || '',
@@ -285,46 +334,34 @@ export const reactClass = connect(
       })
       break
     }
-
-
   }
 
 
   render() {
     return (
       <div id="plugin-prophet">
-      <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
-        <Grid>
-        <Row>
-          <Col xs={12}>
-            
-        {
-          this.state.sortieState == 1 ?
-            <SortieViewArea simulator={this.state.simulator || {}} spotKind={this.state.spotKind}/>
-              : 
-            <BattleViewArea simulator={this.state.simulator || {}} sortieState={this.state.sortieState}/>
-        }
-        </Col>
-            <Col xs={12}>
+        <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
+          <div>
+            <div>
+              <BattleViewArea simulator={this.state.simulator || {}} sortieState={this.state.sortieState} spotKind={this.state.spotKind}/>
+            </div>
+            <div>
               <Inspector data={this.state}/>
               <Inspector data={this.props}/>
-            </Col>
-          </Row>
-        </Grid>
-        <Row>
-          <Col>
-              <Form inline>
-                <FormGroup controlId="formInlineEmail">
-                  <ControlLabel>Timestamp</ControlLabel>
-                  <FormControl type="text" ref={(ref) => this.fileName = ref}/>.json
-                </FormGroup>
-                <Button onClick={this.testProphet}>
-                  Simulate
-                </Button>
-              </Form>
-          </Col>
-        </Row>
+            </div>
+          </div>
+          <div>
+            <Form inline>
+              <FormGroup controlId="formInlineEmail">
+                <ControlLabel>Timestamp</ControlLabel>
+                <FormControl type="text" ref={(ref) => this.fileName = ref}/>.json
+              </FormGroup>
+              <Button onClick={this.testProphet}>
+                Simulate
+              </Button>
+            </Form>
+        </div>
       </div>
-      )
+    )
   }
 })
