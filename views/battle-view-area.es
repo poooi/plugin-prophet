@@ -89,14 +89,14 @@ const BattleViewArea = connect(
           }
           <div className="alert">
             {
-              sortieState === 1 ?
+              sortieState === 1 || !simulator.isAirRaid ?
               <NextSpotInfo spotKind={this.props.spotKind}/>
               : (getShip || getItem) ?
               <DropInfo
                 getShip = {getShip}
                 getItem = {getItem}
               />
-              : sortieState > 1 ?
+              : sortieState > 1 || simulator.isAirRaid ?
               <BattleInfo
                 result = {result && result.rank }
                 formation ={api_formation && api_formation[1]}
