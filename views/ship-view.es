@@ -20,6 +20,7 @@ const ShipView = connect(
   (state, props) => ({
     escapedPos: state.sortie.escapedPos || [],
     child: props.child,
+    layout: _.get(state, 'config.poi.layout', 'horizontal'),
   })
 )(class ShipView extends Component {
 
@@ -66,7 +67,7 @@ const ShipView = connect(
       <div className="div-row ship-item">
         <div className={"ship-view " + (isEscaped ? "escaped" : '' )}>
           <OverlayTrigger
-            placement="left"
+            placement={this.props.layout === 'horizontal' ? 'left' : 'top'}
             overlay={tooltip}
           >
             <div className="ship-info">

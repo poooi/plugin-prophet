@@ -1,6 +1,13 @@
 #plugin-prophet {
   padding: 5px 10px;
 }
+#plugin-prophet .fleet-container {
+  display: flex;
+  overflow: hidden;
+}
+#plugin-prophet .prophet-info {
+  margin-bottom: auto;
+}
 #plugin-prophet .alv {
   display: inline-block;
 }
