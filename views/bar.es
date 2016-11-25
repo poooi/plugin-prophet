@@ -84,6 +84,11 @@ export class HPBar extends React.Component {
           <span className="hp-progress top-space">
             <ProgressBar bsStyle={getHpStyle(now)}
                          now={now} />
+            {
+              [1, 2, 3].map(i =>
+                <div className='hp-indicatior' style={{left: `-${25 * i}%`}}></div>
+              )
+            }
           </span>
         </div>
       </div>

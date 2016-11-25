@@ -11,6 +11,10 @@
 #plugin-prophet .alv {
   display: inline-block;
 }
+#plugin-prophet .hp-progress {
+  flex-direction: row;
+  display: flex;
+}
 #plugin-prophet .hp-bar.progress,
 #plugin-prophet .hp-bar.progess-bar:before {
   background-color: transparent !important;
@@ -47,6 +51,12 @@
 #plugin-prophet .progress {
   margin-bottom: 5px;
   height: 7px;
+  width: 100%;
+}
+#plugin-prophet .ship-hp .hp-indicatior {
+  position: relative;
+  border-left: black 1px solid;
+  height: 4px;
 }
 #plugin-prophet .ship-item {
   margin-bottom: 5px;
