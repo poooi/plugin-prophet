@@ -53,7 +53,7 @@ class SquadView extends React.Component {
           <div className="ship-info">
             <div className='ship-name'>
               <span>
-                {`${name} [${actionKind[action_kind]}]`}
+                {`${name} [${__(actionKind[action_kind] || '')}]`}
               </span>
             </div>
           </div>

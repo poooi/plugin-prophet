@@ -306,7 +306,7 @@ export const reactClass = connect(
         simulator.mainFleet = landBase
         simulator.enemyFleet = enemy
         simulator.api_formation = api_formation
-        simulator.result={rank: lostKind[api_lost_kind] || ''}
+        simulator.result={rank: __(lostKind[api_lost_kind] || '')}
         simulator.isAirRaid = true
       } else {
         simulator.isAirRaid = false

@@ -54,5 +54,10 @@
   "The air-raid has inflicted no damage to the land base.":"空襲による基地の損害はありません。",
   "Long Distance Aerial Battle": "長距離空襲戦",
   "Night Battle": "夜戦",
-  "Enemy Combined Fleet": "敵連合艦隊戦"
+  "Enemy Combined Fleet": "敵連合艦隊戦",
+  "Standby": "待機",
+  "Sortie": "出撃",
+  "Air Defense": "防空",
+  "Retreat": "退避",
+  "Rest": "休憩"
 }
