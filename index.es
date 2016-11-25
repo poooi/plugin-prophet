@@ -122,10 +122,15 @@ export const reactClass = connect(
     }
   }
 )(class Prophet extends Component {
-  constructor(){
-    super()
+  constructor(props){
+    super(props)
+    const [mainFleet, escortFleet] = this.transFormToBattleLibClass(props.fleets, props.equips)
     this.state ={
       ...this.constructor.initState,
+      simulator: {
+        mainFleet,
+        escortFleet,
+      },
     }
   }
   static initState ={
