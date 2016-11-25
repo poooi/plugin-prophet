@@ -158,7 +158,7 @@ export const reactClass = connect(
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.fleets !== nextProps.fleets || this.props.equips !== nextProps.equips) {
+    if (!_.isEqual(this.props.fleets, nextProps.fleets) ||!_.isEqual (this.props.equips, nextProps.equips)) {
       const [mainFleet, escortFleet] = this.transFormToBattleLibClass(nextProps.fleets, nextProps.equips)
       this.setState({
         simulator: {
