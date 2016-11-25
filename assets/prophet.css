@@ -57,6 +57,7 @@
   position: relative;
   border-left: black 1px solid;
   height: 4px;
+  z-index: 1000;
 }
 #plugin-prophet .ship-item {
   margin-bottom: 5px;
