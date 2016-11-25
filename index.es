@@ -304,6 +304,11 @@ export const reactClass = connect(
             squad.nowHP -= squad.lostHP
             return squad
           })
+        } else {
+          landBase = _.map(landBase, (squad, index) => {
+            squad.lostHP = 0
+            return squad
+          })
         }
         simulator.mainFleet = landBase
         simulator.enemyFleet = enemy
