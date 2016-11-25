@@ -8,6 +8,7 @@ import { promisifyAll } from 'bluebird'
 const fs = promisifyAll (require ('fs-extra'))
 const CSON = promisifyAll(require('cson'))
 import {store} from 'views/create-store'
+import semver from 'semver'
 
 import BattleViewArea from './views/battle-view-area'
 
@@ -272,7 +273,7 @@ export const reactClass = connect(
       delete simulator.enemyFleet
       delete simulator.enemyEscort
       // land base air raid
-      if (api_destruction_battle != null) {
+      if (api_destruction_battle != null && semver.gte(window.POI_VERSION, '7.2.0')) {
         // construct virtual fleet to reprsent the base attack
         let {sortie, airbase} = this.props
         let mapArea = Math.floor((sortie.sortieMapId || 0) / 10)
