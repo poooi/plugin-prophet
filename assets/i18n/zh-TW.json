@@ -48,9 +48,12 @@
   "Heavily damaged notification": "開啓大破通知",
   "Condition display": "顯示疲勞值",
   "Not in sortie": "未出擊",
-  "Your resources have sustained losses due to the air-raid!": "空襲により備蓄資源に損害を受けました！",
-  "Your resources, as well as your land-based air fleets, have sustained losses due to the air-raid!": "空襲により備蓄資源に損害を受け、基地航空隊にも地上撃破の損害が発生しました！",
-  "Your land-based air fleets have sustained losses due to the air-raid!": "空襲により基地航空隊に地上撃破の損害が発生しました！",
-  "The air-raid has inflicted no damage to the land base.":"空襲による基地の損害はありません。"
+  "Your resources have sustained losses due to the air-raid!": "由於空襲，儲備資源受到了損害！",
+  "Your resources, as well as your land-based air fleets, have sustained losses due to the air-raid!": "由於空襲，儲備資源以及基地航空隊受到了損害！",
+  "Your land-based air fleets have sustained losses due to the air-raid!": "由於空襲，基地航空隊受到了損害！",
+  "The air-raid has inflicted no damage to the land base.":"空襲沒有給基地帶來損害。",
+  "Long Distance Aerial Battle": "長距離空襲戰",
+  "Night Battle": "夜戰",
+  "Enemy Combined Fleet": "敵聯合艦隊戰"
 
 }

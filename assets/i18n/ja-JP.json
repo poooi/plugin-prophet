@@ -51,5 +51,8 @@
   "Your resources have sustained losses due to the air-raid!": "空襲により備蓄資源に損害を受けました！",
   "Your resources, as well as your land-based air fleets, have sustained losses due to the air-raid!": "空襲により備蓄資源に損害を受け、基地航空隊にも地上撃破の損害が発生しました！",
   "Your land-based air fleets have sustained losses due to the air-raid!": "空襲により基地航空隊に地上撃破の損害が発生しました！",
-  "The air-raid has inflicted no damage to the land base.":"空襲による基地の損害はありません。"
+  "The air-raid has inflicted no damage to the land base.":"空襲による基地の損害はありません。",
+  "Long Distance Aerial Battle": "長距離空襲戦",
+  "Night Battle": "夜戦",
+  "Enemy Combined Fleet": "敵連合艦隊戦"
 }
