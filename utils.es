@@ -102,8 +102,8 @@ export const getSpotKind = (api_event_id, api_event_kind) => {
 }
 
 export const lostKind = {
-  '1': 'Your resources have sustained losses due to the air-raid!',
-  '2': 'Your resources, as well as your land-based air fleets, have sustained losses due to the air-raid!',
-  '3': 'Your land-based air fleets have sustained losses due to the air-raid!',
-  '4': 'The air-raid has inflicted no damage to the land base.',
+  '1': 'Your resources have sustained losses!',
+  '2': 'Your resources and land-based air fleets have sustained losses!',
+  '3': 'Your land-based air fleets have sustained losses!',
+  '4': 'No damage to the land base.',
 }
