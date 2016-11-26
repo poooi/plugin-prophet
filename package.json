@@ -1,11 +1,19 @@
 {
   "name": "poi-plugin-prophet",
-  "version": "5.4.0",
+  "version": "6.0.0-beta.2",
   "description": "A prophet plugin for Poi",
-  "main": "index.cjsx",
-  "dependencies": {
+  "main": "index.es",
+  "devDependencies": {
+    "babel-eslint": "^6.0.4",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-preset-es2015-node6": "^0.3.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "eslint": "^2.12.0",
+    "eslint-plugin-import": "^1.8.1",
+    "eslint-plugin-react": "^5.1.1",
+    "react-inspector": "^1.1.1"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

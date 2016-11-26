@@ -1,122 +1,95 @@
-#prophet table td {
+#plugin-prophet {
+  padding: 5px 10px;
+}
+#plugin-prophet .fleet-container {
+  display: flex;
   overflow: hidden;
-  text-overflow: ellipsis;
+}
+#plugin-prophet .prophet-info {
+  margin-bottom: auto;
+}
+#plugin-prophet .alv {
+  display: inline-block;
+}
+#plugin-prophet .hp-progress {
+  flex-direction: row;
+  display: flex;
+}
+#plugin-prophet .hp-bar.progress,
+#plugin-prophet .hp-bar.progess-bar:before {
+  background-color: transparent !important;
+  height: 1.5em;
+}
+#plugin-prophet .cond-indicator {
+  margin-left: 0.5em;
+}
+#plugin-prophet .fleet-view {
+  flex: 1;
+  padding: 0 5px;
+  width: 50%;
+}
+#plugin-prophet .ship-view {
+  width: 50%;
+  padding-right: 7px;
+}
+#plugin-prophet .ship-hp {
+  width: 50%;
   white-space: nowrap;
-}
-#prophet table tr td {
-  padding-bottom: 0px;
-  border: none;
-}
-#prophet .progress {
-  border-radius: 0px;
-  background-color: inherit;
-}
-#prophet .hp-progress {
   flex: 1;
 }
-#prophet .hp-progress .progress {
-  height: 22px;
+#plugin-prophet .ship-view.escaped {
+  opacity: 0.4;
 }
-#prophet .hp-progress .progress .progress-bar {
-  font-size: 13px;
-  line-height: 22px;
+.prophet-icon img.svg,
+.prophet-icon img.png {
+  width: 15px;
 }
-#prophet .hp-progress .progress {
-  position: relative;
-  margin-bottom: 1px;
+#plugin-prophet .div-row {
+  display: flex;
+  flex-flow: row;
 }
-#prophet .hp-progress .progress-bar > span {
-  position: absolute;
+#plugin-prophet .progress {
+  margin-bottom: 5px;
+  height: 7px;
   width: 100%;
-  display: block;
 }
-#prophet .table {
-  margin-bottom: 3px;
+#plugin-prophet .ship-hp .hp-indicatior {
+  position: relative;
+  border-left: black 1px solid;
+  height: 4px;
+  z-index: 1000;
 }
-#prophet .panel {
-  margin: 0;
+#plugin-prophet .ship-item {
+  margin-bottom: 5px;
 }
-#prophet .navigator-bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 8px;
-}
-#prophet .navigator-item {
+#plugin-prophet .ship-info {
   flex: 1;
-}
-#prophet .prophet-content-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 2px;
-  margin: 3px;
-  margin-left: 16px;
-  margin-right: 16px;
-}
-#prophet .prophet-info-content {
-  flex: 1;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin-right: auto;
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
+  min-width: 0;
 }
-#prophet .ship-name {
-  flex: 1;
+#plugin-prophet .ship-info .ship-damage {
   overflow: hidden;
+  vertical-align: bottom;
+  padding-top: 3px;
   text-overflow: ellipsis;
-  float: left;
+  opacity: 0.8;
 }
-#prophet .ship-title {
-  flex: 5;
-}
-#prophet .attack-damage {
+#plugin-prophet .ship-info .ship-name {
   flex: 1;
-}
-#prophet .prophet-info-name {
-  text-shadow: none;
-}
-#prophet .navigation-bar-airplane {
+  padding-top: 3px;
+  font-size: 115%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-#prophet .compass {
-  text-align: center;
+#plugin-prophet .status-cond {
+  margin-left: auto;
 }
-#prophet .compass-arrow {
-  width: 1em;
-  margin-bottom: -0.14em;
-  margin-left: -0.14em;
-  overflow: visible;
-}
-#prophet span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-#prophet .friend-hp,
-#prophet .enemy-hp {
-  display: flex;
-}
-#prophet .progress {
-  width: 100%;
-}
-#prophet .friend-hp .red-line {
-  border-right: 1px solid red;
-  position: relative;
-  left: -75%;
-  z-index: 10;
-  height: 22px;
-}
-#prophet .bottom-alert {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+#plugin-prophet .status-cond .ship-cond {
+  display: table;
+  align-self: flex-end;
+  text-align: right;
 }
