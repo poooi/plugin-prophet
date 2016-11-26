@@ -282,6 +282,7 @@ export const reactClass = connect(
     case '/kcsapi/api_req_map/next':
       delete simulator.enemyFleet
       delete simulator.enemyEscort
+      delete simulator.landBase
       // land base air raid
       if (api_destruction_battle != null && semver.gte(window.POI_VERSION, '7.2.0')) {
         // construct virtual fleet to reprsent the base attack
@@ -320,7 +321,7 @@ export const reactClass = connect(
             return squad
           })
         }
-        simulator.mainFleet = landBase
+        simulator.airRaidLandBase = landBase
         simulator.enemyFleet = enemy
         simulator.api_formation = api_formation
         simulator.result={rank: __(lostKind[api_lost_kind] || '')}

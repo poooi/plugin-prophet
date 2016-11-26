@@ -53,7 +53,7 @@ const BattleViewArea = connect(
         <div className={useVerticalLayout ? 'div-row' : ''}>
           <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout ? 'column-reverse' : 'column'}}>
             <div className="div-row">
-              <FleetView fleet={simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
+              <FleetView fleet={simulator.isAirRaid ? simulator.airRaidLandBase : simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
               <FleetView fleet={simulator.isAirRaid ? undefined : simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
             </div>
             {
