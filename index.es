@@ -124,7 +124,7 @@ export const reactClass = connect(
 )(class Prophet extends Component {
   constructor(props){
     super(props)
-    const [mainFleet, escortFleet] = this.transFormToBattleLibClass(props.fleets, props.equips)
+    const [mainFleet, escortFleet] = this.transformToLibBattleClass(props.fleets, props.equips)
     this.state ={
       ...this.constructor.initState,
       simulator: {
@@ -164,7 +164,7 @@ export const reactClass = connect(
 
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.props.fleets, nextProps.fleets) ||!_.isEqual (this.props.equips, nextProps.equips)) {
-      const [mainFleet, escortFleet] = this.transFormToBattleLibClass(nextProps.fleets, nextProps.equips)
+      const [mainFleet, escortFleet] = this.transformToLibBattleClass(nextProps.fleets, nextProps.equips)
       this.setState({
         simulator: {
           ...this.state.simulator,
@@ -197,9 +197,9 @@ export const reactClass = connect(
     delete window.prophetTest
   }
 
-  transFormToBattleLibClass = (fleets, equips) =>
-    fleets.map((fleet, fleetPos) =>
-      fleet.map(([_ship, $ship], shipPos) =>
+  transformToLibBattleClass = (fleets, equips) =>
+    (fleets || []).map((fleet, fleetPos) =>
+      (fleet|| []).map(([_ship, $ship], shipPos) =>
         new Ship({
           id: _ship.api_ship_id,
           owner: ShipOwner.Ours,
@@ -217,7 +217,7 @@ export const reactClass = connect(
           },
         })
       )
-    ).concat(undefined).slice(0, 2)
+    ).concat([undefined, undefined]).slice(0, 2)
 
   handlePacket = (e) => {
     let sortieState = e.type == (BattleType.Practice || BattleType.Pratice ) ? 3 : 2
