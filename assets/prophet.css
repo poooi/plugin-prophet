@@ -7,6 +7,10 @@
 }
 #plugin-prophet .prophet-info {
   margin-bottom: auto;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
 }
 #plugin-prophet .alv {
   display: inline-block;

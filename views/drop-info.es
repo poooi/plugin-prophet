@@ -27,7 +27,7 @@ export default class DropInfo extends Component {
       : ''
     let itemMessage = item != null ? __("Item \"%s:\" got! ", i18n.resources.__(item.api_name)) : ''
     return (
-      <span>
+      <span className="drop-info">
         {`${shipMessage} ${itemMessage}`}
       </span>
     )

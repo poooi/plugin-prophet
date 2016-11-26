@@ -97,6 +97,17 @@ const BattleViewArea = connect(
               {
                 sortieState === 1 && !simulator.isAirRaid ?
                 <NextSpotInfo spotKind={this.props.spotKind}/>
+                : simulator.isAirRaid ? 
+                [
+                  <BattleInfo
+                    result = {result && result.rank }
+                    formation ={api_formation && api_formation[1]}
+                    intercept = {api_formation && api_formation[2]}
+                    seiku = {api_stage1 && api_stage1.api_disp_seiku}
+                  />,
+                  <span> | </span>,
+                  <NextSpotInfo spotKind={this.props.spotKind}/>,
+                ]
                 : (getShip || getItem) ?
                 <DropInfo
                   getShip = {getShip}

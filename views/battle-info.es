@@ -67,7 +67,7 @@ export default class BattleInfo extends Component {
   render(){
     const {result, formation, intercept, seiku} = this.props
     return (
-      <span>
+      <span className='battle-info'>
         {`${result} | ${FormationName[formation] || ''} | ${EngagementName[intercept] || ''} | ${AirControlName[seiku] || '' }`}
       </span>
     )
