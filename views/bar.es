@@ -86,7 +86,7 @@ export class HPBar extends React.Component {
                          now={now} />
             {
               [1, 2, 3].map(i =>
-                <div className='hp-indicatior' style={{left: `-${25 * i}%`}}></div>
+                <div className='hp-indicatior' style={{left: `-${25 * i}%`}} key={i}></div>
               )
             }
           </span>
