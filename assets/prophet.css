@@ -12,6 +12,10 @@
   flex-wrap: wrap;
   justify-content: center;
 }
+#plugin-prophet .compass {
+  border-radius: 50%;
+  border: 1px solid;
+}
 #plugin-prophet .alv {
   display: inline-block;
 }
