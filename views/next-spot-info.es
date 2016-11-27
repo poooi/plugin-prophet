@@ -7,6 +7,7 @@ import { connect } from 'react-redux'
 import _ from 'lodash'
 import {createSelector} from 'reselect'
 import {extensionSelectorFactory} from 'views/utils/selectors'
+import {resolve} from 'path'
 
 const getCompassAngle = (mapspot, sortieMapId, lastSpot, nextSpot) =>{
   if (lastSpot == nextSpot || nextSpot == -1) return NaN
@@ -66,6 +67,7 @@ const NextSpotInfo = connect(
   render() {
     const {lastSpot, nextSpot, sortieMapId, mapspot, spotKind} = this.props
     let compassAngle = getCompassAngle(mapspot, sortieMapId, lastSpot, nextSpot)
+    // svg arrow's default angle is 135 deg
     return(
       <span className='next-spot-info'>
         {`${__("Compass Point")}: `}
@@ -74,8 +76,11 @@ const NextSpotInfo = connect(
         {
           Number.isNaN(compassAngle) ?
           '?' :
-          <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
-                            style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
+          <span className="prophet-icon svg" id="prophet-compass">
+            <img src={resolve(__dirname, `../assets/compass-arrow-${window.isDarkTheme? 'dark' : 'light'}.svg`)}
+              style={{'transform': `rotate(${compassAngle - 135}deg)`}} className="svg">
+            </img>
+          </span>
           }
           </span>
 
