@@ -67,11 +67,13 @@ const synthesizeStage = (_simulator, result, packets) => {
     }
   })
 
-  api_nowhps.shift()
-  mainFleet = updateByStageHp(mainFleet, api_nowhps)
-  escortFleet = updateByStageHp(escortFleet, api_nowhps)
-  enemyFleet = updateByStageHp(enemyFleet, api_nowhps)
-  enemyEscort = updateByStageHp(enemyEscort, api_nowhps)
+  if (api_nowhps) {
+    api_nowhps.shift()
+    mainFleet = updateByStageHp(mainFleet, api_nowhps)
+    escortFleet = updateByStageHp(escortFleet, api_nowhps)
+    enemyFleet = updateByStageHp(enemyFleet, api_nowhps)
+    enemyEscort = updateByStageHp(enemyEscort, api_nowhps)
+  }
 
   return {
     mainFleet,
@@ -317,6 +319,7 @@ export const reactClass = connect(
       result,
       api_formation,
     } = {...this.state}
+    isAirRaid = false
     switch (path) {
     case '/kcsapi/api_port/port':
       this.battle = null
@@ -374,8 +377,6 @@ export const reactClass = connect(
         }
         result = {rank: __(lostKind[api_lost_kind] || '')}
         isAirRaid = true
-      } else {
-        isAirRaid = false
       }
       let isBoss = (body.api_event_id === 5)
       this.battle = new Battle({
