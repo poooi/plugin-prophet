@@ -63,7 +63,7 @@ const synthesizeStage = (_simulator, result, packets) => {
   let api_nowhps
   each(packets, packet => {
     if (packet && packet.api_nowhps) {
-      api_nowhps = packet.api_nowhps
+      api_nowhps = packet.api_nowhps.slice()
     }
   })
 
