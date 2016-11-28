@@ -63,8 +63,7 @@ export class HPBar extends React.Component {
       labels.pop()  // Remove last comma
       labels.push(<span key={-3}>{')'}</span>)
     }
-    console.log(from, to, max, now, lost)
-
+    
     return (
       <div>
         <div className="ship-stat">
