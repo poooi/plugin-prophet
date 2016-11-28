@@ -1,8 +1,8 @@
-import {getCondStyle, getHpStyle} from 'views/utils/game-utils'
+import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import React from 'react'
 import { ProgressBar } from 'react-bootstrap'
 const { ROOT, $slotitems } = window
-const {MaterialIcon, SlotitemIcon} = require(`${ROOT}/views/components/etc/icon`)
+const { MaterialIcon, SlotitemIcon } = require(`${ROOT}/views/components/etc/icon`)
 
 export class FABar extends React.Component {
   render() {
@@ -36,18 +36,16 @@ export class HPBar extends React.Component {
 
 
   render() {
-    let {max, from, to, damage, item, cond} = this.props
-    if (from < 0) from = 0
-    if (from > max) from = max
-    if (to < 0) to = 0
-    if (to > max) to = max
-
+    let {max, from, to, damage, stage, item, cond} = this.props
+    from = Math.min(Math.max(0, from), max)
+    to = Math.min(Math.max(0, to), max)
+    if (stage == null) stage = from
     let now = 100 * to / max
-    let lost = 100 * (from - to) / max
+    let lost = 100 * (stage - to) / max
     let additions = []
 
-    if (damage !== 0) {
-      additions.push(`${-damage}`)
+    if (Math.max(from - stage, 0) - damage !== 0) {
+      additions.push(`${Math.max(from - stage, 0) - damage}`)
     }
     if (item && $slotitems[item]) {
       let itemIcon = $slotitems[item].api_type[3]
@@ -65,6 +63,7 @@ export class HPBar extends React.Component {
       labels.pop()  // Remove last comma
       labels.push(<span key={-3}>{')'}</span>)
     }
+    console.log(from, to, max, now, lost)
 
     return (
       <div>
@@ -82,11 +81,16 @@ export class HPBar extends React.Component {
             }
           </div>
           <span className="hp-progress top-space">
-            <ProgressBar bsStyle={getHpStyle(now)}
-                         now={now} />
+            <ProgressBar className="hp-bar">
+              <ProgressBar bsStyle={getHpStyle(now)}
+                           className='hp-bar'
+                           now={now} />
+              <ProgressBar className='hp-bar lost'
+                           now={lost} />
+            </ProgressBar>
             {
               [1, 2, 3].map(i =>
-                <div className='hp-indicatior' style={{left: `-${25 * i}%`}}></div>
+                <div className='hp-indicatior' style={{left: `-${25 * i}%`, opacity: now + lost > 100 - 25 * i ? 0.8 : 0}}></div>
               )
             }
           </span>

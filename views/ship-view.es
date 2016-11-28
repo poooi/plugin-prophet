@@ -83,7 +83,7 @@ const ShipView = connect(
           </OverlayTrigger>
         </div>
         <div className='ship-hp'>
-            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} item={ship.useItem} cond={data.api_cond} />
+            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} stage={ship.stageHP} item={ship.useItem} cond={data.api_cond} />
         </div>
       </div>
     )

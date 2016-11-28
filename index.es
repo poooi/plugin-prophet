@@ -32,7 +32,7 @@ const updateByStageHp = (fleet, nowhps) => {
   if (!fleet) return fleet
   for (const ship of fleet) {
     if (ship) {
-      ship.from = nowhps.shift()
+      ship.stageHP = nowhps.shift()
     }
   }
   return fleet
