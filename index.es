@@ -193,7 +193,7 @@ export const reactClass = connect(
     window.addEventListener('game.response', this.handleGameResponse)
 
     // for debug (ugly)
-    if (window.dbg.isEnabled()) window.prophetTest = (e) => this.handlePacket(JSON.parse(e))
+    if (window.dbg.isEnabled()) window.prophetTest = (e) => this.setState(this.handlePacket(JSON.parse(e)))
   }
 
   componentWillUnmount() {
