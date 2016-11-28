@@ -28,11 +28,19 @@ const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 
 
-
+const updateByStageHp = (fleet, nowhps) => {
+  if (!fleet) return fleet
+  for (const ship of fleet) {
+    if (ship) {
+      ship.from = nowhps.shift()
+    }
+  }
+  return fleet
+}
 
 // extracts necessary information from its stages, returns a new simulator
 // infomation:
-const synthesizeStage = (_simulator, result) => {
+const synthesizeStage = (_simulator, result, packets) => {
   let {mainFleet, escortFleet, enemyFleet, enemyEscort, stages, api_formation, airForce, airControl} = {..._simulator}
   // assign mvp to specific ship
   let [mainMvp, escortMvp] = result.mvp || [0, 0]
@@ -52,7 +60,20 @@ const synthesizeStage = (_simulator, result) => {
     }
   })
 
-  return ({
+  let api_nowhps
+  each(packets, packet => {
+    if (packet && packet.api_nowhps) {
+      api_nowhps = packet.api_nowhps
+    }
+  })
+
+  api_nowhps.shift()
+  mainFleet = updateByStageHp(mainFleet, api_nowhps)
+  escortFleet = updateByStageHp(escortFleet, api_nowhps)
+  enemyFleet = updateByStageHp(enemyFleet, api_nowhps)
+  enemyEscort = updateByStageHp(enemyEscort, api_nowhps)
+
+  return {
     mainFleet,
     escortFleet,
     enemyFleet,
@@ -61,7 +82,7 @@ const synthesizeStage = (_simulator, result) => {
     airForce,
     api_formation,
     result,
-  })
+  }
 }
 
 const getAirForceStatus = (stages=[]) => {
@@ -242,7 +263,7 @@ export const reactClass = connect(
     let result = simulator.result
 
     // Attention, aynthesizeStage will break object prototype, put it to last
-    const newState = synthesizeStage(simulator, result)
+    const newState = synthesizeStage(simulator, result, e.packet)
     return {
       ...newState,
       sortieState,
