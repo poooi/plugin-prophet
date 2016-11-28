@@ -1,16 +1,10 @@
-import {getShipName, getItemName} from './utils'
 import FontAwesome from 'react-fontawesome'
-import {join} from 'path'
-import React, {Component} from 'react'
-const { ROOT, $ships, $slotitems} = window
-import {Panel, OverlayTrigger, Tooltip, Alert} from 'react-bootstrap'
-import {SlotitemIcon} from 'views/components/etc/icon'
-import {FABar, HPBar} from './bar'
+import React, { Component } from 'react'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 
+import ShipView from './ship-view'
 import FleetView from './fleet-view'
-import LBACView from './lbac-view'
 import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
@@ -23,91 +17,124 @@ const BattleViewArea = connect(
   (state, props) => ({
     layout: _.get(state, 'config.poi.layout', 'horizontal'),
     doubleTabbed: _.get(state, 'config.poi.tabarea.double', false),
+    mainFleet: props.mainFleet,
+    escortFleet: props.escortFleet,
+    enemyFleet: props.enemyFleet,
+    enemyEscort: props.enemyEscort,
+    landBase: props.landBase,
+    airForce: props.airForce,
+    airControl: props.airControl,
+    isAirRaid: props.isAirRaid,
     sortieState: props.sortieState,
-    simulator: props.simulator,
     spotKind: props.spotKind,
+    result: props.result,
+    api_formation: props.api_formation,
   })
-)(class BattleViewArea extends React.Component {
+)(class BattleViewArea extends Component {
   static defaultProps = {
-    simulator: {},
+    mainFleet: [], // An array of fleet
+    escortFleet: [],
+    enemyFleet: [],
+    enemyEscort: [],
+    landBase: [],
+    airForce: [], // [count, lostCount, enemyCount, enemyLostCount]
+    airControl: 0, // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
+    isAirRaid: false,
+    sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
+    spotKind: '',
+    result: {},
+    api_formation: [], // [null, Formation, Engagement]
   }
 
   render() {
-    const {simulator, layout, sortieState, doubleTabbed} = this.props
-    let View = simulator.isAirRaid ? SquadView : null
-    let friendTitle = simulator.isAirRaid ? 'Land Base' : 'Sortie Fleet'
+    const {
+      layout,
+      doubleTabbed,
+      mainFleet,
+      escortFleet,
+      enemyFleet,
+      enemyEscort,
+      landBase,
+      airForce,
+      airControl,
+      isAirRaid,
+      sortieState,
+      spotKind,
+      result,
+      api_formation,
+    } = this.props
+    let View = isAirRaid ? SquadView : ShipView
+    let friendTitle = isAirRaid ? 'Land Base' : 'Sortie Fleet'
     let enemyTitle = sortieState == 3 ? 'PvP' : 'Enemy Vessel'
     const times = layout == 'horizontal' ? 1 : 2
     let useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
     // adapt the view according to layout by setting FleetView's div xs = 12/count
     // this can support 12v6, 6v12 and 12v12
-    let fleetCount = 1 && _.sumBy([simulator.mainFleet, simulator.escortFleet], (fleet) => fleet != null)
-    let enemyCount = 1 && _.sumBy([simulator.enemyFleet, simulator.enemyEscort], (fleet) => fleet != null)
-    let fleetWidth = simulator.escortFleet && !simulator.isAirRaid ? 2 : 1
-    let enemyWidth = simulator.enemyEscort && !simulator.isAirRaid ? 2 : 1
-    const {api_stage1, result, api_formation} = simulator
+    let fleetCount = 1 && _.sumBy([mainFleet, escortFleet], (fleet) => fleet != null)
+    let enemyCount = 1 && _.sumBy([enemyFleet, enemyEscort], (fleet) => fleet != null)
+    let fleetWidth = escortFleet && !isAirRaid ? 2 : 1
+    let enemyWidth = enemyEscort && !isAirRaid ? 2 : 1
     let {getShip, getItem} = _.pick(result, ['getShip', 'getItem'])
-    let {api_f_count, api_f_lostcount, api_e_count, api_e_lostcount} = _.pick(api_stage1, ['api_f_count', 'api_f_lostcount', 'api_e_count', 'api_e_lostcount'])
     return (
       <div id="overview-area">
         <div className={useVerticalLayout ? 'div-row' : ''}>
           <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout ? 'column-reverse' : 'column'}}>
             <div className="div-row">
-              <FleetView fleet={simulator.isAirRaid ? simulator.airRaidLandBase : simulator.mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
-              <FleetView fleet={simulator.isAirRaid ? undefined : simulator.escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
+              <FleetView fleet={isAirRaid ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
+              <FleetView fleet={isAirRaid ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
             </div>
             {
-              sortieState > 1 || simulator.isAirRaid ?
+              sortieState > 1 || isAirRaid ?
                 <div className='alert div-row prophet-info'>
                   <div style={{flex: 1}}>
-                    {__(friendTitle)}
+                    {__(friendTitle) + ' '}
                     {
-                      api_f_count ?
+                      airForce[0] ?
                         <span>
                           <FontAwesome name='plane' />
-                          {` [${api_f_count - api_f_lostcount}/${api_f_count}]`}
+                          {` [${airForce[0] - airForce[1]} / ${airForce[0]}]`}
                         </span> : ''
                     }
                   </div>
                   <div style={{flex: 0}}>vs</div>
                   <div style={{flex: 1}}>
                     {
-                      api_e_count ?
+                      airForce[2] ?
                       <span>
                         <FontAwesome name='plane' />
-                        {` [${api_e_count - api_e_lostcount}/${api_e_count}]`}
+                        {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
                       </span> : ''
                     }
-                    {__(enemyTitle)}
+                    {' ' + __(enemyTitle)}
                   </div>
                 </div> : <noscript />
             }
           </div>
           <div className='fleet-container' style={{flex: useVerticalLayout ? enemyWidth : 1, flexDirection: useVerticalLayout ? 'column-reverse' : 'column'}}>
             {
-              sortieState > 1 || simulator.isAirRaid ?
+              sortieState > 1 || isAirRaid ?
                 <div className="div-row">
-                  <FleetView fleet={simulator.enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
-                  <FleetView fleet={simulator.enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
+                  <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
+                  <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
                 </div>
               :
               <noscript />
             }
             <div className="alert prophet-info">
               {
-                sortieState === 1 && !simulator.isAirRaid ?
-                <NextSpotInfo spotKind={this.props.spotKind}/>
+                sortieState === 1 && !isAirRaid ?
+                <NextSpotInfo spotKind={spotKind}/>
                 : (getShip || getItem) ?
                 <DropInfo
                   getShip = {getShip}
                   getItem = {getItem}
                 />
-                : sortieState > 1 || simulator.isAirRaid ?
+                : sortieState > 1 || isAirRaid ?
                 <BattleInfo
                   result = {result && result.rank }
                   formation ={api_formation && api_formation[1]}
                   intercept = {api_formation && api_formation[2]}
-                  seiku = {api_stage1 && api_stage1.api_disp_seiku}
+                  seiku = {airControl}
                 />
                 : <noscript />
               }

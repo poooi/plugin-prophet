@@ -54,6 +54,7 @@ module.exports = {
       'cson',
       'react-dom',
       'redux',
+      'semver',
     ],
   },
 }
