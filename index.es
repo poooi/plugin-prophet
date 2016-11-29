@@ -332,11 +332,11 @@ export const reactClass = connect(
     switch (path) {
     case '/kcsapi/api_port/port':
       this.battle = null
-      enemyFleet = []
-      enemyEscort = []
-      sortieState = 0
-      spotKind = ''
-      result = {}
+      enemyFleet = this.constructor.initState.enemyFleet
+      enemyEscort = this.constructor.initState.enemyEscort
+      sortieState = this.constructor.initState.sortieState
+      spotKind = this.constructor.initState.spotKind
+      result = this.constructor.initState.result
       break
     case '/kcsapi/api_req_map/start':
     case '/kcsapi/api_req_map/next': {
