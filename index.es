@@ -401,7 +401,8 @@ export const reactClass = connect(
     }
     }
     let newState = {}
-    if (this.battle && !['/kcsapi/api_req_map/start', '/kcsapi/api_req_map/next'].includes(path)) {
+    if (this.battle &&
+      !['/kcsapi/api_req_map/start', '/kcsapi/api_req_map/next', '/kcsapi/api_req_map/start_air_base'].includes(path)) {
       let packet = Object.clone(body)
       packet.poi_path = e.detail.path
       if (!this.battle.fleet) {
