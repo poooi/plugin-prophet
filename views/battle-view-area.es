@@ -17,6 +17,7 @@ const BattleViewArea = connect(
   (state, props) => ({
     layout: _.get(state, 'config.poi.layout', 'horizontal'),
     doubleTabbed: _.get(state, 'config.poi.tabarea.double', false),
+    ecGameOrder: _.get(state, 'config.plugin.prophet.ecGameOrder', true),
     mainFleet: props.mainFleet,
     escortFleet: props.escortFleet,
     enemyFleet: props.enemyFleet,
@@ -50,6 +51,7 @@ const BattleViewArea = connect(
     const {
       layout,
       doubleTabbed,
+      ecGameOrder,
       mainFleet,
       escortFleet,
       enemyFleet,
@@ -81,7 +83,7 @@ const BattleViewArea = connect(
         <FleetView fleet={isAirRaid ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
       </div>
     const enemyForce = sortieState > 1 || isAirRaid ?
-      <div className="div-row">
+      <div className="div-row" style={{flexDirection: ecGameOrder ? 'row-reverse' : 'row'}}>
         <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
         <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
       </div> : <noscript />

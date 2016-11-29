@@ -1,5 +1,7 @@
 import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import React from 'react'
+import { connect } from 'react-redux'
+import { get } from 'lodash'
 import { ProgressBar } from 'react-bootstrap'
 const { ROOT, $slotitems } = window
 const { MaterialIcon, SlotitemIcon } = require(`${ROOT}/views/components/etc/icon`)
@@ -21,7 +23,9 @@ export class FABar extends React.Component {
   }
 }
 
-export class HPBar extends React.Component {
+export const HPBar = connect(state => ({
+  showScale: get(state, 'config.plugin.prophet.showScale', true),
+}))(class HPBar extends React.Component {
   getHpStyle(percent) {
     if (percent <= 25)
       return 'danger'
@@ -32,8 +36,6 @@ export class HPBar extends React.Component {
     else
       return 'success'
   }
-
-
 
   render() {
     let {max, from, to, damage, stage, item, cond} = this.props
@@ -63,7 +65,7 @@ export class HPBar extends React.Component {
       labels.pop()  // Remove last comma
       labels.push(<span key={-3}>{')'}</span>)
     }
-    
+
     return (
       <div>
         <div className="ship-stat">
@@ -89,7 +91,8 @@ export class HPBar extends React.Component {
             </ProgressBar>
             {
               [1, 2, 3].map(i =>
-                <div className='hp-indicatior' style={{left: `-${25 * i}%`, opacity: now + lost > 100 - 25 * i ? 0.8 : 0}}></div>
+                <div className='hp-indicatior'
+                     style={{left: `-${25 * i}%`, opacity: (now + lost > 100 - 25 * i) && this.props.showScale ? 0.75 : 0}} />
               )
             }
           </span>
@@ -97,4 +100,4 @@ export class HPBar extends React.Component {
       </div>
     )
   }
-}
+})

@@ -1,19 +1,18 @@
 import React, {Component} from 'react'
-import {isEqual, isNil, each, map, isEmpty, includes, concat } from 'lodash'
-import {join} from 'path'
+import { isEqual, isNil, each, map, isEmpty, includes, concat, get } from 'lodash'
+import { join } from 'path'
 // import fs from 'fs-extra'
 import { connect } from 'react-redux'
 import { promisifyAll } from 'bluebird'
+import { Row, Col, Grid, Checkbox } from 'react-bootstrap'
 const fs = promisifyAll (require ('fs-extra'))
 const CSON = promisifyAll(require('cson'))
-import {store} from 'views/create-store'
+import { store } from 'views/create-store'
 import semver from 'semver'
 
 import BattleViewArea from './views/battle-view-area'
 
-import {initEnemy, spotInfo, getSpotKind, lostKind} from './utils'
-
-
+import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Simulator } from './lib/battle'
 import { Ship, ShipOwner, StageType, Battle, BattleType, Fleet } from './lib/battle/models'
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
@@ -299,7 +298,7 @@ export const reactClass = connect(
       }
     })
 
-    if (!isEmpty(damageList)) {
+    if (!isEmpty(damageList) && config.get('plugin.prophet.notify.enable', true)) {
       window.notify(`${damageList.join(', ')} ${__('Heavily damaged')}`,{
         type: 'damaged',
         icon: join(ROOT, 'views', 'components', 'main', 'assets', 'img', 'state', '4.png'),
@@ -490,3 +489,61 @@ export const reactClass = connect(
     )
   }
 })
+
+const CheckboxLabelConfig = connect(() => {
+  return (state, props) => ({
+    value: get(state.config, props.configName, props.defaultVal),
+    configName: props.configName,
+    undecided: props.undecided,
+    label: props.label,
+  })
+})(class checkboxLabelConfig extends Component {
+  static propTypes = {
+    label: React.PropTypes.string,
+    configName: React.PropTypes.string,
+    value: React.PropTypes.bool,
+    undecided: React.PropTypes.bool,
+  }
+  handleChange = () => {
+    config.set(this.props.configName, !this.props.value)
+  }
+  render () {
+    return (
+      <Row className={this.props.undecided ? 'undecided-checkbox-inside' : ''} >
+        <Col xs={12} >
+          <Grid>
+            <Col xs={12} >
+              <Checkbox
+                disabled={this.props.undecided}
+                checked={this.props.undecided ? false : this.props.value}
+                onChange={this.props.undecided ? null : this.handleChange}>
+                {this.props.label}
+              </Checkbox>
+            </Col>
+          </Grid>
+        </Col>
+      </Row>
+    )
+  }
+})
+
+export class settingsClass extends Component {
+  render() {
+    return (
+      <div>
+        <CheckboxLabelConfig
+                  label={__('Show scales on HP bar')}
+                  configName="plugin.prophet.showScale"
+                  defaultVal={true} />
+        <CheckboxLabelConfig
+                  label={__('Display enemy combined fleet in game order')}
+                  configName="plugin.prophet.ecGameOrder"
+                  defaultVal={true} />
+        <CheckboxLabelConfig
+                  label={__('Show heavily damaged notification')}
+                  configName="plugin.prophet.notify.enable"
+                  defaultVal={true} />
+      </div>
+    )
+  }
+}
