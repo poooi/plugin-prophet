@@ -1,8 +1,8 @@
-import {getShipName} from './utils'
-import {join} from 'path'
-import React, {Component} from 'react'
-const { ROOT, $slotitems} = window
-import {SlotitemIcon} from 'views/components/etc/icon'
+import { getShipName } from './utils'
+import { join } from 'path'
+import React, { Component } from 'react'
+const { ROOT, $slotitems } = window
+import { SlotitemIcon } from 'views/components/etc/icon'
 
 
 export default class ItemView extends Component {
@@ -26,15 +26,17 @@ export default class ItemView extends Component {
           <span className='item-name'>
             {`${getShipName(data)}`}
           </span>
-        <span className='item-attr'>
-          <span className="alv prophet-icon">
-                {(data.api_alv && data.api_alv >= 1 && data.api_alv <= 7) &&
-                  <img className='alv-img' 
-                    src={join(ROOT, 'assets', 'img', 'airplane', `alv${data.api_alv}.png`)} 
-                  />
-                }</span>
-          <span className="level">{data.api_level > 0 ? `★${data.api_level}` : ''}</span>
-        </span>
+          <span className='item-attr'>
+            <span className="alv prophet-icon">
+            {
+              (data.api_alv && data.api_alv >= 1 && data.api_alv <= 7) &&
+              <img className='alv-img'
+                src={join(ROOT, 'assets', 'img', 'airplane', `alv${data.api_alv}.png`)}
+              />
+            }
+            </span>
+            <span className="level">{data.api_level > 0 ? `★${data.api_level}` : ''}</span>
+          </span>
         </div>
     )
   }

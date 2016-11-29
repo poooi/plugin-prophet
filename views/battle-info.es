@@ -1,19 +1,17 @@
-const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
-
-import {Row, Col} from 'react-bootstrap'
 import React, { Component, PropTypes } from 'react'
 
+const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
 // Formation name map from api_search[0-1] to name
 // 1=成功, 2=成功(未帰還機あり), 3=未帰還, 4=失敗, 5=成功(艦載機使用せず), 6=失敗(艦載機使用せず)
-const DetectionName = {
-  '1': __('Detection Success'),
-  '2': __('Detection Success') + ' (' + __('not return') + ')',
-  '3': __('Detection Failure') + ' (' + __('not return') + ')',
-  '4': __('Detection Failure'),
-  '5': __('Detection Success') + ' (' + __('without plane') + ')',
-  '6': __('Detection Failure') + ' (' + __('without plane') + ')',
-}
+// const DetectionName = {
+//   '1': __('Detection Success'),
+//   '2': __('Detection Success') + ' (' + __('not return') + ')',
+//   '3': __('Detection Failure') + ' (' + __('not return') + ')',
+//   '4': __('Detection Failure'),
+//   '5': __('Detection Success') + ' (' + __('without plane') + ')',
+//   '6': __('Detection Failure') + ' (' + __('without plane') + ')',
+// }
 
 // Formation name map from api_formation[0-1] to name
 // 1=単縦陣, 2=複縦陣, 3=輪形陣, 4=梯形陣, 5=単横陣, 11-14=第n警戒航行序列

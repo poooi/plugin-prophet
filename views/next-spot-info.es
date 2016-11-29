@@ -1,12 +1,11 @@
 const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
-import {Row, Col} from 'react-bootstrap'
 import React, { Component, PropTypes } from 'react'
 import FontAwesome from 'react-fontawesome'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-import {createSelector} from 'reselect'
-import {extensionSelectorFactory} from 'views/utils/selectors'
+import { createSelector } from 'reselect'
+import { extensionSelectorFactory } from 'views/utils/selectors'
 
 const getCompassAngle = (mapspot, sortieMapId, lastSpot, nextSpot) =>{
   if (lastSpot == nextSpot || nextSpot == -1) return NaN
@@ -69,17 +68,15 @@ const NextSpotInfo = connect(
     return(
       <span>
         {`${__("Compass Point")}: `}
-
         <span className="compass">
         {
           Number.isNaN(compassAngle) ?
           '?' :
           <FontAwesome name='location-arrow' fixedWidth={true} className='compass-arrow'
-                            style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
-          }
-          </span>
-
-          {` | ${nextSpot}: ${__(spotKind)}`}
+                       style={{'transform': `rotate(${compassAngle - 45}deg)`}} />
+        }
+        </span>
+        {` | ${nextSpot}: ${__(spotKind)}`}
       </span>
     )
   }

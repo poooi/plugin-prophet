@@ -1,16 +1,5 @@
-import FontAwesome from 'react-fontawesome'
-import {join} from 'path'
-import React, {Component} from 'react'
-import {Panel, Grid, Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
-
-
-import {SlotitemIcon} from 'views/components/etc/icon'
-import {getCondStyle} from 'views/utils/game-utils'
-const { ROOT, $ships, $slotitems} = window
-
-import ItemView from './item-view'
-import {getShipName, getItemName} from './utils'
-import {FABar, HPBar} from './bar'
+import React, { Component } from 'react'
+import { HPBar } from './bar'
 
 
 const { i18n } = window
@@ -33,7 +22,7 @@ const actionKind = {
 }
 
 // TODO: connect store airbase
-class SquadView extends React.Component {
+class SquadView extends Component {
 
 
   render() {

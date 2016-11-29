@@ -1,8 +1,6 @@
 const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
-import {Row, Col} from 'react-bootstrap'
 import React, { Component, PropTypes } from 'react'
-import FontAwesome from 'react-fontawesome'
 import _ from 'lodash'
 const { i18n } =window
 
