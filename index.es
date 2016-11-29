@@ -92,9 +92,9 @@ const getAirForceStatus = (stages=[]) => {
   for (const stage of stages) {
     if (stage) {
       let {api_f_count, api_f_lostcount, api_e_count, api_e_lostcount} = stage
-      t_api_f_count += api_f_count || 0
+      t_api_f_count = Math.max(t_api_f_count, api_f_count || 0)
       t_api_f_lostcount += api_f_lostcount || 0
-      t_api_e_count += api_e_count || 0
+      t_api_e_count = Math.max(t_api_e_count, api_e_count || 0)
       t_api_e_lostcount += api_e_lostcount || 0
     }
   }
