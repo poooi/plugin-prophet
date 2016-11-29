@@ -75,72 +75,74 @@ const BattleViewArea = connect(
     let fleetWidth = escortFleet && !isAirRaid ? 2 : 1
     let enemyWidth = enemyEscort && !isAirRaid ? 2 : 1
     let {getShip, getItem} = _.pick(result, ['getShip', 'getItem'])
+    const alliedForce =
+      <div className="div-row">
+        <FleetView fleet={isAirRaid ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
+        <FleetView fleet={isAirRaid ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
+      </div>
+    const enemyForce = sortieState > 1 || isAirRaid ?
+      <div className="div-row">
+        <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
+        <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
+      </div> : <noscript />
+    const combatInfo = sortieState > 1 || isAirRaid ?
+      <div className='alert div-row prophet-info'>
+        <div style={{flex: 1}}>
+          {__(friendTitle) + ' '}
+          {
+            airForce[0] ?
+              <span>
+                <FontAwesome name='plane' />
+                {` [${airForce[0] - airForce[1]} / ${airForce[0]}]`}
+              </span> : ''
+          }
+        </div>
+        <div style={{flex: 0}}>vs</div>
+        <div style={{flex: 1}}>
+          {
+            airForce[2] ?
+            <span>
+              <FontAwesome name='plane' />
+              {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
+            </span> : ''
+          }
+          {' ' + __(enemyTitle)}
+        </div>
+      </div> : <noscript />
+    const mapInfo =
+      <div className="alert prophet-info">
+        {
+          sortieState === 1 && !isAirRaid ?
+          <NextSpotInfo spotKind={spotKind}/>
+          : (getShip || getItem) ?
+          <DropInfo
+            getShip = {getShip}
+            getItem = {getItem}
+          />
+          : sortieState > 1 || isAirRaid ?
+          <BattleInfo
+            result = {result && result.rank }
+            formation ={api_formation && api_formation[1]}
+            intercept = {api_formation && api_formation[2]}
+            seiku = {airControl}
+          />
+          : <noscript />
+        }
+      </div>
     return (
       <div id="overview-area">
+        {useVerticalLayout ? combatInfo : null}
         <div className={useVerticalLayout ? 'div-row' : ''}>
           <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout ? 'column-reverse' : 'column'}}>
-            <div className="div-row">
-              <FleetView fleet={isAirRaid ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
-              <FleetView fleet={isAirRaid ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
-            </div>
-            {
-              sortieState > 1 || isAirRaid ?
-                <div className='alert div-row prophet-info'>
-                  <div style={{flex: 1}}>
-                    {__(friendTitle) + ' '}
-                    {
-                      airForce[0] ?
-                        <span>
-                          <FontAwesome name='plane' />
-                          {` [${airForce[0] - airForce[1]} / ${airForce[0]}]`}
-                        </span> : ''
-                    }
-                  </div>
-                  <div style={{flex: 0}}>vs</div>
-                  <div style={{flex: 1}}>
-                    {
-                      airForce[2] ?
-                      <span>
-                        <FontAwesome name='plane' />
-                        {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
-                      </span> : ''
-                    }
-                    {' ' + __(enemyTitle)}
-                  </div>
-                </div> : <noscript />
-            }
+            {alliedForce}
+            {!useVerticalLayout ? combatInfo : null}
           </div>
           <div className='fleet-container' style={{flex: useVerticalLayout ? enemyWidth : 1, flexDirection: useVerticalLayout ? 'column-reverse' : 'column'}}>
-            {
-              sortieState > 1 || isAirRaid ?
-                <div className="div-row">
-                  <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
-                  <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
-                </div>
-              :
-              <noscript />
-            }
-            <div className="alert prophet-info">
-              {
-                sortieState === 1 && !isAirRaid ?
-                <NextSpotInfo spotKind={spotKind}/>
-                : (getShip || getItem) ?
-                <DropInfo
-                  getShip = {getShip}
-                  getItem = {getItem}
-                />
-                : sortieState > 1 || isAirRaid ?
-                <BattleInfo
-                  result = {result && result.rank }
-                  formation ={api_formation && api_formation[1]}
-                  intercept = {api_formation && api_formation[2]}
-                  seiku = {airControl}
-                />
-                : <noscript />
-              }
-            </div>
+            {enemyForce}
+            {!useVerticalLayout ? mapInfo : null}
           </div>
         </div>
+        {useVerticalLayout ? mapInfo : null}
       </div>
     )
   }
