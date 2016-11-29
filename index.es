@@ -540,7 +540,7 @@ export class settingsClass extends Component {
                   configName="plugin.prophet.ecGameOrder"
                   defaultVal={true} />
         <CheckboxLabelConfig
-                  label={__('Show heavily damaged notification')}
+                  label={__('Heavily damaged notification')}
                   configName="plugin.prophet.notify.enable"
                   defaultVal={true} />
       </div>

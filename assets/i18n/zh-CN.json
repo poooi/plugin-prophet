@@ -61,5 +61,7 @@
   "Air Defense": "防空",
   "Retreat": "退避",
   "Rest": "休憩",
-  "Land Base": "基地"
+  "Land Base": "基地",
+  "Show scales on HP bar": "在血量条上显示刻度",
+  "Display enemy combined fleet in game order": "以游戏内顺序显示敌连合舰队"
 }
