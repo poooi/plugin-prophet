@@ -51,7 +51,11 @@ export class HPBar extends React.Component {
     }
     if (item && $slotitems[item]) {
       let itemIcon = $slotitems[item].api_type[3]
-      additions.push(<SlotitemIcon slotitemId={itemIcon} />)
+      additions.push(
+        <span className='item-icon prophet-icon'>
+          <SlotitemIcon slotitemId={itemIcon} />
+        </span>
+        )
     }
 
     let labels = []
