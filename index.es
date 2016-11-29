@@ -60,19 +60,28 @@ const synthesizeStage = (_simulator, result, packets) => {
     }
   })
 
-  let api_nowhps
+  let api_nowhps, api_nowhps_combined
   each(packets, packet => {
-    if (packet && packet.api_nowhps) {
-      api_nowhps = packet.api_nowhps.slice()
+    if (packet) {
+      if (packet.api_nowhps) {
+        api_nowhps = packet.api_nowhps.slice()
+      }
+      if (packet.api_nowhps_combined) {
+        api_nowhps_combined = packet.api_nowhps_combined.slice()
+      }
     }
   })
 
   if (api_nowhps) {
     api_nowhps.shift()
     mainFleet = updateByStageHp(mainFleet, api_nowhps)
-    escortFleet = updateByStageHp(escortFleet, api_nowhps)
     enemyFleet = updateByStageHp(enemyFleet, api_nowhps)
-    enemyEscort = updateByStageHp(enemyEscort, api_nowhps)
+  }
+
+  if (api_nowhps_combined) {
+    api_nowhps_combined.shift()
+    escortFleet = updateByStageHp(escortFleet, api_nowhps_combined)
+    enemyEscort = updateByStageHp(enemyEscort, api_nowhps_combined)
   }
 
   return {
