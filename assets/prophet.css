@@ -136,3 +136,6 @@
   font-weight: bold;
   color: #45A9A5;
 }
+.alert.prophet-info {
+  color: inherit;
+}
