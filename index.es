@@ -23,8 +23,11 @@ const { i18n, ROOT, getStore } = window
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const updateByStageHp = (fleet, nowhps) => {
-  if (!fleet) return fleet
+  if (!fleet || !nowhps) return fleet
   for (const ship of fleet) {
+    while (nowhps[0] && nowhps[0] === -1) {
+      nowhps.shift()
+    }
     if (ship) {
       ship.stageHP = nowhps.shift()
     }
@@ -67,13 +70,11 @@ const synthesizeStage = (_simulator, result, packets) => {
   })
 
   if (api_nowhps) {
-    api_nowhps.shift()
     mainFleet = updateByStageHp(mainFleet, api_nowhps)
     enemyFleet = updateByStageHp(enemyFleet, api_nowhps)
   }
 
   if (api_nowhps_combined) {
-    api_nowhps_combined.shift()
     escortFleet = updateByStageHp(escortFleet, api_nowhps_combined)
     enemyEscort = updateByStageHp(enemyEscort, api_nowhps_combined)
   }
