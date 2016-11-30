@@ -107,21 +107,32 @@
   align-self: flex-end;
   text-align: right;
 }
-.prophet-pop {
+.prophet-tip {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
-.prophet-pop >div {
+.prophet-tip >div {
   line-height: 160%;
 }
-.prophet-pop .item-icon {
+.prophet-tip .item-icon {
   margin-right: 0.25em;
 }
-.prophet-pop .alv {
+.prophet-tip .alv {
   margin-left: 0.25em;
 }
-.prophet-pop .ship-essential >span {
+.prophet-tip .ship-essential >span {
   margin-right: 0.5em;
   font-size: 80%;
+}
+.prophet-tip .item-info {
+  white-space: nowrap;
+}
+.prophet-pop .tooltip-inner{
+  max-width: 230px;
+  width: fit-content;
+}
+.prophet-tip .item-attr .level {
+  font-weight: bold;
+  color: #45A9A5;
 }

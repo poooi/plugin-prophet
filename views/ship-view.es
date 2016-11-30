@@ -45,8 +45,8 @@ const ShipView = connect(
     }
 
     const tooltip =
-      <Tooltip id={`slotinfo-${data.api_id}`}>
-        <div className='ship-pop prophet-pop'>
+      <Tooltip id={`slotinfo-${data.api_id}`} className='ship-pop prophet-pop'>
+        <div className='prophet-tip'>
           <div className='ship-essential'>
             <span>Lv. {data.api_lv || '-'}</span>
 
