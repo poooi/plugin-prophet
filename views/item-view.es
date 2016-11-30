@@ -24,9 +24,11 @@ export default connect((state, props) => ({
         <div className='item-info'>
           <span className='item-icon prophet-icon'>
             <SlotitemIcon slotitemId={data.api_type[3]}/>
-            {(label != null && (extra || [6, 7, 8, 9, 10, 21, 22, 33, 37, 38].includes(data.api_type[3]))) ? (
+            {
+              label != null && (extra || [6, 7, 8, 9, 10, 21, 22, 33, 37, 38].includes(data.api_type[3])) ?
               <span className={`number ${warn ? 'text-warning' : ''}`}>{label}</span>
-            ) : null}
+              : null
+            }
           </span>
           <span className='item-name'>
             {`${getShipName(data)}`}

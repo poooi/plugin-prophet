@@ -39,7 +39,7 @@ export const HPBar = connect((state, props) => ({
   }
 
   render() {
-    let {max, from, to, damage, stage, item, cond, $equip } = this.props
+    let {max, from, to, damage, stage, item, cond, $equip} = this.props
     from = Math.min(Math.max(0, from), max)
     to = Math.min(Math.max(0, to), max)
     if (stage == null) stage = from
