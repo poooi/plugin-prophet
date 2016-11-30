@@ -1,12 +1,12 @@
 import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
-import React from 'react'
+import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { ProgressBar } from 'react-bootstrap'
 const { ROOT, $slotitems } = window
 const { MaterialIcon, SlotitemIcon } = require(`${ROOT}/views/components/etc/icon`)
 
-export class FABar extends React.Component {
+export class FABar extends Component {
   render() {
     let {max, now, icon} = this.props
     let pcnt = Math.round(100 * now / max)
@@ -25,7 +25,7 @@ export class FABar extends React.Component {
 
 export const HPBar = connect(state => ({
   showScale: get(state, 'config.plugin.prophet.showScale', true),
-}))(class HPBar extends React.Component {
+}))(class HPBar extends Component {
   getHpStyle(percent) {
     if (percent <= 25)
       return 'danger'

@@ -22,11 +22,6 @@ const { i18n, ROOT, getStore } = window
 
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
-
-// information related to spot info, will move to utils or something later
-
-
-
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet) return fleet
   for (const ship of fleet) {
@@ -189,7 +184,7 @@ export const reactClass = connect(
 
   componentWillMount() {
     fs.readFileAsync(join(__dirname, 'assets', 'data', 'mapspot.cson'))
-    .then ((data) =>{
+    .then ((data) => {
       const mapspot = CSON.parseCSONString(data)
       store.dispatch({
         type: '@@poi-plugin-prophet/updateMapspot',
@@ -199,7 +194,7 @@ export const reactClass = connect(
     .catch ((e) => console.warn('Failed to load map data!', e.stack))
 
     fs.readFileAsync(join(__dirname, 'assets', 'data', 'maproute.cson'))
-    .then ((data) =>{
+    .then ((data) => {
       const mapspot = CSON.parseCSONString(data)
       store.dispatch({
         type: '@@poi-plugin-prophet/updateMaproute',
