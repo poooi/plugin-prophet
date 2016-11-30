@@ -46,8 +46,8 @@ export const HPBar = connect(state => ({
     let lost = 100 * (stage - to) / max
     let additions = []
 
-    if (Math.max(from - stage, 0) - damage !== 0) {
-      additions.push(`${stage !== 0 ? Math.max(from - stage, 0) - damage : 0}`)
+    if (stage !== 0 && Math.max(from - stage, 0) - damage !== 0) {
+      additions.push(`${Math.max(from - stage, 0) - damage}`)
     }
     if (item && $slotitems[item]) {
       let itemIcon = $slotitems[item].api_type[3]
