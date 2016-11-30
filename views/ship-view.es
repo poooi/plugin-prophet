@@ -1,6 +1,6 @@
 import FontAwesome from 'react-fontawesome'
 import React, {Component} from 'react'
-import { Row, Col, OverlayTrigger, Tooltip} from 'react-bootstrap'
+import { OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {connect} from 'react-redux'
 import _ from 'lodash'
 import {getCondStyle} from 'views/utils/game-utils'
@@ -12,8 +12,8 @@ import {getShipName} from './utils'
 import {FABar, HPBar} from './bar'
 
 
-const { i18n } = window
-const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
+// const { i18n } = window
+// const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 
 const ShipView = connect(
@@ -83,7 +83,7 @@ const ShipView = connect(
           </OverlayTrigger>
         </div>
         <div className='ship-hp'>
-            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} item={ship.useItem} cond={data.api_cond} />
+            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} stage={ship.stageHP} item={ship.useItem} cond={data.api_cond} />
         </div>
       </div>
     )
