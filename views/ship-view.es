@@ -46,12 +46,13 @@ const ShipView = connect(
 
     const tooltip =
       <Tooltip id={`slotinfo-${data.api_id}`}>
-        <div className='ship-info'>
-          <span>Lv.</span>
-          <span>{data.api_lv || '-'}</span>
+        <div className='ship-pop prophet-pop'>
+          <div className='ship-essential'>
+            <span>Lv. {data.api_lv || '-'}</span>
 
-          <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
-          <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
+            <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
+            <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
+          </div>
 
           {(data.poi_slot || []).map((item, i) =>
           <ItemView key={i} item={item} extra={false}

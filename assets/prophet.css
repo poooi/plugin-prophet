@@ -107,3 +107,21 @@
   align-self: flex-end;
   text-align: right;
 }
+.prophet-pop {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.prophet-pop >div {
+  line-height: 160%;
+}
+.prophet-pop .item-icon {
+  margin-right: 0.25em;
+}
+.prophet-pop .alv {
+  margin-left: 0.25em;
+}
+.prophet-pop .ship-essential >span {
+  margin-right: 0.5em;
+  font-size: 80%;
+}
