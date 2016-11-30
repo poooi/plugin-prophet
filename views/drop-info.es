@@ -17,13 +17,15 @@ export default connect((state, props) => {
   }
 })(class DropInfo extends Component {
   static propTypes = {
-    getShip: PropTypes.number.isRequired,
-    getItem: PropTypes.number.isRequired,
+    ship: PropTypes.object,
+    item: PropTypes.object,
+    shipType: PropTypes.object,
   }
 
   static defaultProps = {
-    getShip: -1,
-    getItem: -1,
+    ship: null,
+    item: null,
+    shipType: null,
   }
 
   render(){
