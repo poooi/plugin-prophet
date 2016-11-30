@@ -105,10 +105,7 @@ const getAirForceStatus = (stages=[]) => {
 }
 
 // reducer for mapspot and maproute data
-export const reducer = (state, action) => {
-  if (state == null) {
-    state = {}
-  }
+export const reducer = (state = {}, action) => {
   if (action.type === '@@poi-plugin-prophet/updateMapspot') {
     return ({
       ...state,
