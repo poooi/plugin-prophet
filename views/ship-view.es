@@ -15,12 +15,15 @@ import { FABar, HPBar } from './bar'
 
 
 const ShipView = connect(
-  (state, props) => ({
-    escapedPos: state.sortie.escapedPos || [],
-    ship: props.child,
-    layout: _.get(state, 'config.poi.layout', 'horizontal'),
-    $ship: _.get(state, `const.$ships.${props.child.id}`),
-  })
+  (state, props) => {
+    const api_ship_id = _.get(props.child, 'raw.api_ship_id') || -1
+    return {
+      escapedPos: state.sortie.escapedPos || [],
+      ship: props.child,
+      layout: _.get(state, 'config.poi.layout', 'horizontal'),
+      $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
+    }
+  }
 )(class ShipView extends Component {
   render() {
     let {ship, $ship, escapedPos} = this.props
