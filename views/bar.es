@@ -95,7 +95,7 @@ export const HPBar = connect(state => ({
             </ProgressBar>
             {
               [1, 2, 3].map(i =>
-                <div className='hp-indicatior'
+                <div className='hp-indicatior' key={i}
                      style={{left: `-${25 * i}%`, opacity: (now + lost > 100 - 25 * i) && this.props.showScale ? 0.75 : 0}} />
               )
             }

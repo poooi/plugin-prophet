@@ -26,7 +26,7 @@ const sortieDataSelector = (state) => {
     lastSpot,
     nextSpot: currentNode || -1,
     bossNode,
-    sortieMapId,
+    sortieMapId: parseInt(sortieMapId),
   })
 }
 
