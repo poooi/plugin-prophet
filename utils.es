@@ -81,9 +81,10 @@ export const spotInfo = {
 // give spot kind according to api_event_id and api_event_kind
 // update according to https://github.com/andanteyk/ElectronicObserver/blob/1052a7b177a62a5838b23387ff35283618f688dd/ElectronicObserver/Other/Information/apilist.txt
 export const getSpotKind = (api_event_id, api_event_kind) => {
+  // console.log(`api_event_id = ${api_event_id}, api_event_kind = ${api_event_kind}`)
   if (api_event_id == 4){ //4=通常戦闘
     if (api_event_kind == 2) return 14 //2=夜戦
-    if (api_event_kind == 4) return 9 //4=航空戦
+    if (api_event_kind == 4) return 8 //4=航空戦
     if (api_event_kind == 5) return 15 //5=敵連合艦隊戦
     if (api_event_kind == 6) return 11 //6=長距離空襲戦
   }
