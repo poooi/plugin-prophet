@@ -3,7 +3,7 @@ import React, {Component} from 'react'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { ProgressBar } from 'react-bootstrap'
-const { ROOT, $slotitems } = window
+const { ROOT } = window
 const { MaterialIcon, SlotitemIcon } = require(`${ROOT}/views/components/etc/icon`)
 
 export class FABar extends Component {
@@ -23,8 +23,9 @@ export class FABar extends Component {
   }
 }
 
-export const HPBar = connect(state => ({
+export const HPBar = connect((state, props) => ({
   showScale: get(state, 'config.plugin.prophet.showScale', true),
+  $equip: get(state, `const.$equips.${props.item}`),
 }))(class HPBar extends Component {
   getHpStyle(percent) {
     if (percent <= 25)
@@ -38,7 +39,7 @@ export const HPBar = connect(state => ({
   }
 
   render() {
-    let {max, from, to, damage, stage, item, cond} = this.props
+    let {max, from, to, damage, stage, item, cond, $equip } = this.props
     from = Math.min(Math.max(0, from), max)
     to = Math.min(Math.max(0, to), max)
     if (stage == null) stage = from
@@ -49,8 +50,8 @@ export const HPBar = connect(state => ({
     if (stage !== 0 && Math.max(from - stage, 0) - damage !== 0) {
       additions.push(`${Math.max(from - stage, 0) - damage}`)
     }
-    if (item && $slotitems[item]) {
-      let itemIcon = $slotitems[item].api_type[3]
+    if (item && $equip) {
+      let itemIcon = $equip.api_type[3]
       additions.push(
         <span className='item-icon prophet-icon'>
           <SlotitemIcon slotitemId={itemIcon} />

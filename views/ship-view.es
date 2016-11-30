@@ -5,11 +5,9 @@ import {connect} from 'react-redux'
 import _ from 'lodash'
 import {getCondStyle} from 'views/utils/game-utils'
 
-const { $ships} = window
-
 import ItemView from './item-view'
-import {getShipName} from './utils'
-import {FABar, HPBar} from './bar'
+import { getShipName } from './utils'
+import { FABar, HPBar } from './bar'
 
 
 // const { i18n } = window
@@ -19,28 +17,27 @@ import {FABar, HPBar} from './bar'
 const ShipView = connect(
   (state, props) => ({
     escapedPos: state.sortie.escapedPos || [],
-    child: props.child,
+    ship: props.child,
     layout: _.get(state, 'config.poi.layout', 'horizontal'),
+    $ship: _.get(state, `const.$ships.${props.child.id}`),
   })
 )(class ShipView extends Component {
-
-
-
   render() {
-    let {child: ship} = this.props
-
-    if (! (ship && ship.id > 0)) {
+    let {ship, $ship, escapedPos} = this.props
+    if (!(ship && ship.id > 0)) {
       return <div />
     }
-    let isEscaped = _.includes(this.props.escapedPos, ship.pos-1) && ship.owner == 'Ours'
+    let isEscaped = _.includes(escapedPos, ship.pos-1) && ship.owner == 'Ours'
     let raw = ship.raw || {}
-    let mst = $ships[ship.id] || {}
-    let data = Object.assign(Object.clone(mst), raw)
+    let data = {
+      ...$ship,
+      ...raw,
+    }
 
-    if (! data.api_maxeq) {
+    if (!data.api_maxeq) {
       data.api_maxeq = []
     }
-    if (! data.api_onslot) {
+    if (!data.api_onslot) {
       data.api_onslot = data.api_maxeq
     }
 
@@ -54,10 +51,12 @@ const ShipView = connect(
             <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
           </div>
 
-          {(data.poi_slot || []).map((item, i) =>
-          <ItemView key={i} item={item} extra={false}
-            warn={data.api_onslot[i] !== data.api_maxeq[i]} />
-          )}
+          {
+            (data.poi_slot || []).map((item, i) =>
+              <ItemView key={i} item={item} extra={false}
+                        warn={data.api_onslot[i] !== data.api_maxeq[i]} />
+            )
+          }
 
           <ItemView item={data.poi_slot_ex} extra={true} label={'+'} warn={false} />
         </div>

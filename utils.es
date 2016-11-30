@@ -41,7 +41,7 @@ export const initEnemy = (intl=0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps
       raw = {
         api_ship_id: id,
         api_lv: api_ship_lv[i],
-        poi_slot: slots.map(id => window.$slotitems[id]),
+        poi_slot: slots.map(id => window.getStore(`const.$equips.${id}`)),
       }
       ship = new Ship({
         id   : id,

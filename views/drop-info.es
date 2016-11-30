@@ -1,11 +1,21 @@
 const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-prophet"])
 
 import React, { Component, PropTypes } from 'react'
+import { connect } from 'react-redux'
 import _ from 'lodash'
-const { i18n } =window
+const { i18n } = window
 
 
-export default class DropInfo extends Component {
+export default connect((state, props) => {
+  const ship = _.get(state, `const.$ships.${props.getShip}`)
+  const item = _.get(state, `const.$equips.${props.getItem}`)
+  const shipType = _.get(state, `const.$shipTypes.${ship.api_stype}`)
+  return {
+    ship,
+    item,
+    shipType,
+  }
+})(class DropInfo extends Component {
   static propTypes = {
     getShip: PropTypes.number.isRequired,
     getItem: PropTypes.number.isRequired,
@@ -17,11 +27,9 @@ export default class DropInfo extends Component {
   }
 
   render(){
-    const {getShip, getItem} = this.props
-    let ship = _.get(window.$ships, getShip)
-    let item = _.get(window.$slotitems, getItem)
+    const {ship, item, shipType} = this.props
     let shipMessage = ship != null ?
-      __("%s \"%s\" joined your fleet", i18n.resources.__(window.$shipTypes[ship.api_stype].api_name), i18n.resources.__(ship.api_name))
+      __("%s \"%s\" joined your fleet", i18n.resources.__(shipType.api_name), i18n.resources.__(ship.api_name))
       : ''
     let itemMessage = item != null ? __("Item \"%s:\" got! ", i18n.resources.__(item.api_name)) : ''
     return (
@@ -30,4 +38,4 @@ export default class DropInfo extends Component {
       </span>
     )
   }
-}
+})

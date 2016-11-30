@@ -1,20 +1,25 @@
 import { getShipName } from './utils'
 import { join } from 'path'
 import React, { Component } from 'react'
-const { ROOT, $slotitems } = window
+import { connect } from 'react-redux'
+const { ROOT } = window
 import { SlotitemIcon } from 'views/components/etc/icon'
+import { get } from 'lodash'
 
 
-export default class ItemView extends Component {
+export default connect((state, props) => ({
+  $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
+}))(class ItemView extends Component {
   render() {
-    let {item, extra, label, warn} = this.props
+    let {item, extra, label, warn, $item} = this.props
     if (! item) {
       return <div />
     }
     let raw = item
-    let mst = $slotitems[item.api_slotitem_id] || {}
-    let data = Object.assign(Object.clone(mst), raw)
-
+    let data = {
+      ...$item,
+      ...raw,
+    }
     return (
         <div className='item-info'>
           <span className='item-icon prophet-icon'>
@@ -40,4 +45,4 @@ export default class ItemView extends Component {
         </div>
     )
   }
-}
+})
