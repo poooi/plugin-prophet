@@ -423,7 +423,7 @@ export const reactClass = connect(
       if (!this.battle.fleet) {
         const [mainFleet, escortFleet] = this.transformToDazzyDingClass(this.props.fleets, this.props.equips)
         this.battle.fleet = new Fleet({
-          type:    this.state.combinedFlag,
+          type:    escortFleet ? this.state.combinedFlag : 0,
           main:    mainFleet,
           escort:  escortFleet,
           support: null,
