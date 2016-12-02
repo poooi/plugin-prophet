@@ -146,11 +146,11 @@ const BattleViewArea = connect(
       <div id="overview-area">
         {useVerticalLayout ? combatInfo : null}
         <div className={useVerticalLayout ? 'div-row' : ''}>
-          <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout && escortFleet && !isAirRaid ? 'column-reverse' : 'column'}}>
+          <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout && (escortFleet || []).length && !isAirRaid ? 'column-reverse' : 'column'}}>
             {alliedForce}
             {!useVerticalLayout ? combatInfo : null}
           </div>
-          <div className='fleet-container' style={{flex: useVerticalLayout ? enemyWidth : 1, flexDirection: useVerticalLayout && enemyEscort ? 'column-reverse' : 'column'}}>
+          <div className='fleet-container' style={{flex: useVerticalLayout ? enemyWidth : 1, flexDirection: useVerticalLayout && (enemyEscort || []).length ? 'column-reverse' : 'column'}}>
             {enemyForce}
             {!useVerticalLayout ? mapInfo : null}
           </div>
