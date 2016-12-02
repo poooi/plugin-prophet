@@ -178,6 +178,7 @@ export const reactClass = connect(
     spotKind: '',
     result: {},
     api_formation: [], // [null, Formation, Engagement]
+    combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
   }
 
   componentWillMount() {
@@ -203,12 +204,25 @@ export const reactClass = connect(
   }
 
   componentWillReceiveProps(nextProps) {
-    if (!isEqual(this.props.fleets, nextProps.fleets) ||!isEqual (this.props.equips, nextProps.equips)) {
+    const fleetUpdate = !isEqual(this.props.fleets, nextProps.fleets) ||!isEqual (this.props.equips, nextProps.equips)
+    const combinedFlagUpdate = nextProps.sortie.combinedFlag != null && nextProps.sortie.combinedFlag !== this.state.combinedFlag
+    let newState = {}
+    if (fleetUpdate) {
       const [mainFleet, escortFleet] = this.transformToLibBattleClass(nextProps.fleets, nextProps.equips)
-      this.setState({
+      newState = {
+        ...newState,
         mainFleet,
         escortFleet,
-      })
+      }
+    }
+    if (combinedFlagUpdate) {
+      newState = {
+        ...newState,
+        combinedFlag: nextProps.sortie.combinedFlag,
+      }
+    }
+    if (fleetUpdate || combinedFlagUpdate) {
+      this.setState(newState)
     }
   }
 
@@ -409,7 +423,7 @@ export const reactClass = connect(
       if (!this.battle.fleet) {
         const [mainFleet, escortFleet] = this.transformToDazzyDingClass(this.props.fleets, this.props.equips)
         this.battle.fleet = new Fleet({
-          type:    this.props.sortie.combinedFlag,
+          type:    this.state.combinedFlag,
           main:    mainFleet,
           escort:  escortFleet,
           support: null,
