@@ -6,7 +6,6 @@
   overflow: hidden;
 }
 #plugin-prophet .prophet-info {
-  margin-bottom: auto;
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
