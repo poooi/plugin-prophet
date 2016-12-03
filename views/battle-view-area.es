@@ -25,7 +25,7 @@ const BattleViewArea = connect(
     landBase: props.landBase,
     airForce: props.airForce,
     airControl: props.airControl,
-    isAirRaid: props.isAirRaid,
+    isBaseDefense: props.isBaseDefense,
     sortieState: props.sortieState,
     spotKind: props.spotKind,
     result: props.result,
@@ -40,7 +40,7 @@ const BattleViewArea = connect(
     landBase: [],
     airForce: [], // [count, lostCount, enemyCount, enemyLostCount]
     airControl: 0, // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
-    isAirRaid: false,
+    isBaseDefense: false,
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
     result: {},
@@ -59,14 +59,14 @@ const BattleViewArea = connect(
       landBase,
       airForce,
       airControl,
-      isAirRaid,
+      isBaseDefense,
       sortieState,
       spotKind,
       result,
       api_formation,
     } = this.props
-    let View = isAirRaid ? SquadView : ShipView
-    let friendTitle = isAirRaid ? 'Land Base' : 'Sortie Fleet'
+    let View = isBaseDefense ? SquadView : ShipView
+    let friendTitle = isBaseDefense ? 'Land Base' : 'Sortie Fleet'
     let enemyTitle = sortieState == 3 ? 'PvP' : 'Enemy Vessel'
     const times = layout == 'horizontal' ? 1 : 2
     let useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
@@ -74,20 +74,20 @@ const BattleViewArea = connect(
     // this can support 12v6, 6v12 and 12v12
     let fleetCount = 1 && _.sumBy([mainFleet, escortFleet], (fleet) => fleet != null)
     let enemyCount = 1 && _.sumBy([enemyFleet, enemyEscort], (fleet) => fleet != null)
-    let fleetWidth = escortFleet && !isAirRaid ? 2 : 1
-    let enemyWidth = enemyEscort && !isAirRaid ? 2 : 1
+    let fleetWidth = escortFleet && !isBaseDefense ? 2 : 1
+    let enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
     let {getShip, getItem} = _.pick(result, ['getShip', 'getItem'])
     const alliedForce =
       <div className="div-row">
-        <FleetView fleet={isAirRaid ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
-        <FleetView fleet={isAirRaid ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
+        <FleetView fleet={isBaseDefense ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
+        <FleetView fleet={isBaseDefense ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
       </div>
-    const enemyForce = sortieState > 1 || isAirRaid ?
+    const enemyForce = sortieState > 1 || isBaseDefense ?
       <div className="div-row" style={{flexDirection: ecGameOrder ? 'row-reverse' : 'row'}}>
         <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
         <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
       </div> : <noscript />
-    const combatInfo = sortieState > 1 || isAirRaid ?
+    const combatInfo = sortieState > 1 || isBaseDefense ?
       <div className='alert div-row prophet-info'>
         <div style={{flex: 1}}>
           {__(friendTitle) + ' '}
@@ -114,9 +114,9 @@ const BattleViewArea = connect(
     const mapInfo =
       <div className="alert prophet-info">
         {
-          sortieState === 1 && !isAirRaid ?
+          sortieState === 1 && !isBaseDefense ?
           <NextSpotInfo spotKind={spotKind}/>
-          : isAirRaid ?
+          : isBaseDefense ?
           [
             <BattleInfo
               result = {result && result.rank }
@@ -132,7 +132,7 @@ const BattleViewArea = connect(
             getShip = {getShip}
             getItem = {getItem}
           />
-          : sortieState > 1 || isAirRaid ?
+          : sortieState > 1 || isBaseDefense ?
           <BattleInfo
             result = {result && result.rank }
             formation ={api_formation && api_formation[1]}
@@ -146,7 +146,7 @@ const BattleViewArea = connect(
       <div id="overview-area">
         {useVerticalLayout ? combatInfo : null}
         <div className={useVerticalLayout ? 'div-row' : ''}>
-          <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout && (escortFleet || []).length && !isAirRaid ? 'column-reverse' : 'column'}}>
+          <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout && (escortFleet || []).length && !isBaseDefense ? 'column-reverse' : 'column'}}>
             {alliedForce}
             {!useVerticalLayout ? combatInfo : null}
           </div>

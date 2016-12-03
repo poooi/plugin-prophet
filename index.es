@@ -173,7 +173,7 @@ export const reactClass = connect(
     landBase: [],
     airForce: [], // [count, lostCount, enemyCount, enemyLostCount]
     airControl: 0, // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
-    isAirRaid: false,
+    isBaseDefense: false,
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
     result: {},
@@ -328,13 +328,13 @@ export const reactClass = connect(
       landBase,
       airForce,
       airControl,
-      isAirRaid,
+      isBaseDefense,
       sortieState,
       spotKind,
       result,
       api_formation,
     } = {...this.state}
-    isAirRaid = false
+    isBaseDefense = false
     switch (path) {
     case '/kcsapi/api_port/port':
       this.battle = null
@@ -392,7 +392,7 @@ export const reactClass = connect(
           })
         }
         result = {rank: __(lostKind[api_lost_kind] || '')}
-        isAirRaid = true
+        isBaseDefense = true
       }
       let isBoss = (body.api_event_id === 5)
       this.battle = new Battle({
@@ -451,7 +451,7 @@ export const reactClass = connect(
       landBase,
       airForce,
       airControl,
-      isAirRaid,
+      isBaseDefense,
       sortieState,
       spotKind,
       result,
@@ -470,7 +470,7 @@ export const reactClass = connect(
       landBase,
       airForce,
       airControl,
-      isAirRaid,
+      isBaseDefense,
       sortieState,
       spotKind,
       result,
@@ -487,7 +487,7 @@ export const reactClass = connect(
           landBase={landBase}
           airForce={airForce}
           airControl={airControl}
-          isAirRaid={isAirRaid}
+          isBaseDefense={isBaseDefense}
           sortieState={sortieState}
           spotKind={spotKind}
           result={result}
