@@ -13,8 +13,8 @@ import semver from 'semver'
 import BattleViewArea from './views/battle-view-area'
 
 import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
-import { Simulator } from './lib/battle'
-import { Ship, ShipOwner, StageType, Battle, BattleType, Fleet } from './lib/battle/models'
+import { Models, Simulator } from './lib/battle'
+const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet } = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 
 const { i18n, ROOT, getStore } = window
