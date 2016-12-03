@@ -377,6 +377,7 @@ export const reactClass = connect(
         // simulation
         const {api_stage1, api_stage2, api_stage3} = api_air_base_attack
         airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
+        airControl = api_stage1.api_disp_seiku
         if (!isNil(api_stage3)) {
           const {api_fdam} = api_stage3
           landBase = map(landBase, (squad, index) =>{
