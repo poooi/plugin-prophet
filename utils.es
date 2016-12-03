@@ -2,7 +2,8 @@
 
 const {__r} = window
 import _ from 'lodash'
-import {Ship, ShipOwner} from './lib/battle/models'
+import { Models } from './lib/battle'
+const {Ship, ShipOwner} = Models
 
 export function getShipName(ship) {
   if (ship == null) {
