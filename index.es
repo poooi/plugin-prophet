@@ -63,9 +63,13 @@ const synthesizeInfo = (_simulator, result, packets) => {
       // [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
       const fLost = (fPlaneInit || 0) - (fPlaneNow || 0)
       const eLost = (ePlaneInit || 0) - (ePlaneNow || 0)
-      airForce = [fPlaneInit, fLost, ePlaneInit, eLost].map( 
-        (value, index) => Math.max(value, airForce[index] || 0)
-      )
+      // [fPlaneInit, fLost, ePlaneInit, eLost]
+      airForce = [
+        Math.max(fPlaneInit, airForce[0]),
+        fLost + (airForce[1] || 0),
+        Math.max(ePlaneInit, airForce[2]),
+        eLost + (airForce[3] || 0),
+      ]
       airControl = control || 0
     }
   })
@@ -192,8 +196,8 @@ export const reactClass = connect(
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
     result: {},
-    api_formation: '', // [null, Formation, Engagement]
-    engagement: ''
+    eFormation: '', // enemy formation
+    engagement: '',
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
   }
 
