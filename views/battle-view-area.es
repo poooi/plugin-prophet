@@ -120,8 +120,8 @@ const BattleViewArea = connect(
           [
             <BattleInfo
               result = {result && result.rank }
-              formation ={api_formation && api_formation[1]}
-              intercept = {api_formation && api_formation[2]}
+              formation ={api_formation}
+              intercept = {api_formation}
               seiku = {airControl}
             />,
             <span> | </span>,
@@ -135,8 +135,8 @@ const BattleViewArea = connect(
           : sortieState > 1 || isBaseDefense ?
           <BattleInfo
             result = {result && result.rank }
-            formation ={api_formation && api_formation[1]}
-            intercept = {api_formation && api_formation[2]}
+            formation ={api_formation}
+            intercept = {api_formation}
             seiku = {airControl}
           />
           : <noscript />

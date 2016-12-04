@@ -16,6 +16,7 @@ import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
 const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet } = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
+import { Inspector } from 'react-inspector'
 
 const { i18n, ROOT, getStore } = window
 //const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
@@ -35,10 +36,14 @@ const updateByStageHp = (fleet, nowhps) => {
   return fleet
 }
 
-// extracts necessary information from its stages, returns a new simulator
-// infomation:
-const synthesizeStage = (_simulator, result, packets) => {
-  let {mainFleet, escortFleet, enemyFleet, enemyEscort, stages, api_formation, airForce, airControl} = {..._simulator}
+// extracts necessary information
+// infomation: mvp, formation, aerial, hp (day and night)
+const synthesizeInfo = (_simulator, result, packets) => {
+  let {mainFleet, escortFleet, enemyFleet, enemyEscort, stages} = {..._simulator}
+  let formation = ''
+  let engagement = ''
+  let airForce = [0, 0, 0, 0]
+  let airControl = ''
   // assign mvp to specific ship
   let [mainMvp, escortMvp] = result.mvp || [0, 0]
   if (!( mainMvp < 0 || mainMvp > 6 )) mainFleet[mainMvp].isMvp = true
@@ -46,14 +51,22 @@ const synthesizeStage = (_simulator, result, packets) => {
 
   each(stages, (stage) => {
     if (isNil(stage)) return
-    let {api_stage1, api_stage2, api_stage3} = (stage || {}).kouku || {}
-    if(stage.type == StageType.Engagement) {
-      // api_search = pick(stage.api, ['api_search']).api_search
-      api_formation = (stage.api || {}).api_formation
+    const {engagement, aerial, type} = (stage || {})
+    if(engagement && type == StageType.Engagement) {
+      // There might be multiple engagements (day and night)
+      // fortunately the formation is the same for now
+      api_formation = (engagement || {}).eFormation || 1
     }
-    if (!isNil(api_stage1) && stage.type == StageType.Aerial ) {
-      airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
-      airControl = api_stage1.api_disp_seiku
+    if (aerial && type == StageType.Aerial ) {
+      // There might be multiple aerial stages, e.g. 1-6 air battle
+      const {fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control} = aerial
+      // [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
+      const fLost = (fPlaneInit || 0) - (fPlaneNow || 0)
+      const eLost = (ePlaneInit || 0) - (ePlaneNow || 0)
+      airForce = [fPlaneInit, fLost, ePlaneInit, eLost].map( 
+        (value, index) => Math.max(value, airForce[index] || 0)
+      )
+      airControl = control || 0
     }
   })
 
@@ -78,6 +91,8 @@ const synthesizeStage = (_simulator, result, packets) => {
     escortFleet = updateByStageHp(escortFleet, api_nowhps_combined)
     enemyEscort = updateByStageHp(enemyEscort, api_nowhps_combined)
   }
+
+  console.log(api_formation, airForce, airControl)
 
   return {
     mainFleet,
@@ -171,13 +186,14 @@ export const reactClass = connect(
     enemyFleet: [],
     enemyEscort: [],
     landBase: [],
-    airForce: [], // [count, lostCount, enemyCount, enemyLostCount]
+    airForce: [0, 0, 0, 0], // [fPlaneInit, fLost, ePlaneInit, eLost]
     airControl: 0, // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
     isBaseDefense: false,
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
     result: {},
-    api_formation: [], // [null, Formation, Engagement]
+    api_formation: '', // [null, Formation, Engagement]
+    engagement: ''
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
   }
 
@@ -280,7 +296,7 @@ export const reactClass = connect(
     let result = simulator.result
 
     // Attention, aynthesizeStage will break object prototype, put it to last
-    const newState = synthesizeStage(simulator, result, e.packet)
+    const newState = synthesizeInfo(simulator, result, e.packet)
     return {
       ...newState,
       sortieState,
@@ -476,6 +492,7 @@ export const reactClass = connect(
       result,
       api_formation,
     } = this.state
+    console.log(api_formation)
     return (
       <div id="plugin-prophet">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
@@ -493,6 +510,7 @@ export const reactClass = connect(
           result={result}
           api_formation={api_formation}
         />
+        <Inspector data={this.state}/>
       </div>
     )
   }

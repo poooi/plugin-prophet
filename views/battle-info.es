@@ -48,25 +48,26 @@ const AirControlName = {
 
 
 export default class BattleInfo extends Component {
-  static propTypes = {
-    result: PropTypes.string.isRequired,
-    formation: PropTypes.number.isRequired,
-    intercept: PropTypes.number.isRequired,
-    seiku: PropTypes.number.isRequired,
-  }
+  // static propTypes = {
+  //   result: PropTypes.string.isRequired,
+  //   formation: PropTypes.number.isRequired,
+  //   intercept: PropTypes.number.isRequired,
+  //   seiku: PropTypes.number.isRequired,
+  // }
 
   static defaultProps = {
     result: '',
-    formation: 0,
-    intercept: 0,
-    seiku: -1,
+    formation: '',
+    intercept: '',
+    seiku: '',
   }
 
   render(){
     const {result, formation, intercept, seiku} = this.props
+    console.log(result, formation, intercept, seiku)
     return (
       <span className='battle-info'>
-        {`${result} | ${FormationName[formation] || ''} | ${EngagementName[intercept] || ''} | ${AirControlName[seiku] || '' }`}
+        {`${result} | ${__(formation || '')} | ${EngagementName[intercept] || ''} | ${__(seiku || '') }`}
       </span>
     )
   }
