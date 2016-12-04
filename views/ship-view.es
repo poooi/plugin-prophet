@@ -4,6 +4,7 @@ import { OverlayTrigger, Tooltip} from 'react-bootstrap'
 import {connect} from 'react-redux'
 import _ from 'lodash'
 import {getCondStyle} from 'views/utils/game-utils'
+import { resolve } from 'path'
 
 import ItemView from './item-view'
 import { getShipName } from './utils'
@@ -13,6 +14,16 @@ import { FABar, HPBar } from './bar'
 // const { i18n } = window
 // const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
+class ParamIcon extends Component {
+  render() {
+    const {name} = this.props || ''
+    const iconPath = resolve(__dirname, `../assets/icons/${name}.svg`)
+    return <span className="prophet-icon param-icon"><img src={iconPath} className="svg"/></span>
+  }
+}
+
+// fParam: [0]=火力, [1]=雷装, [2]=対空, [3]=装甲
+const paramNames = ['firepower', 'torpedo', 'AA', 'armor']
 
 const ShipView = connect(
   (state, props) => {
@@ -48,6 +59,7 @@ const ShipView = connect(
       <Tooltip id={`slotinfo-${data.api_id}`} className='ship-pop prophet-pop'>
         <div className='prophet-tip'>
           <div className='ship-essential'>
+            <span className="position-indicator">{ship.owner=='Ours'? '': `ID ${ship.id}`}</span>
             <span>Lv. {data.api_lv || '-'}</span>
 
             <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
@@ -74,9 +86,8 @@ const ShipView = connect(
             overlay={tooltip}
           >
             <div className="ship-info">
-              <div className='ship-name'>
+              <div className='ship-name' title={getShipName(data)}>
                 {getShipName(data)}
-                <span className="position-indicator">{ship.owner=='Ours'? '': ` (${ship.id})`}</span>
               </div>
               <div className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
                 {ship.isMvp ? <FontAwesome name='trophy' /> : ''}

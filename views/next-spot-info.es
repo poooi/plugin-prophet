@@ -74,7 +74,7 @@ const NextSpotInfo = connect(
           Number.isNaN(compassAngle) ?
           '?' :
           <span className="prophet-icon svg" id="prophet-compass">
-            <img src={resolve(__dirname, `../assets/compass-arrow-${window.isDarkTheme? 'dark' : 'light'}.svg`)}
+            <img src={resolve(__dirname, `../assets/icons/compass-arrow-${window.isDarkTheme? 'dark' : 'light'}.svg`)}
               style={{'transform': `rotate(${compassAngle - 135}deg)`}} className="svg">
             </img>
           </span>
