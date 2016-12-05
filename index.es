@@ -66,10 +66,10 @@ const synthesizeInfo = (_simulator, result, packets) => {
       const eLost = (ePlaneInit || 0) - (ePlaneNow || 0)
       // [fPlaneInit, fLost, ePlaneInit, eLost]
       airForce = [
-        Math.max(fPlaneInit, airForce[0]),
-        fLost + (airForce[1] || 0),
-        Math.max(ePlaneInit, airForce[2]),
-        eLost + (airForce[3] || 0),
+        Math.max((fPlaneInit || 0), airForce[0]),
+        fLost + airForce[1],
+        Math.max((ePlaneInit || 0), airForce[2]),
+        eLost + airForce[3],
       ]
       airControl = control || ''
     }
@@ -400,7 +400,7 @@ export const reactClass = connect(
 
         const {api_stage1, api_stage2, api_stage3} = api_air_base_attack
         airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
-        airControl = AirControlMap[(api_stage1 || {} ).api_disp_seiku]
+        airControl = AirControlMap[(api_stage1 || {} ).api_disp_seiku] || ''
         if (!isNil(api_stage3)) {
           const {api_fdam} = api_stage3
           landBase = map(landBase, (squad, index) =>{
