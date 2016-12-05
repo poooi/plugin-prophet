@@ -14,7 +14,7 @@ import BattleViewArea from './views/battle-view-area'
 
 import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
-const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet } = Models
+const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet, Formation, Engagement, AirControl } = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 import { Inspector } from 'react-inspector'
 
@@ -22,6 +22,36 @@ const { i18n, ROOT, getStore } = window
 //const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
+
+// To remove
+const FormationMap = {
+  1: Formation.Ahead,
+  2: Formation.Double,
+  3: Formation.Diamond,
+  4: Formation.Echelon,
+  5: Formation.Abreast,
+  11: Formation.CruisingAntiSub,
+  12: Formation.CruisingForward,
+  13: Formation.CruisingDiamond,
+  14: Formation.CruisingBattle,
+}
+
+const EngagementMap = {
+  1: Engagement.Parallel,
+  2: Engagement.Headon,
+  3: Engagement.TAdvantage,
+  4: Engagement.TDisadvantage,
+}
+
+const AirControlMap = {
+  0: AirControl.Parity,
+  1: AirControl.Supremacy,
+  2: AirControl.Superiority,
+  3: AirControl.Incapability,
+  4: AirControl.Denial,
+}
+
+
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) return fleet
@@ -193,7 +223,7 @@ export const reactClass = connect(
     enemyEscort: [],
     landBase: [],
     airForce: [0, 0, 0, 0], // [fPlaneInit, fLost, ePlaneInit, eLost]
-    airControl: 0, // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
+    airControl: '', // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
     isBaseDefense: false,
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
@@ -394,14 +424,15 @@ export const reactClass = connect(
           }))
         })
         // construct enemy
-        const {api_ship_ke, api_eSlot, api_ship_lv, api_lost_kind} = api_destruction_battle
-        // TODO: parse api_formation
-        battleForm = api_destruction_battle.api_formation
+        const {api_ship_ke, api_eSlot, api_ship_lv, api_lost_kind, api_formation} = api_destruction_battle
         enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
         // simulation
+        battleForm = EngagementMap[(api_formation || {} )[2]] || ''
+        eFormation = FormationMap[(api_formation || {} )[1]] || ''
+
         const {api_stage1, api_stage2, api_stage3} = api_air_base_attack
         airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
-        airControl = api_stage1.api_disp_seiku
+        airControl = AirControlMap[(api_stage1 || {} ).api_disp_seiku]
         if (!isNil(api_stage3)) {
           const {api_fdam} = api_stage3
           landBase = map(landBase, (squad, index) =>{
