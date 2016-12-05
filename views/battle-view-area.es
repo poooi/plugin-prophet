@@ -63,7 +63,8 @@ const BattleViewArea = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
     } = this.props
     let View = isBaseDefense ? SquadView : ShipView
     let friendTitle = isBaseDefense ? 'Land Base' : 'Sortie Fleet'
@@ -120,8 +121,8 @@ const BattleViewArea = connect(
           [
             <BattleInfo
               result = {result && result.rank }
-              formation ={api_formation}
-              intercept = {api_formation}
+              formation ={eFormation}
+              intercept = {battleForm}
               seiku = {airControl}
             />,
             <span> | </span>,
@@ -135,8 +136,8 @@ const BattleViewArea = connect(
           : sortieState > 1 || isBaseDefense ?
           <BattleInfo
             result = {result && result.rank }
-            formation ={api_formation}
-            intercept = {api_formation}
+            formation ={eFormation}
+            intercept = {battleForm}
             seiku = {airControl}
           />
           : <noscript />

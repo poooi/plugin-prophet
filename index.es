@@ -40,10 +40,10 @@ const updateByStageHp = (fleet, nowhps) => {
 // infomation: mvp, formation, aerial, hp (day and night)
 const synthesizeInfo = (_simulator, result, packets) => {
   let {mainFleet, escortFleet, enemyFleet, enemyEscort, stages} = {..._simulator}
-  let formation = ''
-  let engagement = ''
-  let airForce = [0, 0, 0, 0]
+  let airForce = [0, 0, 0, 0] // [fPlaneInit, fLost, ePlaneInit, eLost]
   let airControl = ''
+  let eFormation = ''
+  let battleForm = ''
   // assign mvp to specific ship
   let [mainMvp, escortMvp] = result.mvp || [0, 0]
   if (!( mainMvp < 0 || mainMvp > 6 )) mainFleet[mainMvp].isMvp = true
@@ -55,7 +55,8 @@ const synthesizeInfo = (_simulator, result, packets) => {
     if(engagement && type == StageType.Engagement) {
       // There might be multiple engagements (day and night)
       // fortunately the formation is the same for now
-      api_formation = (engagement || {}).eFormation || 1
+      battleForm = (engagement || {}).engagement || ''
+      eFormation = (engagement || {}).eFormation || ''
     }
     if (aerial && type == StageType.Aerial ) {
       // There might be multiple aerial stages, e.g. 1-6 air battle
@@ -70,7 +71,7 @@ const synthesizeInfo = (_simulator, result, packets) => {
         Math.max(ePlaneInit, airForce[2]),
         eLost + (airForce[3] || 0),
       ]
-      airControl = control || 0
+      airControl = control || ''
     }
   })
 
@@ -96,7 +97,7 @@ const synthesizeInfo = (_simulator, result, packets) => {
     enemyEscort = updateByStageHp(enemyEscort, api_nowhps_combined)
   }
 
-  console.log(api_formation, airForce, airControl)
+  console.log(battleForm, eFormation, airForce, airControl)
 
   return {
     mainFleet,
@@ -105,7 +106,8 @@ const synthesizeInfo = (_simulator, result, packets) => {
     enemyEscort,
     airControl,
     airForce,
-    api_formation,
+    battleForm,
+    eFormation,
     result,
   }
 }
@@ -196,8 +198,8 @@ export const reactClass = connect(
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
     result: {},
-    eFormation: '', // enemy formation
-    engagement: '',
+    battleForm: '', // api_formation[2]
+    eFormation: '', // enemy formation, api_formation[1]
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
   }
 
@@ -352,7 +354,8 @@ export const reactClass = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
     } = {...this.state}
     isBaseDefense = false
     switch (path) {
@@ -392,7 +395,8 @@ export const reactClass = connect(
         })
         // construct enemy
         const {api_ship_ke, api_eSlot, api_ship_lv, api_lost_kind} = api_destruction_battle
-        api_formation = api_destruction_battle.api_formation
+        // TODO: parse api_formation
+        battleForm = api_destruction_battle.api_formation
         enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
         // simulation
         const {api_stage1, api_stage2, api_stage3} = api_air_base_attack
@@ -475,7 +479,8 @@ export const reactClass = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
       ...newState,
     })
   }
@@ -494,9 +499,9 @@ export const reactClass = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
     } = this.state
-    console.log(api_formation)
     return (
       <div id="plugin-prophet">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
@@ -512,7 +517,8 @@ export const reactClass = connect(
           sortieState={sortieState}
           spotKind={spotKind}
           result={result}
-          api_formation={api_formation}
+          battleForm={battleForm}
+          eFormation={eFormation}
         />
         <Inspector data={this.state}/>
       </div>
