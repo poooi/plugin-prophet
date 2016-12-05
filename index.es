@@ -16,7 +16,6 @@ import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
 const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet, Formation, Engagement, AirControl } = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
-import { Inspector } from 'react-inspector'
 
 const { i18n, ROOT, getStore } = window
 //const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
@@ -551,7 +550,6 @@ export const reactClass = connect(
           battleForm={battleForm}
           eFormation={eFormation}
         />
-        <Inspector data={this.state}/>
       </div>
     )
   }
