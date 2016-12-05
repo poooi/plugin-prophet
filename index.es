@@ -14,43 +14,14 @@ import BattleViewArea from './views/battle-view-area'
 
 import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
-const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet, Formation, Engagement, AirControl } = Models
+const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet, 
+  FormationMap, EngagementMap, AirControlMap} = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 
 const { i18n, ROOT, getStore } = window
 //const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
-
-// To remove
-const FormationMap = {
-  1: Formation.Ahead,
-  2: Formation.Double,
-  3: Formation.Diamond,
-  4: Formation.Echelon,
-  5: Formation.Abreast,
-  11: Formation.CruisingAntiSub,
-  12: Formation.CruisingForward,
-  13: Formation.CruisingDiamond,
-  14: Formation.CruisingBattle,
-}
-
-const EngagementMap = {
-  1: Engagement.Parallel,
-  2: Engagement.Headon,
-  3: Engagement.TAdvantage,
-  4: Engagement.TDisadvantage,
-}
-
-const AirControlMap = {
-  0: AirControl.Parity,
-  1: AirControl.Supremacy,
-  2: AirControl.Superiority,
-  3: AirControl.Incapability,
-  4: AirControl.Denial,
-}
-
-
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) return fleet
@@ -125,8 +96,6 @@ const synthesizeInfo = (_simulator, result, packets) => {
     escortFleet = updateByStageHp(escortFleet, api_nowhps_combined)
     enemyEscort = updateByStageHp(enemyEscort, api_nowhps_combined)
   }
-
-  console.log(battleForm, eFormation, airForce, airControl)
 
   return {
     mainFleet,
