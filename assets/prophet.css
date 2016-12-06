@@ -50,7 +50,7 @@
   white-space: nowrap;
   flex: 1;
 }
-#plugin-prophet .ship-view.escaped {
+#plugin-prophet .ship-item.escaped {
   opacity: 0.4;
 }
 .prophet-icon img.svg,
