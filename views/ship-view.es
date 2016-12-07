@@ -79,8 +79,8 @@ const ShipView = connect(
 
 
     return (
-      <div className="div-row ship-item">
-        <div className={"ship-view " + (isEscaped ? "escaped" : '' )}>
+      <div className={"div-row ship-item " + (isEscaped ? "escaped" : '' )}>
+        <div className="ship-view">
           <OverlayTrigger
             placement={this.props.layout === 'horizontal' ? 'left' : 'top'}
             overlay={tooltip}

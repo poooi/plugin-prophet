@@ -14,7 +14,8 @@ import BattleViewArea from './views/battle-view-area'
 
 import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
-const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet } = Models
+const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet, 
+  FormationMap, EngagementMap, AirControlMap} = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 
 const { i18n, ROOT, getStore } = window
@@ -35,10 +36,14 @@ const updateByStageHp = (fleet, nowhps) => {
   return fleet
 }
 
-// extracts necessary information from its stages, returns a new simulator
-// infomation:
-const synthesizeStage = (_simulator, result, packets) => {
-  let {mainFleet, escortFleet, enemyFleet, enemyEscort, stages, api_formation, airForce, airControl} = {..._simulator}
+// extracts necessary information
+// infomation: mvp, formation, aerial, hp (day and night)
+const synthesizeInfo = (_simulator, result, packets) => {
+  let {mainFleet, escortFleet, enemyFleet, enemyEscort, stages} = {..._simulator}
+  let airForce = [0, 0, 0, 0] // [fPlaneInit, fLost, ePlaneInit, eLost]
+  let airControl = ''
+  let eFormation = ''
+  let battleForm = ''
   // assign mvp to specific ship
   let [mainMvp, escortMvp] = result.mvp || [0, 0]
   if (!( mainMvp < 0 || mainMvp > 6 )) mainFleet[mainMvp].isMvp = true
@@ -46,14 +51,27 @@ const synthesizeStage = (_simulator, result, packets) => {
 
   each(stages, (stage) => {
     if (isNil(stage)) return
-    let {api_stage1, api_stage2, api_stage3} = (stage || {}).kouku || {}
-    if(stage.type == StageType.Engagement) {
-      // api_search = pick(stage.api, ['api_search']).api_search
-      api_formation = (stage.api || {}).api_formation
+    const {engagement, aerial, type} = (stage || {})
+    if(engagement && type == StageType.Engagement) {
+      // There might be multiple engagements (day and night)
+      // fortunately the formation is the same for now
+      battleForm = (engagement || {}).engagement || ''
+      eFormation = (engagement || {}).eFormation || ''
     }
-    if (!isNil(api_stage1) && stage.type == StageType.Aerial ) {
-      airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
-      airControl = api_stage1.api_disp_seiku
+    if (aerial && type == StageType.Aerial ) {
+      // There might be multiple aerial stages, e.g. 1-6 air battle
+      const {fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control} = aerial
+      // [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
+      const fLost = (fPlaneInit || 0) - (fPlaneNow || 0)
+      const eLost = (ePlaneInit || 0) - (ePlaneNow || 0)
+      // [fPlaneInit, fLost, ePlaneInit, eLost]
+      airForce = [
+        Math.max((fPlaneInit || 0), airForce[0]),
+        fLost + airForce[1],
+        Math.max((ePlaneInit || 0), airForce[2]),
+        eLost + airForce[3],
+      ]
+      airControl = control || ''
     }
   })
 
@@ -86,7 +104,8 @@ const synthesizeStage = (_simulator, result, packets) => {
     enemyEscort,
     airControl,
     airForce,
-    api_formation,
+    battleForm,
+    eFormation,
     result,
   }
 }
@@ -171,13 +190,14 @@ export const reactClass = connect(
     enemyFleet: [],
     enemyEscort: [],
     landBase: [],
-    airForce: [], // [count, lostCount, enemyCount, enemyLostCount]
-    airControl: 0, // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
+    airForce: [0, 0, 0, 0], // [fPlaneInit, fLost, ePlaneInit, eLost]
+    airControl: '', // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
     isBaseDefense: false,
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
     result: {},
-    api_formation: [], // [null, Formation, Engagement]
+    battleForm: '', // api_formation[2]
+    eFormation: '', // enemy formation, api_formation[1]
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
   }
 
@@ -280,7 +300,7 @@ export const reactClass = connect(
     let result = simulator.result
 
     // Attention, aynthesizeStage will break object prototype, put it to last
-    const newState = synthesizeStage(simulator, result, e.packet)
+    const newState = synthesizeInfo(simulator, result, e.packet)
     return {
       ...newState,
       sortieState,
@@ -332,7 +352,8 @@ export const reactClass = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
     } = {...this.state}
     isBaseDefense = false
     switch (path) {
@@ -371,13 +392,15 @@ export const reactClass = connect(
           }))
         })
         // construct enemy
-        const {api_ship_ke, api_eSlot, api_ship_lv, api_lost_kind} = api_destruction_battle
-        api_formation = api_destruction_battle.api_formation
+        const {api_ship_ke, api_eSlot, api_ship_lv, api_lost_kind, api_formation} = api_destruction_battle
         enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
         // simulation
+        battleForm = EngagementMap[(api_formation || {} )[2]] || ''
+        eFormation = FormationMap[(api_formation || {} )[1]] || ''
+
         const {api_stage1, api_stage2, api_stage3} = api_air_base_attack
         airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
-        airControl = api_stage1.api_disp_seiku
+        airControl = AirControlMap[(api_stage1 || {} ).api_disp_seiku] || ''
         if (!isNil(api_stage3)) {
           const {api_fdam} = api_stage3
           landBase = map(landBase, (squad, index) =>{
@@ -455,7 +478,8 @@ export const reactClass = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
       ...newState,
     })
   }
@@ -474,7 +498,8 @@ export const reactClass = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
     } = this.state
     return (
       <div id="plugin-prophet">
@@ -491,7 +516,8 @@ export const reactClass = connect(
           sortieState={sortieState}
           spotKind={spotKind}
           result={result}
-          api_formation={api_formation}
+          battleForm={battleForm}
+          eFormation={eFormation}
         />
       </div>
     )

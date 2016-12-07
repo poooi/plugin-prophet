@@ -29,7 +29,8 @@ const BattleViewArea = connect(
     sortieState: props.sortieState,
     spotKind: props.spotKind,
     result: props.result,
-    api_formation: props.api_formation,
+    battleForm: props.battleForm,
+    eFormation: props.eFormation,
   })
 )(class BattleViewArea extends Component {
   static defaultProps = {
@@ -44,7 +45,8 @@ const BattleViewArea = connect(
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
     spotKind: '',
     result: {},
-    api_formation: [], // [null, Formation, Engagement]
+    battleForm: '', // api_engagement[2]
+    eFormation: '', // enemy formation
   }
 
   render() {
@@ -63,7 +65,8 @@ const BattleViewArea = connect(
       sortieState,
       spotKind,
       result,
-      api_formation,
+      battleForm,
+      eFormation,
     } = this.props
     let View = isBaseDefense ? SquadView : ShipView
     let friendTitle = isBaseDefense ? 'Land Base' : 'Sortie Fleet'
@@ -111,6 +114,13 @@ const BattleViewArea = connect(
           {' ' + __(enemyTitle)}
         </div>
       </div> : <noscript />
+    const battleInfo = 
+      <BattleInfo
+        result = {result && result.rank }
+        eFormation ={eFormation}
+        battleForm = {battleForm}
+        airControl = {airControl}
+      />
     const mapInfo =
       <div className="alert prophet-info">
         {
@@ -118,12 +128,7 @@ const BattleViewArea = connect(
           <NextSpotInfo spotKind={spotKind}/>
           : isBaseDefense ?
           [
-            <BattleInfo
-              result = {result && result.rank }
-              formation ={api_formation && api_formation[1]}
-              intercept = {api_formation && api_formation[2]}
-              seiku = {airControl}
-            />,
+            battleInfo,
             <span> | </span>,
             <NextSpotInfo spotKind={spotKind}/>,
           ]
@@ -133,12 +138,7 @@ const BattleViewArea = connect(
             getItem = {getItem}
           />
           : sortieState > 1 || isBaseDefense ?
-          <BattleInfo
-            result = {result && result.rank }
-            formation ={api_formation && api_formation[1]}
-            intercept = {api_formation && api_formation[2]}
-            seiku = {airControl}
-          />
+            battleInfo
           : <noscript />
         }
       </div>
