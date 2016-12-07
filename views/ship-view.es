@@ -87,7 +87,7 @@ const ShipView = connect(
           >
             <div className="ship-info">
               <div className='ship-name' title={getShipName(data)}>
-                {getShipName(data)}
+                <span>{getShipName(data)}</span>
               </div>
               <div className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
                 {ship.isMvp ? <FontAwesome name='trophy' /> : ''}
