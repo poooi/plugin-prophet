@@ -53,9 +53,12 @@
 #plugin-prophet .ship-item.escaped {
   opacity: 0.4;
 }
-.prophet-icon img.svg,
-.prophet-icon img.png {
+.prophet-icon {
   width: 15px;
+}
+.item-icon .prophet-icon.png {
+  width: 25px;
+  margin: -5px -5px;
 }
 #plugin-prophet .div-row {
   display: flex;

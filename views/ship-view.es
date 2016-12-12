@@ -18,7 +18,7 @@ class ParamIcon extends Component {
   render() {
     const {name} = this.props || ''
     const iconPath = resolve(__dirname, `../assets/icons/${name}.svg`)
-    return <span className="prophet-icon param-icon"><img src={iconPath} className="svg"/></span>
+    return <span className="param-icon"><img src={iconPath} className="svg prophet-icon"/></span>
   }
 }
 
@@ -84,6 +84,7 @@ const ShipView = connect(
           <OverlayTrigger
             placement={this.props.layout === 'horizontal' ? 'left' : 'top'}
             overlay={tooltip}
+            trigger="click"
           >
             <div className="ship-info">
               <div className='ship-name' title={getShipName(data)}>

@@ -22,8 +22,8 @@ export default connect((state, props) => ({
     }
     return (
         <div className='item-info'>
-          <span className='item-icon prophet-icon'>
-            <SlotitemIcon slotitemId={data.api_type[3]}/>
+          <span className='item-icon'>
+            <SlotitemIcon slotitemId={data.api_type[3]} className="prophet-icon"/>
             {
               label != null && (extra || [6, 7, 8, 9, 10, 21, 22, 33, 37, 38].includes(data.api_type[3])) ?
               <span className={`number ${warn ? 'text-warning' : ''}`}>{label}</span>
@@ -34,10 +34,10 @@ export default connect((state, props) => ({
             {`${getShipName(data)}`}
           </span>
           <span className='item-attr'>
-            <span className="alv prophet-icon">
+            <span className="alv">
             {
               (data.api_alv && data.api_alv >= 1 && data.api_alv <= 7) &&
-              <img className='alv-img'
+              <img className='alv-img prophet-icon'
                 src={join(ROOT, 'assets', 'img', 'airplane', `alv${data.api_alv}.png`)}
               />
             }

@@ -15,8 +15,8 @@ export class FABar extends Component {
       pcnt = 100
     }
     return (
-      <span className='fa-bar prophet-icon'>
-        <MaterialIcon materialId={icon} />
+      <span className='fa-bar'>
+        <MaterialIcon materialId={icon} className="prophet-icon"/>
         {`${pcnt}%`}
       </span>
     )
@@ -53,8 +53,8 @@ export const HPBar = connect((state, props) => ({
     if (item && $equip) {
       let itemIcon = $equip.api_type[3]
       additions.push(
-        <span className='item-icon prophet-icon'>
-          <SlotitemIcon slotitemId={itemIcon} />
+        <span className='item-icon'>
+          <SlotitemIcon slotitemId={itemIcon} className="prophet-icon" />
         </span>
         )
     }
