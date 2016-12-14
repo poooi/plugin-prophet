@@ -2,69 +2,43 @@ const __ = window.i18n["poi-plugin-prophet"].__.bind(window.i18n["poi-plugin-pro
 
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
-import _ from 'lodash'
-import { createSelector } from 'reselect'
-import { extensionSelectorFactory } from 'views/utils/selectors'
+import {get} from 'lodash'
 import { resolve } from 'path'
 
-const getCompassAngle = (mapspot, sortieMapId, lastSpot, nextSpot) =>{
-  if (lastSpot == nextSpot || nextSpot == -1) return NaN
-  const mapspots = _.get(mapspot, [Math.floor(sortieMapId / 10), sortieMapId % 10], [])
+const getCompassAngle = (mapspots, maproutes, currentNode) =>{
+  if (currentNode == -1) return NaN
   if (!mapspots || !Object.keys(mapspots).length) return NaN
-  let last = mapspots[lastSpot]
-  let next = mapspots[nextSpot]
+  if (!maproutes || !Object.keys(maproutes).length) return NaN
+
+  let last = get(mapspots, (maproutes[currentNode] || [])[0], [])
+  let next = get(mapspots, (maproutes[currentNode] || [])[1], [])
   if (!last || !next || !Object.keys(last).length || !Object.keys(next).length) return NaN
 
   return Math.atan2(next[1]-last[1], next[0] - last[0]) / Math.PI * 180 + 90
 }
 
-const sortieDataSelector = (state) => {
-  const {sortie} = state
-  const {currentNode, bossNode, spotHistory, sortieMapId} = sortie
-  const lastSpot = _.takeRight(spotHistory,2)[0]
-  return({
-    lastSpot,
-    nextSpot: currentNode || -1,
-    bossNode,
-    sortieMapId: parseInt(sortieMapId),
-  })
-}
-
-const mapSpotSelector = createSelector(
-  [extensionSelectorFactory('poi-plugin-prophet')],
-  (state) => ({mapspot: (state.mapspot || {}) })
-)
-
-
-
 
 const NextSpotInfo = connect(
-  (state) => ({
-    ...sortieDataSelector(state),
-    ...mapSpotSelector(state),
+  (state, props) => ({
+    currentNode: get(state, 'sortie.currentNode', -1),
+    sortieMapId: parseInt(get(state, 'sortie.sortieMapId', 0)),
+    allMaps: get(state, 'fcd.map', {}),
+    spotKind: props.spotKind || '?',
   })
 )(class NextSpotInfo extends Component {
   static propTypes = {
-    lastSpot: PropTypes.number.isRequired,
-    nextSpot: PropTypes.number.isRequired,
-    bossNode: PropTypes.number.isRequired,
+    currentNode: PropTypes.number.isRequired,
     sortieMapId: PropTypes.number.isRequired,
+    allMaps: PropTypes.object.isRequired,
     spotKind: PropTypes.string.isRequired,
-    mapspot: PropTypes.object.isRequired,
-  }
-
-  static defaultProps = {
-    lastSpot: 0,
-    nextSpot: 0,
-    bossNode: 0,
-    sortieMapId: 0,
-    spotKind: '',
-    mapspot: {},
   }
 
   render() {
-    const {lastSpot, nextSpot, sortieMapId, mapspot, spotKind} = this.props
-    let compassAngle = getCompassAngle(mapspot, sortieMapId, lastSpot, nextSpot)
+    const {currentNode, sortieMapId, allMaps, spotKind} = this.props
+    const mapspots = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.spots`, {})
+    const maproutes = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.route`, {})
+    const compassAngle = getCompassAngle(mapspots, maproutes, currentNode)
+    const nextSpot = get(maproutes, `${currentNode}.1`, '?')
     // svg arrow's default angle is 135 deg
     return(
       <span className='next-spot-info'>
@@ -78,10 +52,9 @@ const NextSpotInfo = connect(
               style={{'transform': `rotate(${compassAngle - 135}deg)`}} className="svg prophet-icon" >
             </img>
           </span>
-          }
-          </span>
-
-          {` | ${nextSpot}: ${__(spotKind)}`}
+        }
+        </span>
+        {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
       </span>
     )
   }
