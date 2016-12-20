@@ -124,24 +124,6 @@ const getAirForceStatus = (stages=[]) => {
   return [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
 }
 
-// reducer for mapspot and maproute data
-export const reducer = (state = {}, action) => {
-  if (action.type === '@@poi-plugin-prophet/updateMapspot') {
-    return ({
-      ...state,
-      mapspot: action.data,
-    })
-  }
-  if (action.type === '@@poi-plugin-prophet/updateMaproute') {
-    return ({
-      ...state,
-      maproute: action.data,
-    })
-  }
-  return state
-}
-
-
 // sortieState
 // 0: port, switch on when /kcsapi/api_port/port
 // 1: before battle, switch on when /kcsapi/api_req_map/start or /kcsapi/api_req_map/next
@@ -199,28 +181,6 @@ export const reactClass = connect(
     battleForm: '', // api_formation[2]
     eFormation: '', // enemy formation, api_formation[1]
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
-  }
-
-  componentWillMount() {
-    fs.readFileAsync(join(__dirname, 'assets', 'data', 'mapspot.cson'))
-    .then ((data) => {
-      const mapspot = CSON.parseCSONString(data)
-      store.dispatch({
-        type: '@@poi-plugin-prophet/updateMapspot',
-        data: mapspot,
-      })
-    })
-    .catch ((e) => console.warn('Failed to load map data!', e.stack))
-
-    fs.readFileAsync(join(__dirname, 'assets', 'data', 'maproute.cson'))
-    .then ((data) => {
-      const mapspot = CSON.parseCSONString(data)
-      store.dispatch({
-        type: '@@poi-plugin-prophet/updateMaproute',
-        data: mapspot,
-      })
-    })
-    .catch ((e) => console.warn('Failed to load map route!', e.stack))
   }
 
   componentWillReceiveProps(nextProps) {
