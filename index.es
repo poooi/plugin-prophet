@@ -3,11 +3,7 @@ import { isEqual, isNil, each, map, isEmpty, includes, concat, get } from 'lodas
 import { join } from 'path'
 // import fs from 'fs-extra'
 import { connect } from 'react-redux'
-import { promisifyAll } from 'bluebird'
 import { Row, Col, Grid, Checkbox } from 'react-bootstrap'
-const fs = promisifyAll (require ('fs-extra'))
-const CSON = promisifyAll(require('cson'))
-import { store } from 'views/create-store'
 import semver from 'semver'
 
 import BattleViewArea from './views/battle-view-area'
