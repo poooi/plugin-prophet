@@ -275,7 +275,7 @@ export const reactClass = connect(
 
     each(friendShips, (ship) => {
       if (ship == null) return
-      if ((ship.nowHP / ship.maxHP < 0.25) && !includes(escapedPos, ship.pos -1) && this.state.sortieState != 3 ) {
+      if ((ship.nowHP / ship.maxHP <= 0.25) && !includes(escapedPos, ship.pos -1) && this.state.sortieState != 3 ) {
         let shipName = getStore(`const.$ships.${ship.raw.api_ship_id}.api_name`,' ')
         damageList.push(i18n.resources.__(shipName))
       }
