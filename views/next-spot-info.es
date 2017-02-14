@@ -5,6 +5,10 @@ import { connect } from 'react-redux'
 import {get} from 'lodash'
 import { resolve } from 'path'
 
+import { extensionSelectorFactory } from 'views/utils/selectors'
+
+import { PLUGIN_KEY } from '../utils'
+
 const getCompassAngle = (mapspots, maproutes, currentNode) =>{
   if (currentNode == -1) return NaN
   if (!mapspots || !Object.keys(mapspots).length) return NaN
@@ -19,22 +23,30 @@ const getCompassAngle = (mapspots, maproutes, currentNode) =>{
 
 
 const NextSpotInfo = connect(
-  (state, props) => ({
-    currentNode: get(state, 'sortie.currentNode', -1),
-    sortieMapId: parseInt(get(state, 'sortie.sortieMapId', 0)),
-    allMaps: get(state, 'fcd.map', {}),
-    spotKind: props.spotKind || '?',
-  })
+  (state, props) => {
+    const sortie = state.sortie || {}
+    const {sortieMapId, currentNode} = sortie
+    const spot = `${sortieMapId}-${currentNode}`
+
+    return {
+      currentNode: currentNode || -1,
+      sortieMapId: parseInt(sortieMapId || 0),
+      allMaps: get(state, 'fcd.map', {}),
+      spotKind: props.spotKind || '?',
+      lastFormation: get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
+    }
+  }
 )(class NextSpotInfo extends Component {
   static propTypes = {
     currentNode: PropTypes.number.isRequired,
     sortieMapId: PropTypes.number.isRequired,
     allMaps: PropTypes.object.isRequired,
     spotKind: PropTypes.string.isRequired,
+    lastFormation: PropTypes.string,
   }
 
   render() {
-    const {currentNode, sortieMapId, allMaps, spotKind} = this.props
+    const {currentNode, sortieMapId, allMaps, spotKind, lastFormation} = this.props
     const mapspots = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.spots`, {})
     const maproutes = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.route`, {})
     const compassAngle = getCompassAngle(mapspots, maproutes, currentNode)
@@ -54,7 +66,12 @@ const NextSpotInfo = connect(
           </span>
         }
         </span>
-        {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
+        <span>
+          {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
+        </span>
+        <span>
+          {lastFormation && ` ${__('Last chosen: ')}${__(lastFormation)}`} 
+        </span>
       </span>
     )
   }
