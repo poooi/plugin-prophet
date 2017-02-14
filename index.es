@@ -8,7 +8,7 @@ import semver from 'semver'
 
 import BattleViewArea from './views/battle-view-area'
 
-import { initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
+import { PLUGIN_KEY, initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
 const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet, 
   FormationMap, EngagementMap, AirControlMap} = Models
@@ -17,7 +17,7 @@ import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } fro
 const { i18n, ROOT, getStore } = window
 //const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
-const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
+const __ = i18n[PLUGIN_KEY].__.bind(i18n[PLUGIN_KEY])
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) return fleet
@@ -38,6 +38,7 @@ const synthesizeInfo = (_simulator, result, packets) => {
   let {mainFleet, escortFleet, enemyFleet, enemyEscort, stages} = {..._simulator}
   let airForce = [0, 0, 0, 0] // [fPlaneInit, fLost, ePlaneInit, eLost]
   let airControl = ''
+  let fFormation = ''
   let eFormation = ''
   let battleForm = ''
   // assign mvp to specific ship
@@ -53,6 +54,7 @@ const synthesizeInfo = (_simulator, result, packets) => {
       // fortunately the formation is the same for now
       battleForm = (engagement || {}).engagement || ''
       eFormation = (engagement || {}).eFormation || ''
+      fFormation = (engagement || {}).fFormation || ''
     }
     if (aerial && type == StageType.Aerial ) {
       // There might be multiple aerial stages, e.g. 1-6 air battle
@@ -102,6 +104,7 @@ const synthesizeInfo = (_simulator, result, packets) => {
     airForce,
     battleForm,
     eFormation,
+    fFormation,
     result,
   }
 }
@@ -126,7 +129,16 @@ const getAirForceStatus = (stages=[]) => {
 // 2: battle, switch on with PM emit type
 // 3: practice, switch on with PM emit type
 
+// actions
 
+const onBattleResult = ({spot, fFormation, title}) => {
+  return {
+    type: '@@poi-plugin-prophet@updateHistory',
+    spot,
+    fFormation,
+    title,
+  }
+}
 
 export const reactClass = connect(
   (state) => {
@@ -176,6 +188,8 @@ export const reactClass = connect(
     result: {},
     battleForm: '', // api_formation[2]
     eFormation: '', // enemy formation, api_formation[1]
+    fFormation: '',
+    enemyTitle: '',
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
   }
 
@@ -242,6 +256,7 @@ export const reactClass = connect(
   transformToDazzyDingClass = (fleets, equips) =>
     (fleets || []).map((fleet, fleetPos) =>
       (fleet|| []).map(([_ship, $ship], shipPos) => ({
+        ...$ship,
         ..._ship,
         poi_slot: equips[fleetPos][shipPos].map(e => e ? e[0] : null),
         poi_slot_ex: null,
@@ -416,6 +431,15 @@ export const reactClass = connect(
       this.battle.packet.push(packet)
       // Battle Result
       if (e.detail.path.includes('result')) {
+        const title = (packet.api_enemy_info || {}).api_deck_name
+        const {sortieMapId, currentNode} = this.pros.sortie
+        const spot = `${sortieMapId}-${currentNode}`
+        const fFormation = this.state.fFormation
+        dispatch(onBattleResult({
+          spot,
+          title,
+          fFormation,
+        }))
         newState = this.handlePacketResult(this.battle)
         this.battle = null
       } else if (this.battle) {
@@ -536,4 +560,19 @@ export class settingsClass extends Component {
       </div>
     )
   }
+}
+
+export function reducer(state={}, action) {
+  const {type, spot, fFormation, title} = action
+  switch (type) {
+  case '@@poi-plugin-prophet@updateHistory':
+    return {
+      ...state,
+      [spot]: {
+        fFormation,
+        title,
+      },
+    }
+  }
+  return state 
 }

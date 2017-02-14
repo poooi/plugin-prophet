@@ -1,9 +1,9 @@
-"use strict"
-
 const {__r} = window
 import _ from 'lodash'
 import { Models } from './lib/battle'
 const {Ship, ShipOwner} = Models
+
+export const PLUGIN_KEY = 'poi-plugin-prophet'
 
 export function getShipName(ship) {
   if (ship == null) {
