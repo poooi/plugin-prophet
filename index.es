@@ -140,6 +140,13 @@ const onBattleResult = ({spot, fFormation, title}) => {
   }
 }
 
+const onGetPracticeInfo = ({title}) => {
+  return {
+    type: '@@poi-plugin-prophet@updatePractice',
+    title,
+  }
+}
+
 export const reactClass = connect(
   (state) => {
     const sortie = state.sortie || {}
@@ -189,7 +196,6 @@ export const reactClass = connect(
     battleForm: '', // api_formation[2]
     eFormation: '', // enemy formation, api_formation[1]
     fFormation: '',
-    enemyTitle: '',
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
   }
 
@@ -399,6 +405,13 @@ export const reactClass = connect(
       })
       break
     }
+    case '/kcsapi/api_req_member/get_practice_enemyinfo': {
+      const {api_deckname} = body
+      dispatch(onGetPracticeInfo({
+        title: api_deckname,
+      }))
+      break
+    }
     case '/kcsapi/api_req_practice/battle': {
       this.battle = new Battle({
         type:   BattleType.Practice,
@@ -570,6 +583,13 @@ export function reducer(state={}, action) {
       ...state,
       [spot]: {
         fFormation,
+        title,
+      },
+    }
+  case '@@poi-plugin-prophet@updatePractice':
+    return {
+      ...state,
+      practice: {
         title,
       },
     }
