@@ -14,7 +14,7 @@ const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet,
   FormationMap, EngagementMap, AirControlMap} = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 
-const { i18n, ROOT, getStore } = window
+const { i18n, ROOT, getStore, dispatch } = window
 //const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
 const __ = i18n[PLUGIN_KEY].__.bind(i18n[PLUGIN_KEY])
@@ -445,7 +445,7 @@ export const reactClass = connect(
       // Battle Result
       if (e.detail.path.includes('result')) {
         const title = (packet.api_enemy_info || {}).api_deck_name
-        const {sortieMapId, currentNode} = this.pros.sortie
+        const {sortieMapId, currentNode} = this.props.sortie
         const spot = `${sortieMapId}-${currentNode}`
         const fFormation = this.state.fFormation
         dispatch(onBattleResult({

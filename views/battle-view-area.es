@@ -3,35 +3,46 @@ import React, { Component } from 'react'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 
+import { extensionSelectorFactory } from 'views/utils/selectors'
+
 import ShipView from './ship-view'
 import FleetView from './fleet-view'
 import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
+import { PLUGIN_KEY } from '../utils'
 
 const { i18n } = window
 const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const BattleViewArea = connect(
-  (state, props) => ({
-    layout: _.get(state, 'config.poi.layout', 'horizontal'),
-    doubleTabbed: _.get(state, 'config.poi.tabarea.double', false),
-    ecGameOrder: _.get(state, 'config.plugin.prophet.ecGameOrder', true),
-    mainFleet: props.mainFleet,
-    escortFleet: props.escortFleet,
-    enemyFleet: props.enemyFleet,
-    enemyEscort: props.enemyEscort,
-    landBase: props.landBase,
-    airForce: props.airForce,
-    airControl: props.airControl,
-    isBaseDefense: props.isBaseDefense,
-    sortieState: props.sortieState,
-    spotKind: props.spotKind,
-    result: props.result,
-    battleForm: props.battleForm,
-    eFormation: props.eFormation,
-  })
+  (state, props) => {
+    const sortie = state.sortie || {}
+    const {sortieMapId, currentNode} = sortie
+    const spot = props.sortieState == 3 ? 'practice' : `${sortieMapId}-${currentNode}`
+    const enemyTitle = props.sortieState == 3 ? 'PvP' : 'Enemy Vessel'
+
+    return {
+      layout: _.get(state, 'config.poi.layout', 'horizontal'),
+      doubleTabbed: _.get(state, 'config.poi.tabarea.double', false),
+      ecGameOrder: _.get(state, 'config.plugin.prophet.ecGameOrder', true),
+      mainFleet: props.mainFleet,
+      escortFleet: props.escortFleet,
+      enemyFleet: props.enemyFleet,
+      enemyEscort: props.enemyEscort,
+      landBase: props.landBase,
+      airForce: props.airForce,
+      airControl: props.airControl,
+      isBaseDefense: props.isBaseDefense,
+      sortieState: props.sortieState,
+      spotKind: props.spotKind,
+      result: props.result,
+      battleForm: props.battleForm,
+      eFormation: props.eFormation,
+      enemyTitle: _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle),
+    }
+  }
 )(class BattleViewArea extends Component {
   static defaultProps = {
     mainFleet: [], // An array of fleet
@@ -67,10 +78,10 @@ const BattleViewArea = connect(
       result,
       battleForm,
       eFormation,
+      enemyTitle,
     } = this.props
     let View = isBaseDefense ? SquadView : ShipView
     let friendTitle = isBaseDefense ? 'Land Base' : 'Sortie Fleet'
-    let enemyTitle = sortieState == 3 ? 'PvP' : 'Enemy Vessel'
     const times = layout == 'horizontal' ? 1 : 2
     let useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
     // adapt the view according to layout by setting FleetView's div xs = 12/count
