@@ -24,7 +24,7 @@ export const FABar = ({ max, now, icon }) => {
 export const HPBar = connect((state, props) => ({
   showScale: get(state, 'config.plugin.prophet.showScale', true),
   $equip: get(state, `const.$equips.${props.item}`),
-}))(({ max, from, to, damage, stage, item, cond, $equip }) => {
+}))(({ max, from, to, damage, stage, item, cond, $equip, showScale }) => {
   const _from = Math.min(Math.max(0, from), max)
   const _to = Math.min(Math.max(0, to), max)
   const _stage = stage == null ? _from : stage
@@ -89,7 +89,7 @@ export const HPBar = connect((state, props) => ({
                 className="hp-indicatior" key={i}
                 style={{
                   left: `-${25 * i}%`,
-                  opacity: ((now + lost) > (100 - (25 * i))) && this.props.showScale ? 0.75 : 0,
+                  opacity: ((now + lost) > (100 - (25 * i))) && showScale ? 0.75 : 0,
                 }}
               />
             )
