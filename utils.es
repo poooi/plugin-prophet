@@ -1,4 +1,4 @@
-const { __r, i18n } = window
+const { i18n } = window
 import _ from 'lodash'
 import { Models } from './lib/battle'
 const { Ship, ShipOwner, Formation, Engagement, AirControl } = Models
@@ -11,7 +11,7 @@ export function getShipName(ship) {
   if (ship == null) {
     return null
   }
-  let name = __r(ship.api_name)
+  let name = ship.api_name
   let yomi = ship.api_yomi
   if (['elite', 'flagship'].includes(yomi)) {
     name += yomi
@@ -23,8 +23,7 @@ export function getItemName(item) {
   if (item == null) {
     return null
   }
-  let name = __r(item.api_name)
-  return name
+  return item.api_name
 }
 
 export async function sleep(ms) {
