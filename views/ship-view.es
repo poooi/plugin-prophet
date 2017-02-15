@@ -24,10 +24,10 @@ const paramNames = ['firepower', 'torpedo', 'AA', 'armor']
 
 const ShipView = connect(
   (state, props) => {
-    const api_ship_id = _.get(props.child, 'raw.api_ship_id') || -1
+    const api_ship_id = _.get(props.ship, 'raw.api_ship_id', -1)
     return {
       escapedPos: state.sortie.escapedPos || [],
-      ship: props.child,
+      ship: props.ship,
       layout: _.get(state, 'config.poi.layout', 'horizontal'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),

@@ -15,7 +15,7 @@ const FleetView = ({ fleet, View = ShipView }) => {
     <div className="fleet-view">
       <div>
         {fleet.map((ship, i) =>
-          ship && <View child={ship} key={ship.pos || 0} />
+          ship && <View ship={ship} key={ship.pos || 0} />
       )}
       </div>
     </div>

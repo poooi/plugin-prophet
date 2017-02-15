@@ -1,5 +1,3 @@
-const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
-
 import React, { Component, PropTypes } from 'react'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
@@ -8,6 +6,8 @@ import { resolve } from 'path'
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
 import { PLUGIN_KEY, _t } from '../utils'
+
+const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
 
 const getCompassAngle = (mapspots, maproutes, currentNode) => {
   if (currentNode == -1) return NaN
