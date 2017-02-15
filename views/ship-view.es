@@ -70,7 +70,7 @@ const ShipView = connect(
           {
             paramNames.map((name, idx)=>
               (typeof param[idx] != 'undefined') &&
-              <span>
+              <span key={name}>
                 <ParamIcon name={name}/>
                 {param[idx]}
               </span>
