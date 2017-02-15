@@ -35,73 +35,91 @@ const ShipView = connect(
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
     }
   }
-)(class ShipView extends Component {
-  render() {
-    let {ship, $ship, escapedPos} = this.props
-    if (!(ship && ship.id > 0)) {
-      return <div />
-    }
-    let isEscaped = _.includes(escapedPos, ship.pos-1) && ship.owner == 'Ours'
-    let raw = ship.raw || {}
-    let data = {
-      ...$ship,
-      ...raw,
-    }
-
-    if (!data.api_maxeq) {
-      data.api_maxeq = []
-    }
-    if (!data.api_onslot) {
-      data.api_onslot = data.api_maxeq
-    }
-
-    const tooltip =
-      <Tooltip id={`slotinfo-${data.api_id}`} className='ship-pop prophet-pop'>
-        <div className='prophet-tip'>
-          <div className='ship-essential'>
-            <span className="position-indicator">{ship.owner=='Ours'? '': `ID ${ship.id}`}</span>
-            <span>Lv. {data.api_lv || '-'}</span>
-
-            <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
-            <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
-          </div>
-
-          {
-            (data.poi_slot || []).map((item, i) =>
-              <ItemView key={i} item={item} extra={false}
-                        warn={data.api_onslot[i] !== data.api_maxeq[i]} />
-            )
-          }
-
-          <ItemView item={data.poi_slot_ex} extra={true} label={'+'} warn={false} />
-        </div>
-      </Tooltip>
-
-
-    return (
-      <div className={"div-row ship-item " + (isEscaped ? "escaped" : '' )}>
-        <div className="ship-view">
-          <OverlayTrigger
-            placement={this.props.layout === 'horizontal' ? 'left' : 'top'}
-            overlay={tooltip}
-          >
-            <div className="ship-info">
-              <div className='ship-name' title={getShipName(data)}>
-                <span>{getShipName(data)}</span>
-              </div>
-              <div className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
-                {ship.isMvp ? <FontAwesome name='trophy' /> : ''}
-                {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
-              </div>
-            </div>
-          </OverlayTrigger>
-        </div>
-        <div className='ship-hp'>
-            <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} stage={ship.stageHP} item={ship.useItem} cond={data.api_cond} />
-        </div>
-      </div>
-    )
+)(({ship, $ship, escapedPos, layout}) => {
+  if (!(ship && ship.id > 0)) {
+    return <div />
   }
+  const isEscaped = _.includes(escapedPos, ship.pos-1) && ship.owner == 'Ours'
+  const raw = ship.raw || {}
+  const data = {
+    ...$ship,
+    ...raw,
+  }
+
+  if (!data.api_maxeq) {
+    data.api_maxeq = []
+  }
+  if (!data.api_onslot) {
+    data.api_onslot = data.api_maxeq
+  }
+
+  const param = ship.finalParam || []
+
+  const tooltip =
+    <Tooltip id={`slotinfo-${data.api_id}`} className='ship-pop prophet-pop'>
+      <div className='prophet-tip'>
+        <div className='ship-essential'>
+          <span className="position-indicator">{ship.owner=='Ours'? '': `ID ${ship.id}`}</span>
+          <span>Lv. {data.api_lv || '-'}</span>
+
+          <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
+          <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
+        </div>
+        <div className='ship-parameter'>
+          {
+            paramNames.map((name, idx)=>
+              (typeof param[idx] != 'undefined') &&
+              <span>
+                <ParamIcon name={name}/>
+                {param[idx]}
+              </span>
+          )
+          }
+        </div>
+
+        {
+          (data.poi_slot || []).map((item, i) =>
+            <ItemView key={i} item={item} extra={false}
+                      warn={data.api_onslot[i] !== data.api_maxeq[i]} />
+          )
+        }
+
+        <ItemView item={data.poi_slot_ex} extra={true} label={'+'} warn={false} />
+      </div>
+    </Tooltip>
+
+
+  return (
+    <div className={"div-row ship-item " + (isEscaped ? "escaped" : '' )}>
+      <div className="ship-view">
+        <OverlayTrigger
+          placement={layout === 'horizontal' ? 'left' : 'top'}
+          overlay={tooltip}
+        >
+          <div className="ship-info">
+            <div className='ship-name' title={getShipName(data)}>
+              <span>{getShipName(data)}</span>
+            </div>
+            <div className={'ship-damage '+ (ship.isMvp ? getCondStyle(100) : '') }>
+              {ship.isMvp ? <FontAwesome name='trophy' /> : ''}
+              {isEscaped ? <FontAwesome name="reply"/> : (ship.damage || 0) }
+            </div>
+          </div>
+        </OverlayTrigger>
+      </div>
+      <div className='ship-hp'>
+          <HPBar
+            max={ship.maxHP}
+            from={ship.initHP}
+            to={ship.nowHP}
+            damage={ship.lostHP}
+            stage={ship.stageHP}
+            item={ship.useItem}
+            cond={data.api_cond}
+          />
+      </div>
+    </div>
+  )
 })
 
 export default ShipView

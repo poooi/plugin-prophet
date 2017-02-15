@@ -123,7 +123,8 @@
 .prophet-tip .alv {
   margin-left: 0.25em;
 }
-.prophet-tip .ship-essential >span {
+.prophet-tip .ship-essential >span,
+.prophet-tip .ship-parameter >span {
   margin-right: 0.5em;
   font-size: 80%;
 }

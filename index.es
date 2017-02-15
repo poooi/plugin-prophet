@@ -10,7 +10,7 @@ import BattleViewArea from './views/battle-view-area'
 
 import { PLUGIN_KEY, initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
-const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet, 
+const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet,
   FormationMap, EngagementMap, AirControlMap} = Models
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 
@@ -250,6 +250,18 @@ export const reactClass = connect(
           damage: 0,
           items: equips[fleetPos][shipPos].map(e => e ? e[0].api_slotitem_id : null),
           useItem: null,
+          baseParam:[
+            $ship.api_houg[0] + _ship.api_kyouka[0],
+            $ship.api_raig[0] + _ship.api_kyouka[1],
+            $ship.api_tyku[0] + _ship.api_kyouka[2],
+            $ship.api_souk[0] + _ship.api_kyouka[3],
+          ],
+          finalParam: [
+            _ship.api_karyoku[0],
+            _ship.api_raisou[0],
+            _ship.api_taiku[0],
+            _ship.api_soukou[0],
+          ],
           raw: {
             ..._ship,
             poi_slot: equips[fleetPos][shipPos].map(e => e ? e[0] : null),
@@ -594,5 +606,5 @@ export function reducer(state={}, action) {
       },
     }
   }
-  return state 
+  return state
 }
