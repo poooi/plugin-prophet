@@ -163,16 +163,16 @@ export const reactClass = connect(
     const sortie = state.sortie || {}
     const sortieStatus = sortie.sortieStatus || []
     const airbase = state.info.airbase || {}
-    const fleet = []
-    if (sortieStatus.reduce((a, b) => a || b)) {
-      sortieStatus.forEach((a, i) => {
-        if (a) fleet.push(i)
-      })
-    } else if (sortie.combinedFlag) {
-      fleet.push(0, 1)
-    } else {
-      fleet.push(0)
-    }
+    const fleet = [0, 1, 2, 3]
+    // if (sortieStatus.reduce((a, b) => a || b)) {
+    //   sortieStatus.forEach((a, i) => {
+    //     if (a) fleet.push(i)
+    //   })
+    // } else if (sortie.combinedFlag) {
+    //   fleet.push(0, 1)
+    // } else {
+    //   fleet.push(0)
+    // }
     const fleets = fleet.map(i => fleetShipsDataSelectorFactory(i)(state))
     const equips = fleet.map(i => fleetShipsEquipDataSelectorFactory(i)(state))
     return {
@@ -180,6 +180,7 @@ export const reactClass = connect(
       airbase,
       fleets,
       equips,
+      combinedFlag: sortie.combinedFlag,
     }
   }
 )(class Prophet extends Component {
@@ -189,7 +190,7 @@ export const reactClass = connect(
     this.state = {
       ...this.constructor.initState,
       mainFleet,
-      escortFleet,
+      escortFleet: props.combinedFlag && escortFleet,
     }
   }
   static initState = {
@@ -213,21 +214,21 @@ export const reactClass = connect(
   componentWillReceiveProps(nextProps) {
     const fleetUpdate = !isEqual(this.props.fleets, nextProps.fleets)
       || !isEqual(this.props.equips, nextProps.equips)
-    const combinedFlagUpdate = nextProps.sortie.combinedFlag != null
-      && nextProps.sortie.combinedFlag !== this.state.combinedFlag
+    const combinedFlagUpdate = nextProps.combinedFlag != null
+      && nextProps.combinedFlag !== this.state.combinedFlag
     let newState = {}
     if (fleetUpdate) {
       const [mainFleet, escortFleet] = this.transformToLibBattleClass(nextProps.fleets, nextProps.equips)
       newState = {
         ...newState,
         mainFleet,
-        escortFleet,
+        escortFleet: nextProps.combinedFlag && escortFleet,
       }
     }
     if (combinedFlagUpdate) {
       newState = {
         ...newState,
-        combinedFlag: nextProps.sortie.combinedFlag,
+        combinedFlag: nextProps.combinedFlag,
       }
     }
     if (fleetUpdate || combinedFlagUpdate) {
@@ -284,7 +285,7 @@ export const reactClass = connect(
       )
     ).concat([undefined, undefined]).slice(0, 2)
 
-  transformToDazzyDingClass = (fleets, equips) =>
+  transformToDazzyDingClass = (fleets, equips, deckId = 1) =>
     (fleets || []).map((fleet, fleetPos) =>
       (fleet || []).map(([_ship, $ship], shipPos) => ({
         ...$ship,
@@ -292,7 +293,7 @@ export const reactClass = connect(
         poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
         poi_slot_ex: null,
       }))
-    ).concat([undefined, undefined]).slice(0, 2)
+    ).concat([undefined, undefined]).slice(deckId - 1, deckId + 1)
 
   handlePacket = (e) => {
     const sortieState = e.type == (BattleType.Practice || BattleType.Pratice) ? 3 : 2
@@ -342,7 +343,7 @@ export const reactClass = connect(
   }
 
   handleGameResponse = (e) => {
-    const { path, body } = e.detail
+    const { path, body, postBody } = e.detail
     // used in determining next spot type
     const {
       mainFleet,
@@ -465,11 +466,14 @@ export const reactClass = connect(
       const packet = Object.clone(body)
       packet.poi_path = e.detail.path
       if (!this.battle.fleet) {
-        const [_mainFleet, _escortFleet] = this.transformToDazzyDingClass(this.props.fleets, this.props.equips)
+        const deck_id = parseInt(postBody.api_deck_id || 1)
+        const { fleets, equips } = this.props
+        const [_mainFleet, _escortFleet] = this.transformToDazzyDingClass(fleets, equips, deck_id)
+        console.log(this.state.combinedFlag && _escortFleet)
         this.battle.fleet = new Fleet({
           type: _escortFleet ? this.state.combinedFlag : 0,
           main: _mainFleet,
-          escort: _escortFleet,
+          escort: this.state.combinedFlag && _escortFleet,
           support: null,
           LBAC: null,
         })
