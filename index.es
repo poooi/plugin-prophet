@@ -261,7 +261,7 @@ export const reactClass = connect(
     delete window.prophetTest
   }
 
-  transformToLibBattleClass = (fleets, equips, deckId = 1, combined = false) =>
+  transformToLibBattleClass = (fleets, equips, deckId = 1, combinedFlag = 0) =>
     (fleets || []).map((fleet, fleetPos) =>
       (fleet || []).map(([_ship, $ship], shipPos) =>
         new Ship({
@@ -294,9 +294,9 @@ export const reactClass = connect(
           },
         })
       )
-    ).slice(deckId - 1, deckId + (combined | 0))
+    ).slice(deckId - 1, deckId + (combinedFlag && true))
 
-  transformToDazzyDingClass = (fleets, equips, deckId = 1, combined = false) =>
+  transformToDazzyDingClass = (fleets, equips, deckId = 1, combinedFlag = 0) =>
     (fleets || []).map((fleet, fleetPos) =>
       (fleet || []).map(([_ship, $ship], shipPos) => ({
         ...$ship,
@@ -304,7 +304,7 @@ export const reactClass = connect(
         poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
         poi_slot_ex: null,
       }))
-    ).slice(deckId - 1, deckId + (combined | 0))
+    ).slice(deckId - 1, deckId + (combinedFlag && true))
 
   handlePacket = (e) => {
     const sortieState = e.type == (BattleType.Practice || BattleType.Pratice) ? 3 : 2
