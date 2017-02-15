@@ -579,10 +579,23 @@ export class settingsClass extends Component {
                   configName="plugin.prophet.ecGameOrder"
                   defaultVal={true} />
         <CheckboxLabelConfig
-                  label={__('Heavily damaged notification')}
-                  configName="plugin.prophet.notify.enable"
+                  label={__('Show enemy deck name if available')}
+                  configName="plugin.prophet.showEnemyTitle"
                   defaultVal={true} />
+        <CheckboxLabelConfig
+                    label={__('Show last chosen formation hint')}
+                    configName="plugin.prophet.showLastFormation"
+                    defaultVal={true} />
+        <CheckboxLabelConfig
+                  label={__('Ship parameters include equipment bonus')}
+                  configName="plugin.prophet.useFinalParam"
+                  defaultVal={true} />
+        <CheckboxLabelConfig
+                    label={__('Heavily damaged notification')}
+                    configName="plugin.prophet.notify.enable"
+                    defaultVal={true} />
       </div>
+
     )
   }
 }

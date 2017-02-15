@@ -27,13 +27,14 @@ const NextSpotInfo = connect(
     const sortie = state.sortie || {}
     const {sortieMapId, currentNode} = sortie
     const spot = `${sortieMapId}-${currentNode}`
+    const showLastFormation = get(state, 'config.plugin.prophet.showLastFormation', true)
 
     return {
       currentNode: currentNode || -1,
       sortieMapId: parseInt(sortieMapId || 0),
       allMaps: get(state, 'fcd.map', {}),
       spotKind: props.spotKind || '?',
-      lastFormation: get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
+      lastFormation: showLastFormation && get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
     }
   }
 )(class NextSpotInfo extends Component {

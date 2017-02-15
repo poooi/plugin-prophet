@@ -33,9 +33,10 @@ const ShipView = connect(
       ship: props.child,
       layout: _.get(state, 'config.poi.layout', 'horizontal'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
+      useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
     }
   }
-)(({ship, $ship, escapedPos, layout}) => {
+)(({ship, $ship, escapedPos, layout, useFinalParam}) => {
   if (!(ship && ship.id > 0)) {
     return <div />
   }
@@ -53,7 +54,7 @@ const ShipView = connect(
     data.api_onslot = data.api_maxeq
   }
 
-  const param = ship.finalParam || []
+  const param = (useFinalParam ? ship.finalParam : ship.baseParam) || []
 
   const tooltip =
     <Tooltip id={`slotinfo-${data.api_id}`} className='ship-pop prophet-pop'>

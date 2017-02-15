@@ -20,8 +20,12 @@ const BattleViewArea = connect(
   (state, props) => {
     const sortie = state.sortie || {}
     const {sortieMapId, currentNode} = sortie
+    const showEnemyTitle = _.get(state, 'config.plugin.prophet.showEnemyTitle', true)
     const spot = props.sortieState == 3 ? 'practice' : `${sortieMapId}-${currentNode}`
-    const enemyTitle = props.sortieState == 3 ? 'PvP' : 'Enemy Vessel'
+    let enemyTitle = props.sortieState == 3 ? 'PvP' : 'Enemy Vessel'
+    enemyTitle = showEnemyTitle
+      ? _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle)
+      : enemyTitle
 
     return {
       layout: _.get(state, 'config.poi.layout', 'horizontal'),
@@ -40,7 +44,7 @@ const BattleViewArea = connect(
       result: props.result,
       battleForm: props.battleForm,
       eFormation: props.eFormation,
-      enemyTitle: _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle),
+      enemyTitle,
     }
   }
 )(class BattleViewArea extends Component {
@@ -125,7 +129,7 @@ const BattleViewArea = connect(
           {' ' + __(enemyTitle)}
         </div>
       </div> : <noscript />
-    const battleInfo = 
+    const battleInfo =
       <BattleInfo
         result = {result && result.rank }
         eFormation ={eFormation}
