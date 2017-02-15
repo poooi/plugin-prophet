@@ -571,29 +571,29 @@ export class settingsClass extends Component {
     return (
       <div>
         <CheckboxLabelConfig
-                  label={__('Show scales on HP bar')}
-                  configName="plugin.prophet.showScale"
-                  defaultVal={true} />
+          label={__('Show scales on HP bar')}
+          configName="plugin.prophet.showScale"
+          defaultVal={true} />
         <CheckboxLabelConfig
-                  label={__('Display enemy combined fleet in game order')}
-                  configName="plugin.prophet.ecGameOrder"
-                  defaultVal={true} />
+          label={__('Display enemy combined fleet in game order')}
+          configName="plugin.prophet.ecGameOrder"
+          defaultVal={true} />
         <CheckboxLabelConfig
-                  label={__('Show enemy deck name if available')}
-                  configName="plugin.prophet.showEnemyTitle"
-                  defaultVal={true} />
+          label={__('Show enemy deck name if available')}
+          configName="plugin.prophet.showEnemyTitle"
+          defaultVal={true} />
         <CheckboxLabelConfig
-                    label={__('Show last chosen formation hint')}
-                    configName="plugin.prophet.showLastFormation"
-                    defaultVal={true} />
+          label={__('Show last chosen formation hint')}
+          configName="plugin.prophet.showLastFormation"
+          defaultVal={true} />
         <CheckboxLabelConfig
-                  label={__('Ship parameters include equipment bonus')}
-                  configName="plugin.prophet.useFinalParam"
-                  defaultVal={true} />
+          label={__('Ship parameters include equipment bonus')}
+          configName="plugin.prophet.useFinalParam"
+          defaultVal={true} />
         <CheckboxLabelConfig
-                    label={__('Heavily damaged notification')}
-                    configName="plugin.prophet.notify.enable"
-                    defaultVal={true} />
+          label={__('Heavily damaged notification')}
+          configName="plugin.prophet.notify.enable"
+          defaultVal={true} />
       </div>
 
     )
