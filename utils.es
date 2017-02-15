@@ -16,7 +16,6 @@ export function getShipName(ship) {
   if (['elite', 'flagship'].includes(yomi)) {
     name += yomi
   }
-  console.log(name)
   return name
 }
 

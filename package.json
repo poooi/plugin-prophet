@@ -11,8 +11,7 @@
     "babel-preset-stage-0": "^6.5.0",
     "eslint": "^2.12.0",
     "eslint-plugin-import": "^1.8.1",
-    "eslint-plugin-react": "^5.1.1",
-    "react-inspector": "^1.1.1"
+    "eslint-plugin-react": "^5.1.1"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
