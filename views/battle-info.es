@@ -17,10 +17,10 @@ export default class BattleInfo extends Component {
     airControl: '',
   }
 
-  render(){
-    const {result, eFormation, battleForm, airControl} = this.props
+  render() {
+    const { result, eFormation, battleForm, airControl } = this.props
     return (
-      <span className='battle-info'>
+      <span className="battle-info">
         {
           [result, _t(eFormation), _t(battleForm), _t(airControl)].filter(
             str => !!str

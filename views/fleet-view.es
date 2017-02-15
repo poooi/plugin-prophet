@@ -1,4 +1,4 @@
-import React, {Component} from 'react'
+import React, { Component } from 'react'
 
 import ShipView from './ship-view'
 
@@ -14,8 +14,9 @@ export default class FleetView extends Component {
   }
 
   render() {
-    let {fleet, View} = this.props
-    if (! (fleet && fleet.length > 0)) {
+    const { fleet } = this.props
+    let { View } = this.props
+    if (!(fleet && fleet.length > 0)) {
       return <div />
     }
     if (View == null) {
@@ -24,8 +25,8 @@ export default class FleetView extends Component {
     return (
       <div className="fleet-view">
         <div>
-        {fleet.map((ship, i) =>
-          <View child={ship} key={i}/>
+          {fleet.map((ship, i) =>
+            <View child={ship} key={(ship || {}).pos || 0} />
         )}
         </div>
       </div>

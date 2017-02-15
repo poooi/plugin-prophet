@@ -14,12 +14,12 @@ import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY } from '../utils'
 
 const { i18n } = window
-const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
+const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 
 const BattleViewArea = connect(
   (state, props) => {
     const sortie = state.sortie || {}
-    const {sortieMapId, currentNode} = sortie
+    const { sortieMapId, currentNode } = sortie
     const showEnemyTitle = _.get(state, 'config.plugin.prophet.showEnemyTitle', true)
     const spot = props.sortieState == 3 ? 'practice' : `${sortieMapId}-${currentNode}`
     let enemyTitle = props.sortieState == 3 ? 'PvP' : 'Enemy Vessel'
@@ -84,88 +84,88 @@ const BattleViewArea = connect(
       eFormation,
       enemyTitle,
     } = this.props
-    let View = isBaseDefense ? SquadView : ShipView
-    let friendTitle = isBaseDefense ? 'Land Base' : 'Sortie Fleet'
+    const View = isBaseDefense ? SquadView : ShipView
+    const friendTitle = isBaseDefense ? 'Land Base' : 'Sortie Fleet'
     const times = layout == 'horizontal' ? 1 : 2
-    let useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
+    const useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
     // adapt the view according to layout by setting FleetView's div xs = 12/count
     // this can support 12v6, 6v12 and 12v12
-    let fleetCount = 1 && _.sumBy([mainFleet, escortFleet], (fleet) => fleet != null)
-    let enemyCount = 1 && _.sumBy([enemyFleet, enemyEscort], (fleet) => fleet != null)
-    let fleetWidth = escortFleet && !isBaseDefense ? 2 : 1
-    let enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
-    let {getShip, getItem} = _.pick(result, ['getShip', 'getItem'])
+    const fleetCount = 1 && _.sumBy([mainFleet, escortFleet], fleet => fleet != null)
+    const enemyCount = 1 && _.sumBy([enemyFleet, enemyEscort], fleet => fleet != null)
+    const fleetWidth = escortFleet && !isBaseDefense ? 2 : 1
+    const enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
+    const { getShip, getItem } = _.pick(result, ['getShip', 'getItem'])
     const alliedForce =
-      <div className="div-row">
-        <FleetView fleet={isBaseDefense ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View}/>
-        <FleetView fleet={isBaseDefense ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View}/>
-      </div>
+      (<div className="div-row">
+        <FleetView fleet={isBaseDefense ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View} />
+        <FleetView fleet={isBaseDefense ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View} />
+      </div>)
     const enemyForce = sortieState > 1 || isBaseDefense ?
-      <div className="div-row" style={{flexDirection: ecGameOrder ? 'row-reverse' : 'row'}}>
-        <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount}/>
-        <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount}/>
-      </div> : <noscript />
+      (<div className="div-row" style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
+        <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount} />
+        <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount} />
+      </div>) : <noscript />
     const combatInfo = sortieState > 1 || isBaseDefense ?
-      <div className='alert div-row prophet-info'>
-        <div style={{flex: 1}}>
-          {__(friendTitle) + ' '}
+      (<div className="alert div-row prophet-info">
+        <div style={{ flex: 1 }}>
+          {`${__(friendTitle)} `}
           {
             airForce[0] ?
               <span>
-                <FontAwesome name='plane' />
+                <FontAwesome name="plane" />
                 {` [${airForce[0] - airForce[1]} / ${airForce[0]}]`}
               </span> : ''
           }
         </div>
-        <div style={{flex: 0}}>vs</div>
-        <div style={{flex: 1}}>
+        <div style={{ flex: 0 }}>vs</div>
+        <div style={{ flex: 1 }}>
           {
             airForce[2] ?
-            <span>
-              <FontAwesome name='plane' />
-              {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
-            </span> : ''
+              <span>
+                <FontAwesome name="plane" />
+                {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
+              </span> : ''
           }
-          {' ' + __(enemyTitle)}
+          {` ${__(enemyTitle)}`}
         </div>
-      </div> : <noscript />
+      </div>) : <noscript />
     const battleInfo =
-      <BattleInfo
-        result = {result && result.rank }
-        eFormation ={eFormation}
-        battleForm = {battleForm}
-        airControl = {airControl}
-      />
+      (<BattleInfo
+        result={result && result.rank}
+        eFormation={eFormation}
+        battleForm={battleForm}
+        airControl={airControl}
+      />)
     const mapInfo =
-      <div className="alert prophet-info">
+      (<div className="alert prophet-info">
         {
           sortieState === 1 && !isBaseDefense ?
-          <NextSpotInfo spotKind={spotKind}/>
+            <NextSpotInfo spotKind={spotKind} />
           : isBaseDefense ?
           [
             battleInfo,
             <span> | </span>,
-            <NextSpotInfo spotKind={spotKind}/>,
+            <NextSpotInfo spotKind={spotKind} />,
           ]
           : (getShip || getItem) ?
-          <DropInfo
-            getShip = {getShip}
-            getItem = {getItem}
-          />
+            <DropInfo
+              getShip={getShip}
+              getItem={getItem}
+            />
           : sortieState > 1 || isBaseDefense ?
             battleInfo
           : <noscript />
         }
-      </div>
+      </div>)
     return (
       <div id="overview-area">
         {useVerticalLayout ? combatInfo : null}
         <div className={useVerticalLayout ? 'div-row' : ''}>
-          <div className='fleet-container' style={{flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout && (escortFleet || []).length && !isBaseDefense ? 'column-reverse' : 'column'}}>
+          <div className="fleet-container" style={{ flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout && (escortFleet || []).length && !isBaseDefense ? 'column-reverse' : 'column' }}>
             {alliedForce}
             {!useVerticalLayout ? combatInfo : null}
           </div>
-          <div className='fleet-container' style={{flex: useVerticalLayout ? enemyWidth : 1, flexDirection: useVerticalLayout && (enemyEscort || []).length ? 'column-reverse' : 'column'}}>
+          <div className="fleet-container" style={{ flex: useVerticalLayout ? enemyWidth : 1, flexDirection: useVerticalLayout && (enemyEscort || []).length ? 'column-reverse' : 'column' }}>
             {enemyForce}
             {!useVerticalLayout ? mapInfo : null}
           </div>
