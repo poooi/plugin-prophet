@@ -11,11 +11,12 @@ export function getShipName(ship) {
   if (ship == null) {
     return null
   }
-  let name = ship.api_name
+  let name = i18n.resources.__(ship.api_name)
   let yomi = ship.api_yomi
   if (['elite', 'flagship'].includes(yomi)) {
     name += yomi
   }
+  console.log(name)
   return name
 }
 
@@ -23,7 +24,7 @@ export function getItemName(item) {
   if (item == null) {
     return null
   }
-  return item.api_name
+  return i18n.resources.__(item.api_name)
 }
 
 export async function sleep(ms) {

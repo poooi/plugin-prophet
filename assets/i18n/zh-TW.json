@@ -62,5 +62,9 @@
   "Rest": "休憩",
   "Land Base": "基地",
   "Show scales on HP bar": "在血量條上顯示刻度",
-  "Display enemy combined fleet in game order": "以遊戲內順序顯示敵聯合艦隊"
+  "Display enemy combined fleet in game order": "以遊戲內順序顯示敵聯合艦隊",
+  "Show enemy deck name if available": "顯示敵艦隊名",
+  "Show last chosen formation hint": "提示上次戰鬥選擇的陣型",
+  "Ship parameters include equipment bonus": "艦娘屬性包含裝備加成",
+  ", last chosen: ": "，上次選擇："
 }

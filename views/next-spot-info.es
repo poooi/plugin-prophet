@@ -71,7 +71,7 @@ const NextSpotInfo = connect(
           {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
         </span>
         <span>
-          {lastFormation && ` ${__('Last chosen: ')}${_t(lastFormation)}`}
+          {lastFormation && `${__(', last chosen: ')}${_t(lastFormation)}`}
         </span>
       </span>
     )

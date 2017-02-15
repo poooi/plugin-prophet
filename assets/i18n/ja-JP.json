@@ -62,5 +62,9 @@
   "Rest": "休憩",
   "Land Base": "基地",
   "Show scales on HP bar": "HPケージでスケールを表示する",
-  "Display enemy combined fleet in game order": "ゲームのオーダーで敵連合艦隊を表示する"
+  "Display enemy combined fleet in game order": "ゲームのオーダーで敵連合艦隊を表示する",
+  "Show enemy deck name if available": "敵艦隊名を表示する",
+  "Show last chosen formation hint": "前の陣形選択を表示する",
+  "Ship parameters include equipment bonus": "装備込みのステータスを表示する",
+  ", last chosen: ": "，前の選択："
 }
