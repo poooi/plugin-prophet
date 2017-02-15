@@ -7,7 +7,7 @@ import {getCondStyle} from 'views/utils/game-utils'
 import { resolve } from 'path'
 
 import ItemView from './item-view'
-import { getShipName } from './utils'
+import { getShipName } from '../utils'
 import { FABar, HPBar } from './bar'
 
 

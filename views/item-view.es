@@ -1,4 +1,4 @@
-import { getShipName } from './utils'
+import { getShipName } from '../utils'
 import { join } from 'path'
 import React, { Component } from 'react'
 import { connect } from 'react-redux'

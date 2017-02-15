@@ -7,7 +7,7 @@ import { resolve } from 'path'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
-import { PLUGIN_KEY } from '../utils'
+import { PLUGIN_KEY, _t } from '../utils'
 
 const getCompassAngle = (mapspots, maproutes, currentNode) =>{
   if (currentNode == -1) return NaN
@@ -70,7 +70,7 @@ const NextSpotInfo = connect(
           {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
         </span>
         <span>
-          {lastFormation && ` ${__('Last chosen: ')}${__(lastFormation)}`} 
+          {lastFormation && ` ${__('Last chosen: ')}${_t(lastFormation)}`}
         </span>
       </span>
     )

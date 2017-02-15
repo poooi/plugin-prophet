@@ -1,7 +1,9 @@
-const {__r} = window
+const { __r, i18n } = window
 import _ from 'lodash'
 import { Models } from './lib/battle'
-const {Ship, ShipOwner} = Models
+const { Ship, ShipOwner, Formation, Engagement, AirControl } = Models
+
+const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 export const PLUGIN_KEY = 'poi-plugin-prophet'
 
@@ -109,3 +111,86 @@ export const lostKind = {
   '3': 'Land-based air squadrons sustained losses',
   '4': 'No damage was inflicted',
 }
+
+export const AttackType = {
+  Normal: "Normal",             // 通常攻撃
+  Laser : "Laser",              // レーザー攻撃
+  Double: "Double",             // 連撃
+  Primary_Secondary_CI: "PSCI", // カットイン(主砲/副砲)
+  Primary_Radar_CI    : "PRCI", // カットイン(主砲/電探)
+  Primary_AP_CI       : "PACI", // カットイン(主砲/徹甲)
+  Primary_Primary_CI  : "PrCI", // カットイン(主砲/主砲)
+  Primary_Torpedo_CI  : "PTCI", // カットイン(主砲/魚雷)
+  Torpedo_Torpedo_CI  : "TTCI", // カットイン(魚雷/魚雷)
+}
+
+
+export const getAttackTypeName = (type) => {
+  switch (type) {
+  case AttackType.Normal:
+    return __("AT.Normal")
+  case AttackType.Double:
+    return __("AT.Double")
+  case AttackType.Primary_Secondary_CI:
+    return __("AT.Primary_Secondary_CI")
+  case AttackType.Primary_Radar_CI:
+    return __("AT.Primary_Radar_CI")
+  case AttackType.Primary_AP_CI:
+    return __("AT.Primary_AP_CI")
+  case AttackType.Primary_Primary_CI:
+    return __("AT.Primary_Primary_CI")
+  case AttackType.Primary_Torpedo_CI:
+    return __("AT.Primary_Torpedo_CI")
+  case AttackType.Torpedo_Torpedo_CI:
+    return __("AT.Torpedo_Torpedo_CI")
+  default:
+    return type + "?"
+  }
+}
+
+
+// Formation name map from api_formation[0-1] to name
+// 1=単縦陣, 2=複縦陣, 3=輪形陣, 4=梯形陣, 5=単横陣, 11-14=第n警戒航行序列
+const FormationName = {
+  [Formation.Ahead  ]: __('Line Ahead'),
+  [Formation.Double ]: __('Double Line'),
+  [Formation.Diamond]: __('Diamond'),
+  [Formation.Echelon]: __('Echelon'),
+  [Formation.Abreast]: __('Line Abreast'),
+  [Formation.CruisingAntiSub]: __('Cruising Formation 1'),
+  [Formation.CruisingForward]: __('Cruising Formation 2'),
+  [Formation.CruisingDiamond]: __('Cruising Formation 3'),
+  [Formation.CruisingBattle ]: __('Cruising Formation 4'),
+}
+
+// Engagement name map from api_formation[2] to name
+// 1=同航戦, 2=反航戦, 3=T字戦有利, 4=T字戦不利
+const EngagementName = {
+  [Engagement.Parallel     ]: __('Parallel Engagement'),
+  [Engagement.Headon       ]: __('Head-on Engagement'),
+  [Engagement.TAdvantage   ]: __('Crossing the T (Advantage)'),
+  [Engagement.TDisadvantage]: __('Crossing the T (Disadvantage)'),
+}
+
+// Air Control name map from api_kouku.api_stage1.api_disp_seiku to name
+// 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
+const AirControlName = {
+  [AirControl.Parity      ]: __('Air Parity'),
+  [AirControl.Supremacy   ]: __('Air Supremacy'),
+  [AirControl.Superiority ]: __('Air Superiority'),
+  [AirControl.Denial      ]: __('Air Denial'),
+  [AirControl.Incapability]: __('Air Incapability'),
+}
+
+
+
+// build a translation object, to map lib battle string-parsed API to prophet's translation
+// it requires that there's no duplicated keys
+// if lib battle returns API number, then the translation should be done separately
+const translation = {
+  ...FormationName,
+  ...EngagementName,
+  ...AirControlName,
+}
+
+export const _t = (str) => translation[str] || str
