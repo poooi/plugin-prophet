@@ -123,9 +123,13 @@
 .prophet-tip .alv {
   margin-left: 0.25em;
 }
-.prophet-tip .ship-essential >span {
+.prophet-tip .ship-essential >span,
+.prophet-tip .ship-parameter >span {
   margin-right: 0.5em;
   font-size: 80%;
+}
+.prophet-tip .ship-parameter {
+  margin-bottom: 0.5em;
 }
 .prophet-tip .item-info {
   white-space: nowrap;
