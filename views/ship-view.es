@@ -5,13 +5,14 @@ import { connect } from 'react-redux'
 import _ from 'lodash'
 import { getCondStyle } from 'views/utils/game-utils'
 import { resolve } from 'path'
+import { SlotitemIcon } from 'views/components/etc/icon'
 
 import ItemView from './item-view'
 import { getShipName } from '../utils'
 import { FABar, HPBar } from './bar'
 
 
-// const { i18n } = window
+const { i18n } = window
 // const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const ParamIcon = ({ name = '' }) => {
@@ -77,11 +78,23 @@ const ShipView = connect(
 
         {
           (data.poi_slot || []).map((item, i) =>
-            item &&
-            <ItemView
-              key={item.api_id || 0} item={item} extra={false}
-              warn={data.api_onslot[i] !== data.api_maxeq[i]}
-            />
+            item && (
+            typeof item.api_level != 'undefined'
+            ?
+              <ItemView
+                key={item.api_id} item={item} extra={false}
+                warn={data.api_onslot[i] != data.api_maxeq[i]}
+              />
+            :
+              <div className="item-info" key={i}>
+                <span className="item-icon">
+                  <SlotitemIcon slotitemId={item.api_type[3]} className="prophet-icon" />
+                </span>
+                <span className="item-name">
+                  {`${i18n.resources.__(item.api_name)}`}
+                </span>
+              </div>
+            )
           )
         }
 
