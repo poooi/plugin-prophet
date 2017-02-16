@@ -10,7 +10,7 @@ import { getShipName } from '../utils'
 
 const { ROOT } = window
 
-export default connect((state, props) => ({
+const ItemView = connect((state, props) => ({
   $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
 }))(({ item, extra, label, warn, $item }) => {
   if (!item) {
@@ -49,3 +49,5 @@ export default connect((state, props) => ({
     </div>
   )
 })
+
+export default ItemView
