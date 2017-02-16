@@ -1,4 +1,4 @@
-import React, { Component, PropTypes } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { resolve } from 'path'
@@ -18,7 +18,7 @@ const getCompassAngle = (mapspots, maproutes, currentNode) => {
   const next = get(mapspots, (maproutes[currentNode] || [])[1], [])
   if (!last || !next || !Object.keys(last).length || !Object.keys(next).length) return NaN
 
-  return Math.atan2(next[1] - last[1], next[0] - last[0]) / Math.PI * 180 + 90
+  return (Math.atan2(next[1] - last[1], next[0] - last[0]) / (Math.PI * 180)) + 90
 }
 
 

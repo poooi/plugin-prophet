@@ -142,12 +142,14 @@ const BattleViewArea = connect(
         </div>
       </div>) : <noscript />
     const battleInfo =
-      (<BattleInfo
-        result={result && result.rank}
-        eFormation={eFormation}
-        battleForm={battleForm}
-        airControl={airControl}
-      />)
+      (
+        <BattleInfo
+          result={result && result.rank}
+          eFormation={eFormation}
+          battleForm={battleForm}
+          airControl={airControl}
+        />
+      )
     const mapInfo =
       (<div className="alert prophet-info">
         {
