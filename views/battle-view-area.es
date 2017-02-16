@@ -59,7 +59,8 @@ const BattleViewArea = connect(
       friendTitle,
     }
   }
-)((layout,
+)(({
+  layout,
   doubleTabbed,
   ecGameOrder,
   mainFleet = [],
@@ -76,7 +77,8 @@ const BattleViewArea = connect(
   battleForm = '',
   eFormation = '',
   enemyTitle,
-  friendTitle) => {
+  friendTitle,
+  }) => {
   const View = isBaseDefense ? SquadView : ShipView
   const times = layout == 'horizontal' ? 1 : 2
   const useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
