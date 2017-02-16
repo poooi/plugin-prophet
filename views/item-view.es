@@ -1,9 +1,10 @@
 
 import { join } from 'path'
-import React, { Component } from 'react'
+import React from 'react'
 import { connect } from 'react-redux'
 import { SlotitemIcon } from 'views/components/etc/icon'
 import { get } from 'lodash'
+import { equipIsAircraft } from 'views/utils/game-utils'
 
 import { getShipName } from '../utils'
 
@@ -24,7 +25,7 @@ export default connect((state, props) => ({
       <span className="item-icon">
         <SlotitemIcon slotitemId={data.api_type[3]} className="prophet-icon" />
         {
-          label != null && (extra || [6, 7, 8, 9, 10, 21, 22, 33, 37, 38].includes(data.api_type[3])) 
+          label != null && (extra || equipIsAircraft(data.api_type[3]))
           ?
             <span className={`number ${warn ? 'text-warning' : ''}`}>{label}</span>
           : null
