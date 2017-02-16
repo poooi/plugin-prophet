@@ -144,6 +144,12 @@ export const getAttackTypeName = (type) => {
   }
 }
 
+export const combinedFleetType = {
+  0: 'Sortie Fleet',
+  1: 'Carrier Task Force', // 空母機動部隊
+  2: 'Surface Task Force', // 水上打撃部隊
+  3: 'Transport Escort', // 輸送護衛部隊
+}
 
 // Formation name map from api_formation[0-1] to name
 // 1=単縦陣, 2=複縦陣, 3=輪形陣, 4=梯形陣, 5=単横陣, 11-14=第n警戒航行序列

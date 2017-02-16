@@ -66,5 +66,9 @@
   "Show enemy deck name if available": "顯示敵艦隊名",
   "Show last chosen formation hint": "提示上次戰鬥選擇的陣型",
   "Ship parameters include equipment bonus": "艦娘屬性包含裝備加成",
-  ", last chosen: ": "，上次選擇："
+  ", last chosen: ": "，上次選擇：",
+  "Carrier Task Force": "空母機動部隊",
+  "Surface Task Force": "水上打擊部隊",
+  "Transport Escort": "輸送護衛部隊",
+  "Combined Fleet": "聯合艦隊"
 }

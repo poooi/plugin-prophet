@@ -67,5 +67,9 @@
   "Show enemy deck name if available": "显示敌舰队名",
   "Show last chosen formation hint": "提示上次战斗选择的阵型",
   "Ship parameters include equipment bonus": "舰娘属性包含装备加成",
-  ", last chosen: ": "，上次选择："
+  ", last chosen: ": "，上次选择：",
+  "Carrier Task Force": "空母机动部队",
+  "Surface Task Force": "水上打击部队",
+  "Transport Escort": "输送护卫部队",
+  "Combined Fleet": "联合舰队"
 }

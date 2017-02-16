@@ -11,7 +11,7 @@ import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
-import { PLUGIN_KEY } from '../utils'
+import { PLUGIN_KEY, combinedFleetType } from '../utils'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
@@ -19,13 +19,24 @@ const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 const BattleViewArea = connect(
   (state, props) => {
     const sortie = state.sortie || {}
-    const { sortieMapId, currentNode } = sortie
+    const { sortieMapId, currentNode, combinedFlag, sortieStatus } = sortie
     const showEnemyTitle = _.get(state, 'config.plugin.prophet.showEnemyTitle', true)
     const spot = props.sortieState == 3 ? 'practice' : `${sortieMapId}-${currentNode}`
     let enemyTitle = props.sortieState == 3 ? 'PvP' : 'Enemy Vessel'
     enemyTitle = showEnemyTitle
       ? _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle)
       : enemyTitle
+
+    let friendTitle = 'Sortie Fleet'
+    if (showEnemyTitle) {
+      if (combinedFlag > 0) {
+        friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
+      } else {
+        const fleetId = (sortieStatus || []).findIndex(a => a)
+        friendTitle = _.get(state, `info.fleets.${fleetId}.api_name`, 'Sortie Fleet')
+      }
+    }
+    friendTitle = props.isBaseDefense ? 'Land Base' : friendTitle
 
     return {
       layout: _.get(state, 'config.poi.layout', 'horizontal'),
@@ -45,6 +56,7 @@ const BattleViewArea = connect(
       battleForm: props.battleForm,
       eFormation: props.eFormation,
       enemyTitle,
+      friendTitle,
     }
   }
 )(class BattleViewArea extends Component {
@@ -83,9 +95,9 @@ const BattleViewArea = connect(
       battleForm,
       eFormation,
       enemyTitle,
+      friendTitle,
     } = this.props
     const View = isBaseDefense ? SquadView : ShipView
-    const friendTitle = isBaseDefense ? 'Land Base' : 'Sortie Fleet'
     const times = layout == 'horizontal' ? 1 : 2
     const useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
     // adapt the view according to layout by setting FleetView's div xs = 12/count
