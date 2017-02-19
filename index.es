@@ -381,7 +381,7 @@ export const reactClass = connect(
       enemyEscort = []
       landBase = []
       // land base air raid
-      if (api_destruction_battle != null && semver.gte(window.POI_VERSION, '7.2.0')) {
+      if (api_destruction_battle != null) {
         // construct virtual fleet to reprsent the base attack
         const { sortie, airbase } = this.props
         const mapArea = Math.floor((sortie.sortieMapId || 0) / 10)

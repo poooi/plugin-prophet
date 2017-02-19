@@ -14,11 +14,11 @@ const BattleInfo = ({ result = '', eFormation = '', battleForm = '', airControl 
   )
 }
 
-BattleInfo.propTypes = {
-  result: PropTypes.string.isRequired,
-  eFormation: PropTypes.string.isRequired,
-  battleForm: PropTypes.string.isRequired,
-  airControl: PropTypes.string.isRequired,
-}
+// BattleInfo.propTypes = {
+//   result: PropTypes.string.isRequired,
+//   eFormation: PropTypes.string.isRequired,
+//   battleForm: PropTypes.string.isRequired,
+//   airControl: PropTypes.string.isRequired,
+// }
 
 export default BattleInfo
