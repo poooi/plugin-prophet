@@ -1,16 +1,19 @@
 import React, { Component } from 'react'
 import { isEqual, isNil, each, map, isEmpty, includes, concat, get } from 'lodash'
 import { join } from 'path'
-// import fs from 'fs-extra'
+import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
 import { Row, Col, Grid, Checkbox } from 'react-bootstrap'
-import semver from 'semver'
+import { observe } from 'redux-observers'
+import { promisify } from 'bluebird'
 
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
+import { store } from 'views/create-store'
 
 import BattleViewArea from './views/battle-view-area'
-import { PLUGIN_KEY, initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
+import { PLUGIN_KEY, HISTORY_PATH, initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
+import { reducer as _reducer, onBattleResult, onGetPracticeInfo, onLoadHistory, prophetObserver } from './redux'
 
 
 const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet,
@@ -140,24 +143,6 @@ const getAirForceStatus = (stages = []) => {
 // 2: battle, switch on with PM emit type
 // 3: practice, switch on with PM emit type
 
-// actions
-
-const onBattleResult = ({ spot, fFormation, title }) => {
-  return {
-    type: '@@poi-plugin-prophet@updateHistory',
-    spot,
-    fFormation,
-    title,
-  }
-}
-
-const onGetPracticeInfo = ({ title }) => {
-  return {
-    type: '@@poi-plugin-prophet@updatePractice',
-    title,
-  }
-}
-
 export const reactClass = connect(
   (state) => {
     const sortie = state.sortie || {}
@@ -235,9 +220,21 @@ export const reactClass = connect(
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
     // initialize repsonse listener
     window.addEventListener('game.response', this.handleGameResponse)
+
+    // read history file
+    try {
+      const history = await promisify(readJSON)(HISTORY_PATH)
+      dispatch(onLoadHistory({
+        history,
+      }))
+    } catch (e) {
+      console.warn(e.stack)
+    }
+
+    this.unsubscribeObserver = observe(store, [prophetObserver])
 
     // for debug (ugly)
     if (window.dbg.isEnabled()) window.prophetTest = e => this.setState(this.handlePacket(e))
@@ -245,6 +242,10 @@ export const reactClass = connect(
 
   componentWillUnmount() {
     window.removeEventListener('game.response', this.handleGameResponse)
+
+    if (this.unsubscribeObserver) {
+      this.unsubscribeObserver()
+    }
 
     delete window.prophetTest
   }
@@ -626,24 +627,4 @@ export const settingsClass = () =>
   </div>
 
 
-export function reducer(state = {}, action) {
-  const { type, spot, fFormation, title } = action
-  switch (type) {
-  case '@@poi-plugin-prophet@updateHistory':
-    return {
-      ...state,
-      [spot]: {
-        fFormation,
-        title,
-      },
-    }
-  case '@@poi-plugin-prophet@updatePractice':
-    return {
-      ...state,
-      practice: {
-        title,
-      },
-    }
-  }
-  return state
-}
+export const reducer = _reducer
