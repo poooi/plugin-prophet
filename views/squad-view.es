@@ -22,7 +22,7 @@ const actionKind = {
 }
 
 // TODO: connect store airbase
-const SquadView = ({ ship }) => {
+const SquadView = ({ ship, compact }) => {
   if (ship && ship.id > 0) {
     return <div />
   }
@@ -34,7 +34,7 @@ const SquadView = ({ ship }) => {
 
   return (
     <div className="div-row ship-item">
-      <div className={`ship-view ${this.props.compact ? 'compact' : ''}`}>
+      <div className={`ship-view ${compact ? 'compact' : ''}`}>
         <div className="ship-info">
           <div className="ship-name">
             <span>
