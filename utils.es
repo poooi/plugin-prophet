@@ -1,12 +1,14 @@
+import path from 'path'
 import _ from 'lodash'
 import { Models } from './lib/battle'
 
-const { i18n } = window
+const { i18n, APPDATA_PATH } = window
 const { Ship, ShipOwner, Formation, Engagement, AirControl } = Models
 
 const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 
 export const PLUGIN_KEY = 'poi-plugin-prophet'
+export const HISTORY_PATH = path.join(APPDATA_PATH, 'prophet-history.json')
 
 export function getShipName(ship) {
   if (ship == null) {
