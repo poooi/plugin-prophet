@@ -13,7 +13,7 @@ const { ROOT } = window
 const ItemView = connect((state, props) => ({
   $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
 }))(({ item, extra, label, warn, $item }) => {
-  if (!item) {
+  if (!item || !$item) {
     return <div />
   }
   const data = {
@@ -23,9 +23,9 @@ const ItemView = connect((state, props) => ({
   return (
     <div className="item-info">
       <span className="item-icon">
-        <SlotitemIcon slotitemId={data.api_type[3]} className="prophet-icon" />
+        <SlotitemIcon slotitemId={(data.api_type || [])[3]} className="prophet-icon" />
         {
-          label != null && (extra || equipIsAircraft(data.api_type[3]))
+          label != null && (extra || equipIsAircraft((data.api_type || [])[3]))
           ?
             <span className={`number ${warn ? 'text-warning' : ''}`}>{label}</span>
           : null
