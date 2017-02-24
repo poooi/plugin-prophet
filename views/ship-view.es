@@ -77,24 +77,14 @@ const ShipView = connect(
         </div>
 
         {
+          // the key in ItemView uses index as a special case since it won't be reordered,
+          // ignore this eslint warning
           (data.poi_slot || []).map((item, i) =>
-            item && (
-            typeof item.api_level != 'undefined'
-            ?
-              <ItemView
-                key={item.api_id} item={item} extra={false}
-                warn={data.api_onslot[i] != data.api_maxeq[i]}
-              />
-            :
-              <div className="item-info" key={i}>
-                <span className="item-icon">
-                  <SlotitemIcon slotitemId={(item.api_type || [])[3]} className="prophet-icon" />
-                </span>
-                <span className="item-name">
-                  {`${i18n.resources.__(item.api_name)}`}
-                </span>
-              </div>
-            )
+            item &&
+            <ItemView
+              key={i} item={item} extra={false}
+              warn={data.api_onslot[i] != data.api_maxeq[i]}
+            />
           )
         }
 
