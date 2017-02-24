@@ -88,7 +88,7 @@ const ShipView = connect(
             :
               <div className="item-info" key={i}>
                 <span className="item-icon">
-                  <SlotitemIcon slotitemId={item.api_type[3]} className="prophet-icon" />
+                  <SlotitemIcon slotitemId={(item.api_type || [])[3]} className="prophet-icon" />
                 </span>
                 <span className="item-name">
                   {`${i18n.resources.__(item.api_name)}`}
