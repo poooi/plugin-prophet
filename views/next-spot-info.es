@@ -45,24 +45,26 @@ const NextSpotInfo = connect(
   // svg arrow's default angle is 135 deg
   return (
     <span className="next-spot-info">
-      {`${__('Compass Point')}: `}
-      <span className="compass">
-        {
-        Number.isNaN(compassAngle) ?
-        '?' :
-        <span className="svg" id="prophet-compass">
-          <img
-            src={resolve(__dirname, `../assets/icons/compass-arrow-${window.isDarkTheme ? 'dark' : 'light'}.svg`)}
-            style={{ transform: `rotate(${compassAngle - 135}deg)` }} className="svg prophet-icon"
-          />
+      <span>
+        {`${__('Compass Point')}: `}
+        <span className="compass">
+          {
+          Number.isNaN(compassAngle) ?
+          '?' :
+          <span className="svg" id="prophet-compass">
+            <img
+              src={resolve(__dirname, `../assets/icons/compass-arrow-${window.isDarkTheme ? 'dark' : 'light'}.svg`)}
+              style={{ transform: `rotate(${compassAngle - 135}deg)` }} className="svg prophet-icon"
+            />
+          </span>
+        }
         </span>
-      }
+        <span>
+          {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
+        </span>
       </span>
       <span>
-        {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
-      </span>
-      <span>
-        {lastFormation && `${__(', last chosen: ')}${_t(lastFormation)}`}
+        {lastFormation && `${__('Last chosen: ')}${_t(lastFormation)}`}
       </span>
     </span>
   )

@@ -140,7 +140,6 @@ const BattleViewArea = connect(
         : isBaseDefense ?
         [
           battleInfo,
-          <span> | </span>,
           <NextSpotInfo spotKind={spotKind} />,
         ]
         : (getShip || getItem) ?

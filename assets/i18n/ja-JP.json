@@ -66,7 +66,7 @@
   "Show enemy deck name if available": "敵艦隊名を表示する",
   "Show last chosen formation hint": "前の陣形選択を表示する",
   "Ship parameters include equipment bonus": "装備込みのステータスを表示する",
-  ", last chosen: ": "、前の選択：",
+  "Last chosen: ": "前の選択：",
   "Carrier Task Force": "空母機動部隊",
   "Surface Task Force": "水上打撃部隊",
   "Transport Escort": "輸送護衛部隊",

@@ -7,7 +7,7 @@
 }
 #plugin-prophet .prophet-info {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   flex-wrap: wrap;
   justify-content: center;
 }
@@ -160,4 +160,9 @@
   margin-left: 0.5em;
   margin-right: 0.5em;
   cursor: default;
+}
+#plugin-prophet .next-spot-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
