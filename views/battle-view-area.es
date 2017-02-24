@@ -101,7 +101,7 @@ const BattleViewArea = connect(
     </div>) : <noscript />
   const combatInfo = sortieState > 1 || isBaseDefense ?
     (<div className="alert div-row prophet-info">
-      <div style={{ flex: 1 }}>
+      <div className="combat-title" title={__(friendTitle)}>
         {`${__(friendTitle)} `}
         {
           airForce[0] ?
@@ -111,8 +111,8 @@ const BattleViewArea = connect(
             </span> : ''
         }
       </div>
-      <div style={{ flex: 0 }}>vs</div>
-      <div style={{ flex: 1 }}>
+      <div className="combat-vs">vs</div>
+      <div className="combat-title" title={__(enemyTitle)}>
         {
           airForce[2] ?
             <span>

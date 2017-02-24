@@ -145,3 +145,19 @@
 .alert.prophet-info {
   color: inherit;
 }
+#plugin-prophet .combat-title {
+  flex: 1;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: default;
+}
+
+#plugin-prophet .combat-vs {
+  flex: 0;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  cursor: default;
+}
