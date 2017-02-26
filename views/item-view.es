@@ -10,10 +10,12 @@ import { getShipName } from '../utils'
 
 const { ROOT } = window
 
+// friend item is from _slotitems, while enemy item is from $slotitems
+// so for enemy item, its $item will always be undefined
 const ItemView = connect((state, props) => ({
   $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
 }))(({ item, extra, label, warn, $item }) => {
-  if (!item || !$item) {
+  if (!item) {
     return <div />
   }
   const data = {
