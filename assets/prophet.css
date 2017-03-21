@@ -135,7 +135,8 @@
   white-space: nowrap;
 }
 .prophet-pop .tooltip-inner{
-  max-width: 230px;
+  max-width: initial;
+  min-width: 230px;
   width: fit-content;
 }
 .prophet-tip .item-attr .level {
