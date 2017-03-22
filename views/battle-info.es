@@ -8,7 +8,7 @@ const BattleInfo = ({ result = '', eFormation = '', battleForm = '', airControl 
   return (
     <span className="battle-info">
       <span className="param-icon"><img src={iconPath} className="svg prophet-icon result-icon" /></span>
-      |
+      {'| '}
       {
         [_t(eFormation), _t(battleForm), _t(airControl)].filter(
           str => !!str
