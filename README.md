@@ -13,5 +13,7 @@ __IMPORTANT__: Before publishing new version, always check if submodule is updat
 
 MIT
 
+Some svg icons uses josefin sans font licensed under [OFL 1.1](http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web)
+
 [npm-badge]: https://img.shields.io/npm/v/poi-plugin-prophet.svg?style=flat-square
 [npm]: https://www.npmjs.org/package/poi-plugin-prophet
