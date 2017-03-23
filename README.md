@@ -11,7 +11,8 @@ __IMPORTANT__: Before publishing new version, always check if submodule is updat
 
 ## License
 
-MIT
+MIT **EXCEPT FOR SVG ICONS**
+SVG ICONS ARE NOT DISTRIBUTED UNDER MIT, IT CAN **ONLY** BE USED IN POI, INCLUDING PLUGINS, EXTENSIONS AND DERIVATIVES OF POI. ANY OTHER USAGE WITHOUT EXPLICIT PERMISSION IS PROHIBITED.
 
 Some svg icons uses josefin sans font licensed under [OFL 1.1](http://scripts.sil.org/cms/scripts/page.php?item_id=OFL_web)
 

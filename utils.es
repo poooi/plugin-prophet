@@ -78,6 +78,18 @@ export const spotInfo = {
   15: 'Enemy Combined Fleet',
 }
 
+export const spotIcon = {
+  Battle: '4-1',
+  'Boss Battle': 5,
+  'Obtain Resources': 2,
+  'Battle Avoid': 2,
+  'Long Distance Aerial Battle': 10,
+  'Lose Resources': 3,
+  'Manual Selection': '4-2',
+  'Air Strike': 7,
+  'Transport Munitions': 9,
+  'Escort Success': 8,
+}
 
 // give spot kind according to api_event_id and api_event_kind
 // update according to https://github.com/andanteyk/ElectronicObserver/blob/1052a7b177a62a5838b23387ff35283618f688dd/ElectronicObserver/Other/Information/apilist.txt

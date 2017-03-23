@@ -5,7 +5,7 @@ import { resolve } from 'path'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
-import { PLUGIN_KEY, _t } from '../utils'
+import { PLUGIN_KEY, _t, spotIcon } from '../utils'
 
 const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
 
@@ -19,6 +19,16 @@ const getCompassAngle = (mapspots, maproutes, currentNode) => {
   if (!last || !next || !Object.keys(last).length || !Object.keys(next).length) return NaN
 
   return ((Math.atan2(next[1] - last[1], next[0] - last[0]) / Math.PI) * 180) + 90
+}
+
+const SpotIcon = ({ spotKind }) => {
+  if (typeof spotIcon[spotKind] === 'undefined') {
+    return ''
+  }
+  const iconPath = resolve(__dirname, `../assets/icons/spot/${spotIcon[spotKind]}.svg`)
+  return (
+    <span className="param-icon"><img src={iconPath} className="svg prophet-icon spot-icon" /></span>
+  )
 }
 
 
@@ -60,7 +70,9 @@ const NextSpotInfo = connect(
         }
         </span>
         <span>
-          {` | ${nextSpot} (${currentNode}) : ${__(spotKind)}`}
+          {` | ${nextSpot} (${currentNode}) : `}
+          <SpotIcon spotKind={spotKind} />
+          {__(spotKind)}
         </span>
       </span>
       <span>
