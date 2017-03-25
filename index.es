@@ -56,9 +56,15 @@ const synthesizeInfo = (_simulator, result, packets) => {
   if (!(mainMvp < 0 || mainMvp > 6)) mainFleet[mainMvp].isMvp = true
   if (!(escortMvp < 0 || escortMvp > 6)) escortFleet[escortMvp].isMvp = true
 
+  let fResidule = 0
+  let fLost = 0
+  let eResidule = 0
+  let eLost = 0
+
   each(stages, (stage) => {
     if (isNil(stage)) return
     const { engagement, aerial, type } = (stage || {})
+
     if (engagement && type == StageType.Engagement) {
       // There might be multiple engagements (day and night)
       // fortunately the formation is the same for now
@@ -66,22 +72,26 @@ const synthesizeInfo = (_simulator, result, packets) => {
       eFormation = (engagement || {}).eFormation || ''
       fFormation = (engagement || {}).fFormation || ''
     }
+
     if (aerial && type == StageType.Aerial) {
-      // There might be multiple aerial stages, e.g. 1-6 air battle
+      // There might be multiple aerial stages, e.g. jet assult, 1-6 air battle
       const { fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control } = aerial
       // [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
-      const fLost = (fPlaneInit || 0) - (fPlaneNow || 0)
-      const eLost = (ePlaneInit || 0) - (ePlaneNow || 0)
+      fResidule = fPlaneNow
+      eResidule = ePlaneNow
+      fLost += (fPlaneInit || 0) - (fPlaneNow || 0)
+      eLost += (ePlaneInit || 0) - (ePlaneNow || 0)
       // [fPlaneInit, fLost, ePlaneInit, eLost]
-      airForce = [
-        Math.max((fPlaneInit || 0), airForce[0]),
-        fLost + airForce[1],
-        Math.max((ePlaneInit || 0), airForce[2]),
-        eLost + airForce[3],
-      ]
       airControl = control || ''
     }
   })
+
+  airForce = [
+    fResidule + fLost,
+    fLost,
+    eResidule + eLost,
+    eLost,
+  ]
 
   let api_nowhps
   let api_nowhps_combined
@@ -202,7 +212,8 @@ export const reactClass = connect(
       && nextProps.sortie.combinedFlag !== this.state.combinedFlag
     let newState = {}
     if (fleetUpdate) {
-      const [mainFleet, escortFleet] = this.transformToLibBattleClass(nextProps.fleets, nextProps.equips)
+      const [mainFleet, escortFleet] =
+        this.transformToLibBattleClass(nextProps.fleets, nextProps.equips)
       newState = {
         ...newState,
         mainFleet,
@@ -400,7 +411,11 @@ export const reactClass = connect(
           }))
         })
         // construct enemy
-        const { api_ship_ke, api_eSlot, api_ship_lv, api_lost_kind, api_formation } = api_destruction_battle
+        const { api_ship_ke,
+          api_eSlot,
+          api_ship_lv,
+          api_lost_kind,
+          api_formation } = api_destruction_battle
         enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
         // simulation
         battleForm = EngagementMap[(api_formation || {})[2]] || ''
@@ -466,7 +481,8 @@ export const reactClass = connect(
       const packet = Object.clone(body)
       packet.poi_path = e.detail.path
       if (!this.battle.fleet) {
-        const [_mainFleet, _escortFleet] = this.transformToDazzyDingClass(this.props.fleets, this.props.equips)
+        const [_mainFleet, _escortFleet] =
+          this.transformToDazzyDingClass(this.props.fleets, this.props.equips)
         this.battle.fleet = new Fleet({
           type: _escortFleet ? this.state.combinedFlag : 0,
           main: _mainFleet,
