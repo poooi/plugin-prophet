@@ -23,7 +23,7 @@ const getCompassAngle = (mapspots, maproutes, currentNode) => {
 
 const SpotIcon = ({ spotKind }) => {
   if (typeof spotIcon[spotKind] === 'undefined') {
-    return ''
+    return <span>{/* empty */}</span>
   }
   const iconPath = resolve(__dirname, `../assets/icons/spot/${spotIcon[spotKind]}.svg`)
   return (
