@@ -80,9 +80,10 @@ export const spotInfo = {
 
 export const spotIcon = {
   Battle: '4-1',
+  'Night Battle': '4-1',
   'Boss Battle': 5,
   'Obtain Resources': 2,
-  'Battle Avoid': 2,
+  'Battle Avoid': '4-2',
   'Long Distance Aerial Battle': 10,
   'Lose Resources': 3,
   'Manual Selection': '4-2',
