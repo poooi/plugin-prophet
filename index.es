@@ -644,3 +644,9 @@ export const settingsClass = () =>
 
 
 export const reducer = _reducer
+
+export const switchPluginPath = [
+  '/kcsapi/api_req_map/start',
+  '/kcsapi/api_req_practice/battle',
+  '/kcsapi/api_req_map/next',
+]
