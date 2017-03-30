@@ -175,3 +175,7 @@
   flex-direction: column;
   justify-content: center;
 }
+.result-icon.light {
+  background-color: #ccc;
+  border-radius: 5px;
+}
