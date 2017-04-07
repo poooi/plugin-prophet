@@ -3,11 +3,23 @@ import path from 'path'
 
 import { _t } from '../utils'
 
+const BATTLE_RESULT = ['SS', 'S', 'A', 'B', 'C', 'D', 'E']
+
 const BattleInfo = ({ result = '', eFormation = '', battleForm = '', airControl = '' }) => {
-  const iconPath = path.resolve(__dirname, `../assets/icons/result-${result}.svg`)
   return (
     <span className="battle-info">
-      <span className="param-icon"><img src={iconPath} className={`svg prophet-icon result-icon ${!window.isDarkTheme && 'light'}`} /></span>
+      <span className="param-icon">
+        {
+          BATTLE_RESULT.includes(result)
+          ?
+            <img
+              src={path.resolve(__dirname, `../assets/icons/result-${result}.svg`)}
+              className={`svg prophet-icon result-icon ${!window.isDarkTheme && 'light'}`}
+            />
+          :
+          _t(result)
+        }
+      </span>
       {'| '}
       {
         [_t(eFormation), _t(battleForm), _t(airControl)].filter(
