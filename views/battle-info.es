@@ -3,6 +3,9 @@ import path from 'path'
 
 import { _t } from '../utils'
 
+const { i18n } = window
+const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
+
 const BATTLE_RESULT = ['SS', 'S', 'A', 'B', 'C', 'D', 'E']
 
 const BattleInfo = ({ result = '', eFormation = '', battleForm = '', airControl = '' }) => {
@@ -17,7 +20,7 @@ const BattleInfo = ({ result = '', eFormation = '', battleForm = '', airControl 
               className={`svg prophet-icon result-icon ${!window.isDarkTheme && 'light'}`}
             />
           :
-          _t(result)
+          __(result)
         }
       </span>
       {'| '}
