@@ -59,8 +59,8 @@ const NextSpotInfo = connect(
   const resources = []
   if (item && Object.keys(item).length > 0) {
     Object.keys(item).forEach((itemKey) => {
-      resources.push(<span><MaterialIcon materialId={parseInt(itemKey)} className="material-icon svg prophet-icon" /></span>)
-      resources.push(<span>{item[itemKey] >= 0 ? `+${item[itemKey]}` : item[itemKey]}</span>)
+      resources.push(<span key={`${itemKey}-icon`}><MaterialIcon materialId={parseInt(itemKey)} className="material-icon svg prophet-icon" /></span>)
+      resources.push(<span key={`${itemKey}-text`}>{item[itemKey] >= 0 ? `+${item[itemKey]}` : item[itemKey]}</span>)
     })
   }
   return (
