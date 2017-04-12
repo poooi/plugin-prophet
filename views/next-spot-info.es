@@ -4,6 +4,7 @@ import { get } from 'lodash'
 import { resolve } from 'path'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
+import { MaterialIcon } from 'views/components/etc/icon'
 
 import { PLUGIN_KEY, _t, spotIcon } from '../utils'
 
@@ -35,7 +36,7 @@ const SpotIcon = ({ spotKind }) => {
 const NextSpotInfo = connect(
   (state, props) => {
     const sortie = state.sortie || {}
-    const { sortieMapId, currentNode } = sortie
+    const { sortieMapId, currentNode, item } = sortie
     const spot = `${sortieMapId}-${currentNode}`
     const showLastFormation = get(state, 'config.plugin.prophet.showLastFormation', true)
 
@@ -45,35 +46,43 @@ const NextSpotInfo = connect(
       allMaps: get(state, 'fcd.map', {}),
       spotKind: props.spotKind || '?',
       lastFormation: showLastFormation && get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
+      item,
     }
   }
-)(({ currentNode, sortieMapId, allMaps, spotKind, lastFormation }) => {
+)(({ currentNode, sortieMapId, allMaps, spotKind, lastFormation, item }) => {
   const mapspots = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.spots`, {})
   const maproutes = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.route`, {})
   const compassAngle = getCompassAngle(mapspots, maproutes, currentNode)
   const nextSpot = get(maproutes, `${currentNode}.1`, '?')
   // svg arrow's default angle is 135 deg
+
+  const resources = []
+  if (item && Object.keys(item).length > 0) {
+    Object.keys(item).forEach((itemKey) => {
+      resources.push(<span><MaterialIcon materialId={parseInt(itemKey)} className="material-icon svg prophet-icon" /></span>)
+      resources.push(<span>{item[itemKey] >= 0 ? `+${item[itemKey]}` : item[itemKey]}</span>)
+    })
+  }
   return (
     <span className="next-spot-info">
-      <span>
-        {`${__('Compass Point')}: `}
-        <span className="compass">
-          {
-          Number.isNaN(compassAngle) ?
-          '?' :
-          <span className="svg" id="prophet-compass">
-            <img
-              src={resolve(__dirname, `../assets/icons/compass-arrow-${window.isDarkTheme ? 'dark' : 'light'}.svg`)}
-              style={{ transform: `rotate(${compassAngle - 135}deg)` }} className="svg prophet-icon"
-            />
-          </span>
-        }
+      <span className="current-info">
+        <span>{`${__('Compass Point')}: `}</span>
+        {
+        Number.isNaN(compassAngle) ?
+        '?' :
+        <span className="svg" id="prophet-compass">
+          <img
+            src={resolve(__dirname, `../assets/icons/compass-arrow-${window.isDarkTheme ? 'dark' : 'light'}.svg`)}
+            style={{ transform: `rotate(${compassAngle - 135}deg)` }} className="svg prophet-icon compass-icon"
+          />
         </span>
+        }
         <span>
           {` | ${nextSpot} (${currentNode}) : `}
-          <SpotIcon spotKind={spotKind} />
-          {__(spotKind)}
         </span>
+        <SpotIcon spotKind={spotKind} />
+        <span>{__(spotKind)}</span>
+        { resources }
       </span>
       <span>
         {lastFormation && `${__('Last chosen: ')}${_t(lastFormation)}`}

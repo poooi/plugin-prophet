@@ -175,7 +175,19 @@
   flex-direction: column;
   justify-content: center;
 }
-.result-icon.light {
+#plugin-prophet .result-icon.light {
   background-color: #ccc;
   border-radius: 5px;
+}
+#plugin-prophet .current-info {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
+#plugin-prophet .compass-icon {
+  width: 18px;
+}
+#plugin-prophet .current-info > span {
+  margin: 0 .2ex;
 }
