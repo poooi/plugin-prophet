@@ -38,7 +38,7 @@ export const HPBar = connect((state, props) => ({
   if (item && $equip) {
     const itemIcon = $equip.api_type[3]
     additions.push(
-      <span className="item-icon">
+      <span className="item-icon" key={itemIcon}>
         <SlotitemIcon slotitemId={itemIcon} className="prophet-icon" />
       </span>
       )
@@ -50,7 +50,7 @@ export const HPBar = connect((state, props) => ({
     labels.push(<span key={-2}>{' ('}</span>)
     additions.forEach((addition, i) => {
       labels.push(addition)
-      labels.push(<span>, </span>)
+      labels.push(<span key={i}>, </span>)
     })
     labels.pop()  // Remove last comma
     labels.push(<span key={-3}>{')'}</span>)
