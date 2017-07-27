@@ -20,6 +20,13 @@ const ParamIcon = ({ name = '' }) => {
   return <span className="param-icon"><img src={iconPath} className="svg prophet-icon" /></span>
 }
 
+const placements = {
+  0: 'left', // horizontal, normal 00
+  1: 'right', // horizontal, reversed 01
+  2: 'top', // vertical, normal 10
+  3: 'bottom', //vertical reversed 11
+}
+
 // fParam: [0]=火力, [1]=雷装, [2]=対空, [3]=装甲
 const paramNames = ['firepower', 'torpedo', 'AA', 'armor']
 
@@ -30,11 +37,12 @@ const ShipView = connect(
       escapedPos: state.sortie.escapedPos || [],
       ship: props.ship,
       layout: _.get(state, 'config.poi.layout', 'horizontal'),
+      reverseLayout: _.get(state, 'config.poi.reverseLayout'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
     }
   }
-)(({ ship, $ship, escapedPos, layout, useFinalParam }) => {
+)(({ ship, $ship, escapedPos, layout, reverseLayout, useFinalParam }) => {
   if (!(ship && ship.id > 0)) {
     return <div />
   }
@@ -92,12 +100,11 @@ const ShipView = connect(
       </div>
     </Tooltip>)
 
-
   return (
     <div className={`div-row ship-item ${isEscaped ? 'escaped' : ''}`}>
       <div className="ship-view">
         <OverlayTrigger
-          placement={layout === 'horizontal' ? 'left' : 'top'}
+          placement={placements[parseInt(`${+(layout === 'vertical')}${+(reverseLayout)}`, 2)]}
           overlay={tooltip}
         >
           <div className="ship-info">
