@@ -33,7 +33,7 @@ const BattleViewArea = connect(
         friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
       } else {
         const fleetId = (sortieStatus || []).findIndex(a => a)
-        friendTitle = _.get(state, `info.fleets.${fleetId}.api_name`, 'Sortie Fleet')
+        friendTitle = _.get(state, `info.fleets.${fleetId === -1 ? 0 : fleetId}.api_name`, 'Sortie Fleet')
       }
     }
     friendTitle = props.isBaseDefense ? 'Land Base' : friendTitle
@@ -99,8 +99,8 @@ const BattleViewArea = connect(
       <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount} />
       <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount} />
     </div>) : <noscript />
-  const combatInfo = sortieState > 1 || isBaseDefense ?
-    (<div className="alert div-row prophet-info">
+  const combatInfo = (
+    <div className="alert div-row prophet-info">
       <div className="combat-title" title={__(friendTitle)}>
         {`${__(friendTitle)} `}
         {
@@ -111,18 +111,23 @@ const BattleViewArea = connect(
             </span> : ''
         }
       </div>
-      <div className="combat-vs">vs</div>
-      <div className="combat-title" title={__(enemyTitle)}>
-        {
-          airForce[2] ?
-            <span>
-              <FontAwesome name="plane" />
-              {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
-            </span> : ''
-        }
-        {` ${__(enemyTitle)}`}
-      </div>
-    </div>) : <noscript />
+      <div className="combat-vs" style={{ opacity: (sortieState > 1 || isBaseDefense) ? 1 : 0 }}>vs</div>
+      {
+        (sortieState > 1 || isBaseDefense)
+          ? <div className="combat-title" title={__(enemyTitle)}>
+            {
+              airForce[2] ?
+                <span>
+                  <FontAwesome name="plane" />
+                  {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
+                </span> : ''
+            }
+            {` ${__(enemyTitle)}`}
+          </div>
+          : <div className="combat-title" />
+      }
+    </div>
+  )
   const battleInfo =
     (
       <BattleInfo
