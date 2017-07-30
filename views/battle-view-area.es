@@ -154,10 +154,10 @@ const BattleViewArea = connect(
       <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount} />
       <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount} />
     </div>) : <noscript />
-  const combatInfo = (
+  const combatInfo = (TP > 0 || sortieState > 1 || isBaseDefense) && (
     <div className="alert div-row prophet-info">
       <div className="combat-title" title={__(friendTitle)}>
-        {`${__(friendTitle)}`}
+        <span>{`${__(friendTitle)}`}</span>
         {
           TP > 0 &&
           <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
