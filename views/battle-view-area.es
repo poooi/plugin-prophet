@@ -164,7 +164,7 @@ const BattleViewArea = connect(
             <OverlayTrigger
               placement="bottom"
               overlay={
-                <Tooltip>
+                <Tooltip id="tp-indicator">
                   <span>
                     {`${__('A rank: ')}${Math.floor(TP * 0.7)}`}
                   </span>
