@@ -1,9 +1,13 @@
 import FontAwesome from 'react-fontawesome'
 import React from 'react'
+import { createSelector } from 'reselect'
 import _ from 'lodash'
 import { connect } from 'react-redux'
+import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 
-import { extensionSelectorFactory } from 'views/utils/selectors'
+import { fleetShipsDataSelectorFactory,
+  fleetShipsEquipDataSelectorFactory,
+  extensionSelectorFactory } from 'views/utils/selectors'
 
 import ShipView from './ship-view'
 import FleetView from './fleet-view'
@@ -11,10 +15,56 @@ import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
-import { PLUGIN_KEY, combinedFleetType } from '../utils'
+import { PLUGIN_KEY, combinedFleetType, getTransportPoint } from '../utils'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
+
+const inEventSelector = createSelector(
+  [
+    state => state.const.$maps,
+  ], maps => Object.keys(maps).some(mapId => (+mapId) > 100)
+)
+
+const normalizedFleetShipsDataSelectorFactory = _.memoize(fleetId =>
+  createSelector([
+    fleetShipsDataSelectorFactory(fleetId),
+  ], (shipsData = []) =>
+    shipsData.filter(([_ship, $ship]) => !!_ship && !!$ship)
+      .map(([_ship, $ship]) => ({ ...$ship, ..._ship }))
+  )
+)
+
+const normalizedFleetShipsEquipDataSelectorFactory = _.memoize(fleetId =>
+  createSelector([
+    fleetShipsEquipDataSelectorFactory(fleetId),
+  ], (equipsData = []) =>
+    equipsData.map(equipData =>
+      equipData.filter(([_equip, $equip, onslot] = []) => !!_equip && !!$equip)
+        .map(([_equip, $equip, onslot]) => ([{ ...$equip, ..._equip }, onslot]))
+    )
+  )
+)
+
+export const combinedFleetTPSelector = createSelector([
+  normalizedFleetShipsDataSelectorFactory(0),
+  normalizedFleetShipsEquipDataSelectorFactory(0),
+  normalizedFleetShipsDataSelectorFactory(1),
+  normalizedFleetShipsEquipDataSelectorFactory(1),
+  inEventSelector,
+], (ships0, equips0, ships1, equips1, inEvent) =>
+  (inEvent ? getTransportPoint([...ships0, ...ships1], [...equips0, ...equips1]) : 0)
+)
+
+export const fleetTPSelectorFactory = _.memoize(fleetId =>
+  createSelector([
+    normalizedFleetShipsDataSelectorFactory(fleetId),
+    normalizedFleetShipsEquipDataSelectorFactory(fleetId),
+    inEventSelector,
+  ], (shipsData, equipsData, inEvent) =>
+    (inEvent ? getTransportPoint(shipsData, equipsData) : 0)
+  )
+)
 
 const BattleViewArea = connect(
   (state, props) => {
@@ -28,12 +78,15 @@ const BattleViewArea = connect(
       : enemyTitle
 
     let friendTitle = 'Sortie Fleet'
+    let TP = 0
     if (showEnemyTitle) {
       if (combinedFlag > 0) {
         friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
+        TP = combinedFleetTPSelector(state)
       } else {
         const fleetId = (sortieStatus || []).findIndex(a => a)
-        friendTitle = _.get(state, `info.fleets.${fleetId}.api_name`, 'Sortie Fleet')
+        TP = fleetTPSelectorFactory(fleetId === -1 ? 0 : fleetId)(state)
+        friendTitle = _.get(state, `info.fleets.${fleetId === -1 ? 0 : fleetId}.api_name`, 'Sortie Fleet')
       }
     }
     friendTitle = props.isBaseDefense ? 'Land Base' : friendTitle
@@ -57,6 +110,7 @@ const BattleViewArea = connect(
       eFormation: props.eFormation,
       enemyTitle,
       friendTitle,
+      TP,
     }
   }
 )(({
@@ -78,6 +132,7 @@ const BattleViewArea = connect(
   eFormation = '',
   enemyTitle,
   friendTitle,
+  TP,
   }) => {
   const View = isBaseDefense ? SquadView : ShipView
   const times = layout == 'horizontal' ? 1 : 2
@@ -99,10 +154,30 @@ const BattleViewArea = connect(
       <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount} />
       <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount} />
     </div>) : <noscript />
-  const combatInfo = sortieState > 1 || isBaseDefense ?
-    (<div className="alert div-row prophet-info">
+  const combatInfo = (TP > 0 || sortieState > 1 || isBaseDefense) && (
+    <div className="alert div-row prophet-info">
       <div className="combat-title" title={__(friendTitle)}>
-        {`${__(friendTitle)} `}
+        <span>{`${__(friendTitle)}`}</span>
+        {
+          TP > 0 &&
+          <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
+            <OverlayTrigger
+              placement="bottom"
+              overlay={
+                <Tooltip id="tp-indicator">
+                  <span>
+                    {`${__('A rank: ')}${Math.floor(TP * 0.7)}`}
+                  </span>
+                </Tooltip>
+              }
+            >
+              <span>
+                <FontAwesome name="database" />
+                {` ${TP}`}
+              </span>
+            </OverlayTrigger>
+          </span>
+        }
         {
           airForce[0] ?
             <span>
@@ -111,18 +186,23 @@ const BattleViewArea = connect(
             </span> : ''
         }
       </div>
-      <div className="combat-vs">vs</div>
-      <div className="combat-title" title={__(enemyTitle)}>
-        {
-          airForce[2] ?
-            <span>
-              <FontAwesome name="plane" />
-              {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
-            </span> : ''
-        }
-        {` ${__(enemyTitle)}`}
-      </div>
-    </div>) : <noscript />
+      <div className="combat-vs" style={{ opacity: (sortieState > 1 || isBaseDefense) ? 1 : 0 }}>vs</div>
+      {
+        (sortieState > 1 || isBaseDefense)
+          ? <div className="combat-title" title={__(enemyTitle)}>
+            {
+              airForce[2] ?
+                <span>
+                  <FontAwesome name="plane" />
+                  {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
+                </span> : ''
+            }
+            {` ${__(enemyTitle)}`}
+          </div>
+          : <div className="combat-title" />
+      }
+    </div>
+  )
   const battleInfo =
     (
       <BattleInfo

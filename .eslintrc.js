@@ -11,7 +11,6 @@ module.exports = {
     'plugin:import/warnings',
     "airbnb",
   ],
-  'installedESLint': true,
   'parser': 'babel-eslint',
   'plugins': [
     'import',
