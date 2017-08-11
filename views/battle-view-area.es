@@ -101,7 +101,6 @@ const BattleViewArea = connect(
       if (combinedFlag > 0) {
         friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
         TP = combinedFleetTPSelector(state)
-        console.log(TP)
       } else {
         const fleetId = (sortieStatus || []).findIndex(a => a)
         TP = fleetTPSelectorFactory(fleetId === -1 ? 0 : fleetId)(state)
