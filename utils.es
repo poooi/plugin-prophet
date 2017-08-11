@@ -242,19 +242,27 @@ const TPByShipType = {
 
 // ships: [ship for ship in fleet]
 // equips: [[equip for equip on ship] for ship in fleet]
-export const getTransportPoint = (shipsData, equipsData) => {
-  let shipTP = 0
-  let equipTP = 0
-  shipsData.forEach((ship) => {
-    shipTP += TPByShipType[ship.api_stype] || 0
-    shipTP += TPByShip[ship.api_ship_id] || 0
-  })
+export const getTransportPoint = (shipsData, equipsData, escapedShipIds = []) => {
+  const ignores = _.map(shipsData, ship =>
+    escapedShipIds.includes(ship.api_id) || ship.api_nowhp * 4 <= ship.api_maxhp
+  )
 
-  equipsData.forEach((equipData) => {
-    equipData.forEach(([equip, _] = []) => {
-      equipTP += TPByItem[equip.api_slotitem_id] || 0
-    })
-  })
+  const shipTPs = _.map(shipsData, ship =>
+    (TPByShipType[ship.api_stype] || 0) + (TPByShip[ship.api_ship_id] || 0)
+  )
 
-  return equipTP ? equipTP + shipTP : 0
+  const equipTPs = _.map(equipsData, equipData =>
+    _.sum(_.map(equipData, ([equip, _] = []) => TPByItem[equip.api_slotitem_id] || 0))
+  )
+
+  const shipTP = _.sum(shipTPs)
+  const equipTP = _.sum(equipTPs)
+
+  const shipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index])))
+  const equipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : equipTPs[index])))
+
+  return {
+    total: equipTP ? shipTP + equipTP : 0,
+    actual: shipActualTP + equipActualTP,
+  }
 }
