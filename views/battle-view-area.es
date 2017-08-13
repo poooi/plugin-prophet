@@ -177,7 +177,7 @@ const BattleViewArea = connect(
       <div className="combat-title" title={__(friendTitle)}>
         <span>{`${__(friendTitle)}`}</span>
         {
-          TP.total > 0 &&
+          TP.total > 0 && (!isBaseDefense) &&
           <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
             <OverlayTrigger
               placement="bottom"
