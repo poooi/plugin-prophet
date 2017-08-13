@@ -23,7 +23,7 @@ const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 const inEventSelector = createSelector(
   [
     state => state.const.$maps,
-  ], maps => Object.keys(maps).some(mapId => (+mapId) > 100)
+  ], (maps = {}) => Object.keys(maps).some(mapId => (+mapId) > 100)
 )
 
 const normalizedFleetShipsDataSelectorFactory = _.memoize(fleetId =>
