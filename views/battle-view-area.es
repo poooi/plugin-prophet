@@ -192,8 +192,8 @@ const BattleViewArea = connect(
               <span>
                 <FontAwesome name="database" style={{ marginRight: '1ex' }} />
                 [
-                { TP.total != TP.actual && <span>{`${TP.actual} /`}</span> }
-                <span>{` ${TP.total}`}</span>
+                { TP.total != TP.actual && <span>{`${TP.actual} / `}</span> }
+                <span>{TP.total}</span>
                 ]
               </span>
             </OverlayTrigger>
