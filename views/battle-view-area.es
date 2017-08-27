@@ -190,9 +190,11 @@ const BattleViewArea = connect(
               }
             >
               <span>
-                <FontAwesome name="database" />
-                { TP.total != TP.actual && <span>{` ${TP.actual} /`}</span> }
+                <FontAwesome name="database" style={{ marginRight: '1ex' }} />
+                [
+                { TP.total != TP.actual && <span>{`${TP.actual} /`}</span> }
                 <span>{` ${TP.total}`}</span>
+                ]
               </span>
             </OverlayTrigger>
           </span>
@@ -200,8 +202,8 @@ const BattleViewArea = connect(
         {
           airForce[0] ?
             <span>
-              <FontAwesome name="plane" />
-              {` [${airForce[0] - airForce[1]} / ${airForce[0]}]`}
+              <FontAwesome name="plane" style={{ marginRight: '1ex' }} />
+              {`[${airForce[0] - airForce[1]} / ${airForce[0]}]`}
             </span> : ''
         }
       </div>
