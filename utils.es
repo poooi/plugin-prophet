@@ -90,6 +90,7 @@ export const spotIcon = {
   'Air Strike': 7,
   'Transport Munitions': 9,
   'Escort Success': 8,
+  'Enemy Combined Fleet': '4-1',
 }
 
 // give spot kind according to api_event_id and api_event_kind
