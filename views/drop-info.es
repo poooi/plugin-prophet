@@ -19,10 +19,10 @@ const DropInfo = connect((state, props) => {
   const shipMessage = ship != null ?
     __('%s "%s" joined your fleet', i18n.resources.__(shipType.api_name), i18n.resources.__(ship.api_name))
     : ''
-  const itemMessage = item != null ? __('Item "%s:" got! ', i18n.resources.__(item.api_name)) : ''
+  const itemMessage = item != null ? __('Item "%s" got!', i18n.resources.__(item.api_name)) : ''
   return (
     <span className="drop-info">
-      {`${shipMessage} ${itemMessage}`}
+      {[shipMessage, itemMessage].filter(Boolean).join(' | ')}
     </span>
   )
 })

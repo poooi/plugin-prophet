@@ -44,7 +44,7 @@
   "Aerial Recon": "航空侦查",
   "Compass Point": "罗盘指向",
   "Next Spot": "下一点",
-  "Item \"%s:\" got! ": "「%s」入手！",
+  "Item \"%s\" got!": "「%s」入手！",
   "Heavily damaged notification": "开启大破通知",
   "Condition display": "显示疲劳值",
   "Not in sortie": "未出击",
