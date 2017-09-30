@@ -1,6 +1,6 @@
 {
   "name": "poi-plugin-prophet",
-  "version": "6.9.10",
+  "version": "6.9.11",
   "description": "A prophet plugin for Poi",
   "main": "index.es",
   "devDependencies": {
