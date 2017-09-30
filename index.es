@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PropTypes from 'prop-types'
 import { isEqual, isNil, each, map, isEmpty, includes, concat, get } from 'lodash'
 import { join } from 'path'
 import { readJSON } from 'fs-extra'
@@ -579,10 +580,10 @@ const CheckboxLabelConfig = connect(() => {
   })
 })(class checkboxLabelConfig extends Component {
   static propTypes = {
-    label: React.PropTypes.string,
-    configName: React.PropTypes.string,
-    value: React.PropTypes.bool,
-    undecided: React.PropTypes.bool,
+    label: PropTypes.string,
+    configName: PropTypes.string,
+    value: PropTypes.bool,
+    undecided: PropTypes.bool,
   }
   handleChange = () => {
     config.set(this.props.configName, !this.props.value)
