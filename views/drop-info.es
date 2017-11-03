@@ -25,12 +25,15 @@ const DropInfo = connect((state, props) => {
   try {
     // check availability right before rendering
     const { ipc } = window
-    const ipcFn = ipc.access('NavyAlbum').showShip
-    if (typeof ipcFn === 'function') {
-      navyAlbumShowShip = ipcFn
+    const navyAlbumService = ipc.access('NavyAlbum')
+    if (navyAlbumService) {
+      const { showShip } = navyAlbumService
+      if (typeof showShip === 'function') {
+        navyAlbumShowShip = showShip
+      }
     }
   } catch (e) {
-    _.noop()
+    console.error('error while detecting navy album availability', e)
   }
 
   const shipComponent = shipMessage && (
