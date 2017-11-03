@@ -24,12 +24,21 @@ const DropInfo = connect((state, props) => {
   let navyAlbumShowShip = null
   try {
     // check availability right before rendering
-    const { ipc } = window
-    const navyAlbumService = ipc.access('NavyAlbum')
-    if (navyAlbumService) {
-      const { showShip } = navyAlbumService
-      if (typeof showShip === 'function') {
-        navyAlbumShowShip = showShip
+    const { ipc, getStore } = window
+    const navyAlbumAvailable = Boolean(
+      _.get(
+        getStore().plugins.find(p => p.id === 'poi-plugin-navy-album'),
+        'pluginWindow'
+      )
+    )
+
+    if (navyAlbumAvailable) {
+      const navyAlbumService = ipc.access('NavyAlbum')
+      if (navyAlbumService) {
+        const { showShip } = navyAlbumService
+        if (typeof showShip === 'function') {
+          navyAlbumShowShip = showShip
+        }
       }
     }
   } catch (e) {
