@@ -3,7 +3,9 @@ import _ from 'lodash'
 import { Models } from './lib/battle'
 
 const { i18n, APPDATA_PATH } = window
-const { Ship, ShipOwner, Formation, Engagement, AirControl } = Models
+const {
+  Ship, ShipOwner, Formation, Engagement, AirControl,
+} = Models
 
 const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 
@@ -31,7 +33,7 @@ export function getItemName(item) {
 
 export const initEnemy = (
   intl = 0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv) => {
-  if (!(api_ship_ke != null)) return
+  if (!(api_ship_ke != null)) return []
   const fleet = []
   _.range(1, 7).forEach((i) => {
     const id = api_ship_ke[i]
@@ -45,13 +47,13 @@ export const initEnemy = (
         poi_slot: slots.map(slotId => window.getStore(`const.$equips.${slotId}`)),
       }
       ship = new Ship({
-        id: id,
+        id,
         owner: ShipOwner.Enemy,
         pos: intl + i,
         maxHP: api_maxhps[i + 6],
         nowHP: api_nowhps[i + 6],
-        items: [],  // We dont care
-        raw: raw,
+        items: [], // We dont care
+        raw,
       })
     }
     fleet.push(ship)
@@ -97,11 +99,11 @@ export const spotIcon = {
 // update according to https://github.com/andanteyk/ElectronicObserver/blob/1052a7b177a62a5838b23387ff35283618f688dd/ElectronicObserver/Other/Information/apilist.txt
 export const getSpotKind = (api_event_id, api_event_kind) => {
   // console.log(`api_event_id = ${api_event_id}, api_event_kind = ${api_event_kind}`)
-  if (api_event_id == 4) { // 4=通常戦闘
-    if (api_event_kind == 2) return 14 // 2=夜戦
-    if (api_event_kind == 4) return 8 // 4=航空戦
-    if (api_event_kind == 5) return 15 // 5=敵連合艦隊戦
-    if (api_event_kind == 6) return 11 // 6=長距離空襲戦
+  if (api_event_id === 4) { // 4=通常戦闘
+    if (api_event_kind === 2) return 14 // 2=夜戦
+    if (api_event_kind === 4) return 8 // 4=航空戦
+    if (api_event_kind === 5) return 15 // 5=敵連合艦隊戦
+    if (api_event_kind === 6) return 11 // 6=長距離空襲戦
   }
   if (api_event_id === 6) { // 6=気のせいだった
     if (api_event_kind === 1) { // 1="敵影を見ず。"
@@ -125,9 +127,9 @@ export const lostKind = {
 }
 
 export const AttackType = {
-  Normal: 'Normal',             // 通常攻撃
-  Laser: 'Laser',              // レーザー攻撃
-  Double: 'Double',             // 連撃
+  Normal: 'Normal', // 通常攻撃
+  Laser: 'Laser', // レーザー攻撃
+  Double: 'Double', // 連撃
   Primary_Secondary_CI: 'PSCI', // カットイン(主砲/副砲)
   Primary_Radar_CI: 'PRCI', // カットイン(主砲/電探)
   Primary_AP_CI: 'PACI', // カットイン(主砲/徹甲)
@@ -139,24 +141,24 @@ export const AttackType = {
 
 export const getAttackTypeName = (type) => {
   switch (type) {
-  case AttackType.Normal:
-    return __('AT.Normal')
-  case AttackType.Double:
-    return __('AT.Double')
-  case AttackType.Primary_Secondary_CI:
-    return __('AT.Primary_Secondary_CI')
-  case AttackType.Primary_Radar_CI:
-    return __('AT.Primary_Radar_CI')
-  case AttackType.Primary_AP_CI:
-    return __('AT.Primary_AP_CI')
-  case AttackType.Primary_Primary_CI:
-    return __('AT.Primary_Primary_CI')
-  case AttackType.Primary_Torpedo_CI:
-    return __('AT.Primary_Torpedo_CI')
-  case AttackType.Torpedo_Torpedo_CI:
-    return __('AT.Torpedo_Torpedo_CI')
-  default:
-    return `${type}?`
+    case AttackType.Normal:
+      return __('AT.Normal')
+    case AttackType.Double:
+      return __('AT.Double')
+    case AttackType.Primary_Secondary_CI:
+      return __('AT.Primary_Secondary_CI')
+    case AttackType.Primary_Radar_CI:
+      return __('AT.Primary_Radar_CI')
+    case AttackType.Primary_AP_CI:
+      return __('AT.Primary_AP_CI')
+    case AttackType.Primary_Primary_CI:
+      return __('AT.Primary_Primary_CI')
+    case AttackType.Primary_Torpedo_CI:
+      return __('AT.Primary_Torpedo_CI')
+    case AttackType.Torpedo_Torpedo_CI:
+      return __('AT.Torpedo_Torpedo_CI')
+    default:
+      return `${type}?`
   }
 }
 
@@ -254,7 +256,7 @@ export const getTransportPoint = (shipsData, equipsData, escapedShipIds = []) =>
   )
 
   const equipTPs = _.map(equipsData, equipData =>
-    _.sum(_.map(equipData, ([equip, _] = []) => TPByItem[equip.api_slotitem_id] || 0))
+    _.sum(_.map(equipData, ([equip] = []) => TPByItem[equip.api_slotitem_id] || 0))
   )
 
   const shipTP = _.sum(shipTPs)

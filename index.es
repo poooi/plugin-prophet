@@ -1,27 +1,31 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { isEqual, isNil, each, map, isEmpty, includes, concat, get } from 'lodash'
+import PropTypes, { number } from 'prop-types'
+import { isEqual, isNil, each, map, isEmpty, includes, concat } from 'lodash'
 import { join } from 'path'
 import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
-import { Row, Col, Grid, Checkbox } from 'react-bootstrap'
 import { observe } from 'redux-observers'
 import { promisify } from 'bluebird'
 
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
 import { store } from 'views/create-store'
 
+import CheckboxLabelConfig from './checkbox-label-config'
 import BattleViewArea from './views/battle-view-area'
 import { PLUGIN_KEY, HISTORY_PATH, initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
 import { reducer as _reducer, onBattleResult, onGetPracticeInfo, onLoadHistory, prophetObserver } from './redux'
 
 
-const { Ship, ShipOwner, StageType, Battle, BattleType, Fleet,
-  FormationMap, EngagementMap, AirControlMap } = Models
+const {
+  Ship, ShipOwner, StageType, Battle, BattleType, Fleet,
+  FormationMap, EngagementMap, AirControlMap,
+} = Models
 
 
-const { i18n, ROOT, getStore, dispatch } = window
+const {
+  i18n, ROOT, getStore, dispatch,
+} = window
 // const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
 const __ = i18n[PLUGIN_KEY].__.bind(i18n[PLUGIN_KEY])
@@ -45,7 +49,9 @@ const updateByStageHp = (fleet, nowhps) => {
 // extracts necessary information
 // infomation: mvp, formation, aerial, hp (day and night)
 const synthesizeInfo = (_simulator, result, packets) => {
-  let { mainFleet, escortFleet, enemyFleet, enemyEscort } = { ..._simulator }
+  let {
+    mainFleet, escortFleet, enemyFleet, enemyEscort,
+  } = { ..._simulator }
   const { stages } = { ..._simulator }
   let airForce = [0, 0, 0, 0] // [fPlaneInit, fLost, ePlaneInit, eLost]
   let airControl = ''
@@ -66,7 +72,7 @@ const synthesizeInfo = (_simulator, result, packets) => {
     if (isNil(stage)) return
     const { engagement, aerial, type } = (stage || {})
 
-    if (engagement && type == StageType.Engagement) {
+    if (engagement && type === StageType.Engagement) {
       // There might be multiple engagements (day and night)
       // fortunately the formation is the same for now
       battleForm = (engagement || {}).engagement || ''
@@ -74,9 +80,11 @@ const synthesizeInfo = (_simulator, result, packets) => {
       fFormation = (engagement || {}).fFormation || ''
     }
 
-    if (aerial && type == StageType.Aerial) {
+    if (aerial && type === StageType.Aerial) {
       // There might be multiple aerial stages, e.g. jet assult, 1-6 air battle
-      const { fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control } = aerial
+      const {
+        fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control,
+      } = aerial
       // [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
       fResidule = fPlaneNow
       eResidule = ePlaneNow
@@ -138,7 +146,9 @@ const getAirForceStatus = (stages = []) => {
   let t_api_e_lostcount = 0
   stages.forEach((stage) => {
     if (stage) {
-      const { api_f_count, api_f_lostcount, api_e_count, api_e_lostcount } = stage
+      const {
+        api_f_count, api_f_lostcount, api_e_count, api_e_lostcount,
+      } = stage
       t_api_f_count = Math.max(t_api_f_count, api_f_count || 0)
       t_api_f_lostcount += api_f_lostcount || 0
       t_api_e_count = Math.max(t_api_e_count, api_e_count || 0)
@@ -179,15 +189,6 @@ export const reactClass = connect(
     }
   }
 )(class Prophet extends Component {
-  constructor(props) {
-    super(props)
-    const [mainFleet, escortFleet] = this.transformToLibBattleClass(props.fleets, props.equips)
-    this.state = {
-      ...this.constructor.initState,
-      mainFleet,
-      escortFleet,
-    }
-  }
   static initState = {
     mainFleet: [], // An array of fleet
     escortFleet: [],
@@ -204,6 +205,48 @@ export const reactClass = connect(
     eFormation: '', // enemy formation, api_formation[1]
     fFormation: '',
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
+  }
+
+  static propTypes = {
+    sortie: PropTypes.shape({
+      combinedFlag: PropTypes.number,
+      escapedPos: PropTypes.arrayOf(number),
+      sortieMapId: PropTypes.string,
+      currentNode: PropTypes.number,
+    }),
+    fleets: PropTypes.arrayOf(PropTypes.array),
+    equips: PropTypes.arrayOf(PropTypes.array),
+    airbase: PropTypes.arrayOf(PropTypes.object),
+  }
+
+  constructor(props) {
+    super(props)
+    const [mainFleet, escortFleet] = this.transformToLibBattleClass(props.fleets, props.equips)
+    this.state = {
+      ...this.constructor.initState,
+      mainFleet,
+      escortFleet,
+    }
+  }
+
+  async componentDidMount() {
+    // initialize repsonse listener
+    window.addEventListener('game.response', this.handleGameResponse)
+
+    // read history file
+    try {
+      const history = await promisify(readJSON)(HISTORY_PATH)
+      dispatch(onLoadHistory({
+        history,
+      }))
+    } catch (e) {
+      console.warn(e.stack)
+    }
+
+    this.unsubscribeObserver = observe(store, [prophetObserver])
+
+    // for debug (ugly)
+    if (window.dbg.isEnabled()) window.prophetTest = e => this.setState(this.handlePacket(e))
   }
 
   componentWillReceiveProps(nextProps) {
@@ -230,26 +273,6 @@ export const reactClass = connect(
     if (fleetUpdate || combinedFlagUpdate) {
       this.setState(newState)
     }
-  }
-
-  async componentDidMount() {
-    // initialize repsonse listener
-    window.addEventListener('game.response', this.handleGameResponse)
-
-    // read history file
-    try {
-      const history = await promisify(readJSON)(HISTORY_PATH)
-      dispatch(onLoadHistory({
-        history,
-      }))
-    } catch (e) {
-      console.warn(e.stack)
-    }
-
-    this.unsubscribeObserver = observe(store, [prophetObserver])
-
-    // for debug (ugly)
-    if (window.dbg.isEnabled()) window.prophetTest = e => this.setState(this.handlePacket(e))
   }
 
   componentWillUnmount() {
@@ -308,11 +331,11 @@ export const reactClass = connect(
     ).concat([undefined, undefined]).slice(0, 2)
 
   handlePacket = (e) => {
-    const sortieState = e.type == (BattleType.Practice || BattleType.Pratice) ? 3 : 2
+    const sortieState = e.type === (BattleType.Practice || BattleType.Pratice) ? 3 : 2
     // console.log(e)
     const simulator = new Simulator(e.fleet, { usePoiAPI: true })
     map(e.packet, packet => simulator.simulate(packet))
-    const result = simulator.result
+    const { result } = simulator
 
     // Attention, aynthesizeStage will break object prototype, put it to last
     const newState = synthesizeInfo(simulator, result, e.packet)
@@ -336,7 +359,7 @@ export const reactClass = connect(
       if (ship == null) return
       if ((ship.nowHP / ship.maxHP <= 0.25)
         && !includes(escapedPos, ship.pos - 1)
-        && this.state.sortieState != 3) {
+        && this.state.sortieState !== 3) {
         const shipName = getStore(`const.$ships.${ship.raw.api_ship_id}.api_name`, ' ')
         damageList.push(i18n.resources.__(shipName))
       }
@@ -360,7 +383,7 @@ export const reactClass = connect(
     const {
       mainFleet,
       escortFleet,
-    } = { ...this.state }
+    } = this.state
 
     let {
       enemyFleet,
@@ -374,107 +397,108 @@ export const reactClass = connect(
       result,
       battleForm,
       eFormation,
-    } = { ...this.state }
+    } = this.state
     isBaseDefense = false
     switch (path) {
-    case '/kcsapi/api_port/port':
-      this.battle = null
-      enemyFleet = this.constructor.initState.enemyFleet
-      enemyEscort = this.constructor.initState.enemyEscort
-      sortieState = this.constructor.initState.sortieState
-      spotKind = this.constructor.initState.spotKind
-      result = this.constructor.initState.result
-      break
-    case '/kcsapi/api_req_map/start':
-    case '/kcsapi/api_req_map/next': {
-      const { api_event_kind, api_event_id, api_destruction_battle } = body
-      sortieState = 1
-      spotKind = spotInfo[getSpotKind(api_event_id, api_event_kind)] || ''
-      enemyFleet = []
-      enemyEscort = []
-      landBase = []
-      // land base air raid
-      if (api_destruction_battle != null) {
+      case '/kcsapi/api_port/port':
+        this.battle = null;
+        ({
+          enemyFleet, enemyEscort, sortieState, spotKind, result,
+        } = this.constructor.initState)
+        break
+      case '/kcsapi/api_req_map/start':
+      case '/kcsapi/api_req_map/next': {
+        const { api_event_kind, api_event_id, api_destruction_battle } = body
+        sortieState = 1
+        spotKind = spotInfo[getSpotKind(api_event_id, api_event_kind)] || ''
+        enemyFleet = []
+        enemyEscort = []
+        landBase = []
+        // land base air raid
+        if (api_destruction_battle != null) {
         // construct virtual fleet to reprsent the base attack
-        const { sortie, airbase } = this.props
-        const mapArea = Math.floor((sortie.sortieMapId || 0) / 10)
-        const { api_air_base_attack, api_maxhps, api_nowhps } = api_destruction_battle
-        each(airbase, (squad) => {
-          if (squad.api_area_id != mapArea) return
-          landBase.push(new Ship({
-            id: -1,
-            owner: ShipOwner.Ours,
-            pos: squad.api_rid,
-            maxHP: api_maxhps[squad.api_rid] || 200,
-            nowHP: api_nowhps[squad.api_rid] || 0,
-            items: map(squad.api_plane_info, plane => plane.api_slotid),
-            raw: squad,
-          }))
-        })
-        // construct enemy
-        const { api_ship_ke,
-          api_eSlot,
-          api_ship_lv,
-          api_lost_kind,
-          api_formation } = api_destruction_battle
-        enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
-        // simulation
-        battleForm = EngagementMap[(api_formation || {})[2]] || ''
-        eFormation = FormationMap[(api_formation || {})[1]] || ''
-
-        const { api_stage1, api_stage2, api_stage3 } = api_air_base_attack
-        airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
-        airControl = AirControlMap[(api_stage1 || {}).api_disp_seiku] || ''
-        if (!isNil(api_stage3)) {
-          const { api_fdam } = api_stage3
-          landBase = map(landBase, (squad, index) => {
-            const lostHP = api_fdam[index + 1] || 0
-            const nowHP = squad.nowHP - lostHP
-            return {
-              ...squad,
-              lostHP,
-              nowHP,
-            }
+          const { sortie, airbase } = this.props
+          const mapArea = Math.floor((sortie.sortieMapId || 0) / 10)
+          const { api_air_base_attack, api_maxhps, api_nowhps } = api_destruction_battle
+          each(airbase, (squad) => {
+            if (squad.api_area_id !== mapArea) return
+            landBase.push(new Ship({
+              id: -1,
+              owner: ShipOwner.Ours,
+              pos: squad.api_rid,
+              maxHP: api_maxhps[squad.api_rid] || 200,
+              nowHP: api_nowhps[squad.api_rid] || 0,
+              items: map(squad.api_plane_info, plane => plane.api_slotid),
+              raw: squad,
+            }))
           })
-        } else {
-          landBase = map(landBase, (squad, index) => {
-            return {
+          // construct enemy
+          const {
+            api_ship_ke,
+            api_eSlot,
+            api_ship_lv,
+            api_lost_kind,
+            api_formation,
+          } = api_destruction_battle
+          enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
+          // simulation
+          battleForm = EngagementMap[(api_formation || {})[2]] || ''
+          eFormation = FormationMap[(api_formation || {})[1]] || ''
+
+          const { api_stage1, api_stage2, api_stage3 } = api_air_base_attack
+          airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
+          airControl = AirControlMap[(api_stage1 || {}).api_disp_seiku] || ''
+          if (!isNil(api_stage3)) {
+            const { api_fdam } = api_stage3
+            landBase = map(landBase, (squad, index) => {
+              const lostHP = api_fdam[index + 1] || 0
+              const nowHP = squad.nowHP - lostHP
+              return {
+                ...squad,
+                lostHP,
+                nowHP,
+              }
+            })
+          } else {
+            landBase = map(landBase, squad => ({
               ...squad,
               lostHP: 0,
-            }
-          })
+            }))
+          }
+          result = { rank: __(lostKind[api_lost_kind] || '') }
+          isBaseDefense = true
         }
-        result = { rank: __(lostKind[api_lost_kind] || '') }
-        isBaseDefense = true
+        const isBoss = (body.api_event_id === 5)
+        this.battle = new Battle({
+          type: isBoss ? BattleType.Boss : BattleType.Normal,
+          map: [],
+          desc: null,
+          time: null, // Assign later
+          fleet: null, // Assign later
+          packet: [],
+        })
+        break
       }
-      const isBoss = (body.api_event_id === 5)
-      this.battle = new Battle({
-        type: isBoss ? BattleType.Boss : BattleType.Normal,
-        map: [],
-        desc: null,
-        time: null,  // Assign later
-        fleet: null,  // Assign later
-        packet: [],
-      })
-      break
-    }
-    case '/kcsapi/api_req_member/get_practice_enemyinfo': {
-      const { api_deckname } = body
-      dispatch(onGetPracticeInfo({
-        title: api_deckname,
-      }))
-      break
-    }
-    case '/kcsapi/api_req_practice/battle': {
-      this.battle = new Battle({
-        type: BattleType.Practice,
-        map: [],
-        desc: null,
-        time: null,  // Assign later
-        fleet: null,  // Assign later
-        packet: [],
-      })
-    }
+      case '/kcsapi/api_req_member/get_practice_enemyinfo': {
+        const { api_deckname } = body
+        dispatch(onGetPracticeInfo({
+          title: api_deckname,
+        }))
+        break
+      }
+      case '/kcsapi/api_req_practice/battle': {
+        this.battle = new Battle({
+          type: BattleType.Practice,
+          map: [],
+          desc: null,
+          time: null, // Assign later
+          fleet: null, // Assign later
+          packet: [],
+        })
+        break
+      }
+      default:
+        /* do nothing */
     }
     let newState = {}
     if (this.battle &&
@@ -501,7 +525,7 @@ export const reactClass = connect(
         const title = (packet.api_enemy_info || {}).api_deck_name
         const { sortieMapId, currentNode } = this.props.sortie
         const spot = `${sortieMapId}-${currentNode}`
-        const fFormation = this.state.fFormation
+        const { fFormation } = this.state
         dispatch(onBattleResult({
           spot,
           title,
@@ -571,45 +595,7 @@ export const reactClass = connect(
   }
 })
 
-const CheckboxLabelConfig = connect(() => {
-  return (state, props) => ({
-    value: get(state.config, props.configName, props.defaultVal),
-    configName: props.configName,
-    undecided: props.undecided,
-    label: props.label,
-  })
-})(class checkboxLabelConfig extends Component {
-  static propTypes = {
-    label: PropTypes.string,
-    configName: PropTypes.string,
-    value: PropTypes.bool,
-    undecided: PropTypes.bool,
-  }
-  handleChange = () => {
-    config.set(this.props.configName, !this.props.value)
-  }
-  render() {
-    return (
-      <Row className={this.props.undecided ? 'undecided-checkbox-inside' : ''} >
-        <Col xs={12} >
-          <Grid>
-            <Col xs={12} >
-              <Checkbox
-                disabled={this.props.undecided}
-                checked={this.props.undecided ? false : this.props.value}
-                onChange={this.props.undecided ? null : this.handleChange}
-              >
-                {this.props.label}
-              </Checkbox>
-            </Col>
-          </Grid>
-        </Col>
-      </Row>
-    )
-  }
-})
-
-export const settingsClass = () =>
+export const settingsClass = () => (
   <div>
     <CheckboxLabelConfig
       label={__('Show scales on HP bar')}
@@ -642,7 +628,7 @@ export const settingsClass = () =>
       defaultVal
     />
   </div>
-
+)
 
 export const reducer = _reducer
 

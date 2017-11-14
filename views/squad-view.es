@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { HPBar } from './bar'
 
 
@@ -48,6 +49,15 @@ const SquadView = ({ ship, compact }) => {
       </div>
     </div>
   )
+}
+
+SquadView.propTypes = {
+  ship: PropTypes.shape({
+    pos: PropTypes.number,
+    raw: PropTypes.object,
+    id: PropTypes.number,
+  }),
+  compact: PropTypes.bool,
 }
 
 export default SquadView

@@ -1,6 +1,7 @@
+import React from 'react'
+import PropTypes from 'prop-types'
 import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import { MaterialIcon, SlotitemIcon } from 'views/components/etc/icon'
-import React from 'react'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { ProgressBar } from 'react-bootstrap'
@@ -21,10 +22,18 @@ export const FABar = ({ max, now, icon }) => {
   )
 }
 
+FABar.propTypes = {
+  max: PropTypes.number,
+  now: PropTypes.number,
+  icon: PropTypes.number,
+}
+
 export const HPBar = connect((state, props) => ({
   showScale: get(state, 'config.plugin.prophet.showScale', true),
   $equip: get(state, `const.$equips.${props.item}`),
-}))(({ max, from, to, damage, stage, item, cond, $equip, showScale }) => {
+}))(({
+  max, from, to, damage, stage, item, cond, $equip, showScale,
+}) => {
   const _from = Math.min(Math.max(0, from), max)
   const _to = Math.min(Math.max(0, to), max)
   const _stage = stage == null ? _from : stage
@@ -41,7 +50,7 @@ export const HPBar = connect((state, props) => ({
       <span className="item-icon" key={itemIcon}>
         <SlotitemIcon slotitemId={itemIcon} className="prophet-icon" />
       </span>
-      )
+    )
   }
 
   const labels = []
@@ -52,7 +61,7 @@ export const HPBar = connect((state, props) => ({
       labels.push(addition)
       labels.push(<span key={i}>, </span>)
     })
-    labels.pop()  // Remove last comma
+    labels.pop() // Remove last comma
     labels.push(<span key={-3}>{')'}</span>)
   }
 
@@ -64,11 +73,12 @@ export const HPBar = connect((state, props) => ({
             {labels}
           </span>
           {
-            typeof cond !== 'undefined' ? <div className="status-cond">
-              <span className={`ship-cond ${getCondStyle(cond)}`}>
-                ★{cond}
-              </span>
-            </div> : <noscript />
+            typeof cond !== 'undefined' ?
+              <div className="status-cond">
+                <span className={`ship-cond ${getCondStyle(cond)}`}>
+                  ★{cond}
+                </span>
+              </div> : <noscript />
           }
         </div>
         <span className="hp-progress top-space">
@@ -84,15 +94,16 @@ export const HPBar = connect((state, props) => ({
             />
           </ProgressBar>
           {
-            [1, 2, 3].map(i =>
+            [1, 2, 3].map(i => (
               <div
-                className="hp-indicatior" key={i}
+                className="hp-indicatior"
+                key={i}
                 style={{
                   left: `-${25 * i}%`,
                   opacity: ((now + lost) > (100 - (25 * i))) && showScale ? 0.75 : 0,
                 }}
               />
-            )
+            ))
           }
         </span>
       </div>

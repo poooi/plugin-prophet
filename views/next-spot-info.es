@@ -1,4 +1,5 @@
 import React from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { resolve } from 'path'
@@ -11,7 +12,7 @@ import { PLUGIN_KEY, _t, spotIcon } from '../utils'
 const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
 
 const getCompassAngle = (mapspots, maproutes, currentNode) => {
-  if (currentNode == -1) return NaN
+  if (currentNode === -1) return NaN
   if (!mapspots || !Object.keys(mapspots).length) return NaN
   if (!maproutes || !Object.keys(maproutes).length) return NaN
 
@@ -28,8 +29,12 @@ const SpotIcon = ({ spotKind }) => {
   }
   const iconPath = resolve(__dirname, `../assets/icons/spot/${spotIcon[spotKind]}.svg`)
   return (
-    <span className="param-icon"><img src={iconPath} className="svg prophet-icon spot-icon" /></span>
+    <span className="param-icon"><img src={iconPath} className="svg prophet-icon spot-icon" alt="spot" /></span>
   )
+}
+
+SpotIcon.propTypes = {
+  spotKind: PropTypes.string,
 }
 
 
@@ -42,14 +47,16 @@ const NextSpotInfo = connect(
 
     return {
       currentNode: currentNode || -1,
-      sortieMapId: parseInt(sortieMapId || 0),
+      sortieMapId: parseInt(sortieMapId || 0, 10),
       allMaps: get(state, 'fcd.map', {}),
       spotKind: props.spotKind || '?',
       lastFormation: showLastFormation && get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
       item,
     }
   }
-)(({ currentNode, sortieMapId, allMaps, spotKind, lastFormation, item }) => {
+)(({
+  currentNode, sortieMapId, allMaps, spotKind, lastFormation, item,
+}) => {
   const mapspots = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.spots`, {})
   const maproutes = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.route`, {})
   const compassAngle = getCompassAngle(mapspots, maproutes, currentNode)
@@ -59,7 +66,7 @@ const NextSpotInfo = connect(
   const resources = []
   if (item && Object.keys(item).length > 0) {
     Object.keys(item).forEach((itemKey) => {
-      resources.push(<span key={`${itemKey}-icon`}><MaterialIcon materialId={parseInt(itemKey)} className="material-icon svg prophet-icon" /></span>)
+      resources.push(<span key={`${itemKey}-icon`}><MaterialIcon materialId={parseInt(itemKey, 10)} className="material-icon svg prophet-icon" /></span>)
       resources.push(<span key={`${itemKey}-text`}>{item[itemKey] >= 0 ? `+${item[itemKey]}` : item[itemKey]}</span>)
     })
   }
@@ -73,7 +80,9 @@ const NextSpotInfo = connect(
         <span className="svg" id="prophet-compass">
           <img
             src={resolve(__dirname, `../assets/icons/compass-arrow-${window.isDarkTheme ? 'dark' : 'light'}.svg`)}
-            style={{ transform: `rotate(${compassAngle - 135}deg)` }} className="svg prophet-icon compass-icon"
+            style={{ transform: `rotate(${compassAngle - 135}deg)` }}
+            className="svg prophet-icon compass-icon"
+            alt="compass"
           />
         </span>
         }

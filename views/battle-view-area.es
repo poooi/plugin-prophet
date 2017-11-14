@@ -40,7 +40,7 @@ const normalizedFleetShipsEquipDataSelectorFactory = _.memoize(fleetId =>
     fleetShipsEquipDataSelectorFactory(fleetId),
   ], (equipsData = []) =>
     equipsData.map(equipData =>
-      equipData.filter(([_equip, $equip, onslot] = []) => !!_equip && !!$equip)
+      equipData.filter(([_equip, $equip] = []) => !!_equip && !!$equip)
         .map(([_equip, $equip, onslot]) => ([{ ...$equip, ..._equip }, onslot]))
     )
   )
@@ -84,10 +84,12 @@ const fleetTPSelectorFactory = _.memoize(fleetId =>
 const BattleViewArea = connect(
   (state, props) => {
     const sortie = state.sortie || {}
-    const { sortieMapId, currentNode, combinedFlag, sortieStatus } = sortie
+    const {
+      sortieMapId, currentNode, combinedFlag, sortieStatus,
+    } = sortie
     const showEnemyTitle = _.get(state, 'config.plugin.prophet.showEnemyTitle', true)
-    const spot = props.sortieState == 3 ? 'practice' : `${sortieMapId}-${currentNode}`
-    let enemyTitle = props.sortieState == 3 ? 'PvP' : 'Enemy Vessel'
+    const spot = props.sortieState === 3 ? 'practice' : `${sortieMapId}-${currentNode}`
+    let enemyTitle = props.sortieState === 3 ? 'PvP' : 'Enemy Vessel'
     enemyTitle = showEnemyTitle
       ? _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle)
       : enemyTitle
@@ -151,9 +153,9 @@ const BattleViewArea = connect(
   enemyTitle,
   friendTitle,
   TP,
-  }) => {
+}) => {
   const View = isBaseDefense ? SquadView : ShipView
-  const times = layout == 'horizontal' ? 1 : 2
+  const times = layout === 'horizontal' ? 1 : 2
   const useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
   // adapt the view according to layout by setting FleetView's div xs = 12/count
   // this can support 12v6, 6v12 and 12v12
@@ -162,16 +164,18 @@ const BattleViewArea = connect(
   const fleetWidth = escortFleet && !isBaseDefense ? 2 : 1
   const enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
   const { getShip, getItem } = _.pick(result, ['getShip', 'getItem'])
-  const alliedForce =
-    (<div className="div-row">
+  const alliedForce = (
+    <div className="div-row">
       <FleetView fleet={isBaseDefense ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View} />
       <FleetView fleet={isBaseDefense ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View} />
-    </div>)
-  const enemyForce = sortieState > 1 || isBaseDefense ?
-    (<div className="div-row" style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
+    </div>
+  )
+  const enemyForce = sortieState > 1 || isBaseDefense ? (
+    <div className="div-row" style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
       <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount} />
       <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount} />
-    </div>) : <noscript />
+    </div>
+  ) : <noscript />
   const combatInfo = (TP.total > 0 || sortieState > 1 || isBaseDefense) && (
     <div className="alert div-row prophet-info">
       <div className="combat-title" title={__(friendTitle)}>
@@ -192,7 +196,7 @@ const BattleViewArea = connect(
               <span>
                 <FontAwesome name="database" style={{ marginRight: '1ex' }} />
                 [
-                { TP.total != TP.actual && <span>{`${TP.actual} / `}</span> }
+                { TP.total !== TP.actual && <span>{`${TP.actual} / `}</span> }
                 <span>{TP.total}</span>
                 ]
               </span>
@@ -210,16 +214,17 @@ const BattleViewArea = connect(
       <div className="combat-vs" style={{ opacity: (sortieState > 1 || isBaseDefense) ? 1 : 0 }}>vs</div>
       {
         (sortieState > 1 || isBaseDefense)
-          ? <div className="combat-title" title={__(enemyTitle)}>
-            {
-              airForce[2] ?
-                <span>
-                  <FontAwesome name="plane" />
-                  {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
-                </span> : ''
-            }
-            {` ${__(enemyTitle)}`}
-          </div>
+          ?
+            <div className="combat-title" title={__(enemyTitle)}>
+              {
+                airForce[2] ?
+                  <span>
+                    <FontAwesome name="plane" />
+                    {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
+                  </span> : ''
+              }
+              {` ${__(enemyTitle)}`}
+            </div>
           : <div className="combat-title" />
       }
     </div>
@@ -233,8 +238,8 @@ const BattleViewArea = connect(
         airControl={airControl}
       />
     )
-  const mapInfo =
-    (<div className="alert prophet-info">
+  const mapInfo = (
+    <div className="alert prophet-info">
       {
         sortieState === 1 && !isBaseDefense ?
           <NextSpotInfo spotKind={spotKind} />
@@ -252,7 +257,8 @@ const BattleViewArea = connect(
           battleInfo
         : <noscript />
       }
-    </div>)
+    </div>
+  )
   return (
     <div id="overview-area">
       {useVerticalLayout ? combatInfo : null}

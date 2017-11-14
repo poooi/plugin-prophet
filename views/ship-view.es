@@ -1,30 +1,34 @@
-import FontAwesome from 'react-fontawesome'
 import React from 'react'
+import PropTypes from 'prop-types'
+import FontAwesome from 'react-fontawesome'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import { getCondStyle } from 'views/utils/game-utils'
 import { resolve } from 'path'
-import { SlotitemIcon } from 'views/components/etc/icon'
 
 import ItemView from './item-view'
 import { getShipName } from '../utils'
 import { FABar, HPBar } from './bar'
 
 
-const { i18n } = window
+// const { i18n } = window
 // const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const ParamIcon = ({ name = '' }) => {
   const iconPath = resolve(__dirname, `../assets/icons/${name}.svg`)
-  return <span className="param-icon"><img src={iconPath} className="svg prophet-icon" /></span>
+  return <span className="param-icon"><img src={iconPath} className="svg prophet-icon" alt={name} /></span>
+}
+
+ParamIcon.propTypes = {
+  name: PropTypes.string,
 }
 
 const placements = {
   0: 'left', // horizontal, normal 00
   1: 'right', // horizontal, reversed 01
   2: 'top', // vertical, normal 10
-  3: 'bottom', //vertical reversed 11
+  3: 'bottom', // vertical reversed 11
 }
 
 // fParam: [0]=火力, [1]=雷装, [2]=対空, [3]=装甲
@@ -42,11 +46,13 @@ const ShipView = connect(
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
     }
   }
-)(({ ship, $ship, escapedPos, layout, reverseLayout, useFinalParam }) => {
+)(({
+  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam,
+}) => {
   if (!(ship && ship.id > 0)) {
     return <div />
   }
-  const isEscaped = _.includes(escapedPos, ship.pos - 1) && ship.owner == 'Ours'
+  const isEscaped = _.includes(escapedPos, ship.pos - 1) && ship.owner === 'Ours'
   const raw = ship.raw || {}
   const data = {
     ...$ship,
@@ -62,11 +68,11 @@ const ShipView = connect(
 
   const param = (useFinalParam ? ship.finalParam : ship.baseParam) || []
 
-  const tooltip =
-    (<Tooltip id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
+  const tooltip = (
+    <Tooltip id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
       <div className="prophet-tip">
         <div className="ship-essential">
-          <span className="position-indicator">{ship.owner == 'Ours' ? '' : `ID ${ship.id}`}</span>
+          <span className="position-indicator">{ship.owner === 'Ours' ? '' : `ID ${ship.id}`}</span>
           <span>Lv. {data.api_lv || '-'}</span>
 
           <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
@@ -75,7 +81,7 @@ const ShipView = connect(
         <div className="ship-parameter">
           {
             paramNames.map((name, idx) =>
-              (typeof param[idx] != 'undefined') &&
+              (typeof param[idx] !== 'undefined') &&
               <span key={name}>
                 <ParamIcon name={name} />
                 {param[idx]}
@@ -90,15 +96,19 @@ const ShipView = connect(
           (data.poi_slot || []).map((item, i) =>
             item &&
             <ItemView
-              key={i} item={item} extra={false}
-              warn={data.api_onslot[i] != data.api_maxeq[i]}
+              // eslint-disable-next-line
+              key={i}
+              item={item}
+              extra={false}
+              warn={data.api_onslot[i] !== data.api_maxeq[i]}
             />
           )
         }
 
-        <ItemView item={data.poi_slot_ex} extra label={'+'} warn={false} />
+        <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
       </div>
-    </Tooltip>)
+    </Tooltip>
+  )
 
   return (
     <div className={`div-row ship-item ${isEscaped ? 'escaped' : ''}`}>

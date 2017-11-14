@@ -14,7 +14,9 @@ const { ROOT } = window
 // so for enemy item, its $item will always be undefined
 const ItemView = connect((state, props) => ({
   $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
-}))(({ item, extra, label, warn, $item }) => {
+}))(({
+  item, extra, label, warn, $item,
+}) => {
   if (!item) {
     return <div />
   }
@@ -43,6 +45,7 @@ const ItemView = connect((state, props) => ({
             <img
               className="alv-img prophet-icon"
               src={join(ROOT, 'assets', 'img', 'airplane', `alv${data.api_alv}.png`)}
+              alt="alv"
             />
           }
         </span>
