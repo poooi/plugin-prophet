@@ -30,7 +30,9 @@ export default class FileWriter {
       return
     }
     this.writing = true
-    await Promise.each(this._queue, async ([path, data, options, callback]) => {
+    const queue = this._queue.slice()
+    this._queue = []
+    await Promise.each(queue, async ([path, data, options, callback]) => {
       await ensureDir(dirname(path))
       const err = await writeJSON(path, data, options)
       if (callback) {
