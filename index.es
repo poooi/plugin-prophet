@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes, { number } from 'prop-types'
-import { isEqual, isNil, each, map, isEmpty, includes, concat } from 'lodash'
+import { isEqual, isNil, each, map, isEmpty, includes, concat, get } from 'lodash'
 import { join } from 'path'
 import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
@@ -31,20 +31,16 @@ const {
 const __ = i18n[PLUGIN_KEY].__.bind(i18n[PLUGIN_KEY])
 
 const updateByStageHp = (fleet, nowhps) => {
-  if (!fleet || !nowhps) return fleet
-  return fleet.map((ship) => {
-    while (nowhps[0] && nowhps[0] === -1) {
-      nowhps.shift()
-    }
-    if (ship) {
-      return {
-        ...ship,
-        stageHP: nowhps.shift(),
-      }
-    }
-    return ship
-  })
+  if (!fleet || !nowhps) {
+    return fleet
+  }
+  return fleet.map((ship = {}, i) => ({
+    ...ship,
+    stageHP: nowhps[i],
+  }))
 }
+
+const updateIfExist = (obj, key, prev) => get(obj, key, prev)
 
 // extracts necessary information
 // infomation: mvp, formation, aerial, hp (day and night)
@@ -102,28 +98,22 @@ const synthesizeInfo = (_simulator, result, packets) => {
     eLost,
   ]
 
-  let api_nowhps
-  let api_nowhps_combined
+  let api_f_nowhps
+  let api_e_nowhps
+  let api_f_nowhps_combined
+  let api_e_nowhps_combined
   each(packets, (packet) => {
-    if (packet) {
-      if (packet.api_nowhps) {
-        api_nowhps = packet.api_nowhps.slice()
-      }
-      if (packet.api_nowhps_combined) {
-        api_nowhps_combined = packet.api_nowhps_combined.slice()
-      }
-    }
+    api_f_nowhps = updateIfExist(packet, 'api_f_nowhps', api_f_nowhps)
+    api_e_nowhps = updateIfExist(packet, 'api_e_nowhps', api_e_nowhps)
+    api_f_nowhps_combined = updateIfExist(packet, 'api_f_nowhps_combined', api_f_nowhps_combined)
+    api_e_nowhps_combined = updateIfExist(packet, 'api_e_nowhps_combined', api_e_nowhps_combined)
   })
 
-  if (api_nowhps) {
-    mainFleet = updateByStageHp(mainFleet, api_nowhps)
-    enemyFleet = updateByStageHp(enemyFleet, api_nowhps)
-  }
+  mainFleet = updateByStageHp(mainFleet, api_f_nowhps)
+  enemyFleet = updateByStageHp(enemyFleet, api_e_nowhps)
 
-  if (api_nowhps_combined) {
-    escortFleet = updateByStageHp(escortFleet, api_nowhps_combined)
-    enemyEscort = updateByStageHp(enemyEscort, api_nowhps_combined)
-  }
+  escortFleet = updateByStageHp(escortFleet, api_f_nowhps_combined)
+  enemyEscort = updateByStageHp(enemyEscort, api_e_nowhps_combined)
 
   return {
     mainFleet,
