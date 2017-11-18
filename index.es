@@ -409,15 +409,21 @@ export const reactClass = connect(
         // construct virtual fleet to reprsent the base attack
           const { sortie, airbase } = this.props
           const mapArea = Math.floor((sortie.sortieMapId || 0) / 10)
-          const { api_air_base_attack, api_maxhps, api_nowhps } = api_destruction_battle
+          const {
+            api_air_base_attack,
+            api_f_maxhps,
+            api_f_nowhps,
+            api_e_maxhps,
+            api_e_nowhps,
+          } = api_destruction_battle
           each(airbase, (squad) => {
             if (squad.api_area_id !== mapArea) return
             landBase.push(new Ship({
               id: -1,
               owner: ShipOwner.Ours,
               pos: squad.api_rid,
-              maxHP: api_maxhps[squad.api_rid] || 200,
-              nowHP: api_nowhps[squad.api_rid] || 0,
+              maxHP: api_f_maxhps[squad.api_rid - 1] || 200,
+              nowHP: api_f_nowhps[squad.api_rid - 1] || 0,
               items: map(squad.api_plane_info, plane => plane.api_slotid),
               raw: squad,
             }))
@@ -430,7 +436,7 @@ export const reactClass = connect(
             api_lost_kind,
             api_formation,
           } = api_destruction_battle
-          enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv)
+          enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_e_maxhps, api_e_nowhps, api_ship_lv)
           // simulation
           battleForm = EngagementMap[(api_formation || {})[2]] || ''
           eFormation = FormationMap[(api_formation || {})[1]] || ''
@@ -441,7 +447,7 @@ export const reactClass = connect(
           if (!isNil(api_stage3)) {
             const { api_fdam } = api_stage3
             landBase = map(landBase, (squad, index) => {
-              const lostHP = api_fdam[index + 1] || 0
+              const lostHP = api_fdam[index] || 0
               const nowHP = squad.nowHP - lostHP
               return {
                 ...squad,
