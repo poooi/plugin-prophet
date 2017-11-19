@@ -271,3 +271,31 @@ export const getTransportPoint = (shipsData, equipsData, escapedShipIds = []) =>
     actual: shipActualTP + equipActualTP,
   }
 }
+
+// ships: [ship (dazzy ding format) for ship in fleet]
+export const getTPDazzyDing = (ships, escapedShipIds = []) => {
+  const ignores = _.map(ships, ({ raw = {} } = {}) =>
+    escapedShipIds.includes(raw.api_id) || raw.api_nowhp * 4 <= raw.api_maxhp
+  )
+
+  const shipTPs = _.map(ships, ({ raw = {} } = {}) =>
+    (TPByShipType[raw.api_stype] || 0) + (TPByShip[raw.api_ship_id] || 0)
+  )
+
+  const equipTPs = _.flatMap(ships, ({ raw: { poi_slot = [], poi_slot_ex } = {} } = {}) =>
+    _.sum(_.map(poi_slot.concat(poi_slot_ex), equip =>
+      TPByItem[(equip || {}).api_slotitem_id] || 0
+    ))
+  )
+
+  const shipTP = _.sum(shipTPs)
+  const equipTP = _.sum(equipTPs)
+
+  const shipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index])))
+  const equipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : equipTPs[index])))
+
+  return {
+    total: equipTP ? shipTP + equipTP : 0,
+    actual: shipActualTP + equipActualTP,
+  }
+}

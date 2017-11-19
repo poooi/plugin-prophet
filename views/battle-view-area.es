@@ -5,9 +5,7 @@ import _ from 'lodash'
 import { connect } from 'react-redux'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
 
-import { fleetShipsDataSelectorFactory,
-  fleetShipsEquipDataSelectorFactory,
-  extensionSelectorFactory } from 'views/utils/selectors'
+import { extensionSelectorFactory } from 'views/utils/selectors'
 
 import ShipView from './ship-view'
 import FleetView from './fleet-view'
@@ -15,7 +13,7 @@ import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
-import { PLUGIN_KEY, combinedFleetType, getTransportPoint } from '../utils'
+import { PLUGIN_KEY, combinedFleetType, getTPDazzyDing } from '../utils'
 
 const { i18n } = window
 const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
@@ -24,26 +22,6 @@ const inEventSelector = createSelector(
   [
     state => state.const.$maps,
   ], (maps = {}) => Object.keys(maps).some(mapId => (+mapId) > 100)
-)
-
-const normalizedFleetShipsDataSelectorFactory = _.memoize(fleetId =>
-  createSelector([
-    fleetShipsDataSelectorFactory(fleetId),
-  ], (shipsData = []) =>
-    shipsData.filter(([_ship, $ship]) => !!_ship && !!$ship)
-      .map(([_ship, $ship]) => ({ ...$ship, ..._ship }))
-  )
-)
-
-const normalizedFleetShipsEquipDataSelectorFactory = _.memoize(fleetId =>
-  createSelector([
-    fleetShipsEquipDataSelectorFactory(fleetId),
-  ], (equipsData = []) =>
-    equipsData.map(equipData =>
-      equipData.filter(([_equip, $equip] = []) => !!_equip && !!$equip)
-        .map(([_equip, $equip, onslot]) => ([{ ...$equip, ..._equip }, onslot]))
-    )
-  )
 )
 
 const escapedShipIdSelector = createSelector([
@@ -58,29 +36,6 @@ const escapedShipIdSelector = createSelector([
   return [] // because you could only escape in combined fleet
 })
 
-const combinedFleetTPSelector = createSelector([
-  normalizedFleetShipsDataSelectorFactory(0),
-  normalizedFleetShipsEquipDataSelectorFactory(0),
-  normalizedFleetShipsDataSelectorFactory(1),
-  normalizedFleetShipsEquipDataSelectorFactory(1),
-  inEventSelector,
-  escapedShipIdSelector,
-], (ships0, equips0, ships1, equips1, inEvent, escapedShipIds) => (
-  inEvent
-    ? getTransportPoint([...ships0, ...ships1], [...equips0, ...equips1], escapedShipIds)
-    : 0
-))
-
-const fleetTPSelectorFactory = _.memoize(fleetId =>
-  createSelector([
-    normalizedFleetShipsDataSelectorFactory(fleetId),
-    normalizedFleetShipsEquipDataSelectorFactory(fleetId),
-    inEventSelector,
-  ], (shipsData, equipsData, inEvent) =>
-    (inEvent ? getTransportPoint(shipsData, equipsData, []) : 0)
-  )
-)
-
 const BattleViewArea = connect(
   (state, props) => {
     const sortie = state.sortie || {}
@@ -94,18 +49,18 @@ const BattleViewArea = connect(
       ? _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle)
       : enemyTitle
 
+    const escapedShipIds = escapedShipIdSelector(state)
+    const inEvent = inEventSelector(state)
+    const TP = inEvent
+      ? getTPDazzyDing([...(props.mainFleet || []), ...(props.escortFleet || []), escapedShipIds])
+      : { total: 0, actual: 0 }
+
     let friendTitle = 'Sortie Fleet'
-    let TP = {
-      total: 0,
-      actual: 0,
-    }
     if (showEnemyTitle) {
       if (combinedFlag > 0) {
         friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
-        TP = combinedFleetTPSelector(state)
       } else {
         const fleetId = (sortieStatus || []).findIndex(a => a)
-        TP = fleetTPSelectorFactory(fleetId === -1 ? 0 : fleetId)(state)
         friendTitle = _.get(state, `info.fleets.${fleetId === -1 ? 0 : fleetId}.api_name`, 'Sortie Fleet')
       }
     }
@@ -263,11 +218,23 @@ const BattleViewArea = connect(
     <div id="overview-area">
       {useVerticalLayout ? combatInfo : null}
       <div className={useVerticalLayout ? 'div-row' : ''}>
-        <div className="fleet-container" style={{ flex: useVerticalLayout ? fleetWidth : 1, flexDirection: useVerticalLayout && (escortFleet || []).length && !isBaseDefense ? 'column-reverse' : 'column' }}>
+        <div
+          className="fleet-container"
+          style={{
+            flex: useVerticalLayout ? fleetWidth : 1,
+            flexDirection: useVerticalLayout && (escortFleet || []).length && !isBaseDefense ? 'column-reverse' : 'column',
+          }}
+        >
           {alliedForce}
           {!useVerticalLayout ? combatInfo : null}
         </div>
-        <div className="fleet-container" style={{ flex: useVerticalLayout ? enemyWidth : 1, flexDirection: useVerticalLayout && (enemyEscort || []).length ? 'column-reverse' : 'column' }}>
+        <div
+          className="fleet-container"
+          style={{
+            flex: useVerticalLayout ? enemyWidth : 1,
+            flexDirection: useVerticalLayout && (enemyEscort || []).length ? 'column-reverse' : 'column',
+          }}
+        >
           {enemyForce}
           {!useVerticalLayout ? mapInfo : null}
         </div>
