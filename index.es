@@ -390,6 +390,7 @@ export const reactClass = connect(
     } = this.state
     isBaseDefense = false
     switch (path) {
+      case '/kcsapi/api_start2': // refresh game page
       case '/kcsapi/api_port/port':
         this.battle = null;
         ({
