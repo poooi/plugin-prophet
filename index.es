@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes, { number } from 'prop-types'
-import { isEqual, isNil, each, map, isEmpty, includes, concat, get } from 'lodash'
+import { isEqual, isNil, each, map, isEmpty, includes, concat, get, filter } from 'lodash'
 import { join } from 'path'
 import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
@@ -159,23 +159,26 @@ export const reactClass = connect(
     const sortie = state.sortie || {}
     const sortieStatus = sortie.sortieStatus || []
     const airbase = state.info.airbase || {}
-    const fleet = []
+    const fleetIds = []
     if (sortieStatus.reduce((a, b) => a || b)) {
       sortieStatus.forEach((a, i) => {
-        if (a) fleet.push(i)
+        if (a) fleetIds.push(i)
       })
     } else if (sortie.combinedFlag) {
-      fleet.push(0, 1)
+      fleetIds.push(0, 1)
+    } else if (filter(get(state, 'info.fleets.2.api_ship'), id => id > 0).length === 7) { // FIXME: 17 autumn event 7 ship fleet
+      fleetIds.push(2)
     } else {
-      fleet.push(0)
+      fleetIds.push(0)
     }
-    const fleets = fleet.map(i => fleetShipsDataSelectorFactory(i)(state))
-    const equips = fleet.map(i => fleetShipsEquipDataSelectorFactory(i)(state))
+    const fleets = fleetIds.map(i => fleetShipsDataSelectorFactory(i)(state))
+    const equips = fleetIds.map(i => fleetShipsEquipDataSelectorFactory(i)(state))
     return {
       sortie,
       airbase,
       fleets,
       equips,
+      fleetIds,
     }
   }
 )(class Prophet extends Component {
@@ -207,6 +210,7 @@ export const reactClass = connect(
     fleets: PropTypes.arrayOf(PropTypes.array),
     equips: PropTypes.arrayOf(PropTypes.array),
     airbase: PropTypes.arrayOf(PropTypes.object),
+    fleetIds: PropTypes.arrayOf(PropTypes.number),
   }
 
   constructor(props) {
@@ -569,6 +573,8 @@ export const reactClass = connect(
       battleForm,
       eFormation,
     } = this.state
+
+    const { fleetIds } = this.props
     return (
       <div id="plugin-prophet">
         <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
@@ -586,6 +592,7 @@ export const reactClass = connect(
           result={result}
           battleForm={battleForm}
           eFormation={eFormation}
+          fleetIds={fleetIds}
         />
       </div>
     )

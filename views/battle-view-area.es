@@ -40,7 +40,7 @@ const BattleViewArea = connect(
   (state, props) => {
     const sortie = state.sortie || {}
     const {
-      sortieMapId, currentNode, combinedFlag, sortieStatus,
+      sortieMapId, currentNode, combinedFlag,
     } = sortie
     const showEnemyTitle = _.get(state, 'config.plugin.prophet.showEnemyTitle', true)
     const spot = props.sortieState === 3 ? 'practice' : `${sortieMapId}-${currentNode}`
@@ -60,8 +60,7 @@ const BattleViewArea = connect(
       if (combinedFlag > 0) {
         friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
       } else {
-        const fleetId = (sortieStatus || []).findIndex(a => a)
-        friendTitle = _.get(state, `info.fleets.${fleetId === -1 ? 0 : fleetId}.api_name`, 'Sortie Fleet')
+        friendTitle = _.get(state, `info.fleets.${props.fleetIds[0]}.api_name`, 'Sortie Fleet')
       }
     }
     friendTitle = props.isBaseDefense ? 'Land Base' : friendTitle
@@ -131,7 +130,7 @@ const BattleViewArea = connect(
       <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount} />
     </div>
   ) : <noscript />
-  const combatInfo = (TP.total > 0 || sortieState > 1 || isBaseDefense) && (
+  const combatInfo = (
     <div className="alert div-row prophet-info">
       <div className="combat-title" title={__(friendTitle)}>
         <span>{`${__(friendTitle)}`}</span>
