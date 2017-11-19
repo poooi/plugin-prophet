@@ -306,6 +306,7 @@ export const reactClass = connect(
             _ship.api_soukou[0],
           ],
           raw: {
+            ...$ship,
             ..._ship,
             poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
             poi_slot_ex: null,
