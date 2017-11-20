@@ -32,12 +32,12 @@ export function getItemName(item) {
 }
 
 export const initEnemy = (
-  intl = 0, api_ship_ke, api_eSlot, api_maxhps, api_nowhps, api_ship_lv) => {
+  intl = 0, api_ship_ke = [], api_eSlot, api_maxhps, api_nowhps, api_ship_lv) => {
   if (!(api_ship_ke != null)) return []
   const fleet = []
-  _.range(1, 7).forEach((i) => {
+  _.range(api_ship_ke.length).forEach((i) => {
     const id = api_ship_ke[i]
-    const slots = api_eSlot[i - 1] || []
+    const slots = api_eSlot[i] || []
     let ship
     let raw
     if (Number.isInteger(id) && id > 0) {
@@ -50,8 +50,8 @@ export const initEnemy = (
         id,
         owner: ShipOwner.Enemy,
         pos: intl + i,
-        maxHP: api_maxhps[i + 6],
-        nowHP: api_nowhps[i + 6],
+        maxHP: api_maxhps[i],
+        nowHP: api_nowhps[i],
         items: [], // We dont care
         raw,
       })
