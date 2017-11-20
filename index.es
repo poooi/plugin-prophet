@@ -240,7 +240,10 @@ export const reactClass = connect(
     this.unsubscribeObserver = observe(store, [prophetObserver])
 
     // for debug (ugly)
-    if (window.dbg.isEnabled()) window.prophetTest = e => this.setState(this.handlePacket(e))
+    if (window.dbg.isEnabled()) {
+      window.prophetTest = e => this.setState(this.handlePacket(e))
+      window.baseDefenseTest = e => this.handleGameResponse({ detail: e })
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -277,6 +280,7 @@ export const reactClass = connect(
     }
 
     delete window.prophetTest
+    delete window.baseDefenseTest
   }
 
   transformToLibBattleClass = (fleets, equips) =>
@@ -375,6 +379,7 @@ export const reactClass = connect(
   handleGameResponse = (e) => {
     const { path, body } = e.detail
     // used in determining next spot type
+
     const {
       mainFleet,
       escortFleet,
@@ -404,7 +409,9 @@ export const reactClass = connect(
         break
       case '/kcsapi/api_req_map/start':
       case '/kcsapi/api_req_map/next': {
-        const { api_event_kind, api_event_id, api_destruction_battle } = body
+        const {
+          api_event_kind, api_event_id, api_destruction_battle, api_maparea_id,
+        } = body
         sortieState = 1
         spotKind = spotInfo[getSpotKind(api_event_id, api_event_kind)] || ''
         enemyFleet = []
@@ -413,17 +420,14 @@ export const reactClass = connect(
         // land base air raid
         if (api_destruction_battle != null) {
         // construct virtual fleet to reprsent the base attack
-          const { sortie, airbase } = this.props
-          const mapArea = Math.floor((sortie.sortieMapId || 0) / 10)
+          const { airbase } = this.props
           const {
             api_air_base_attack,
             api_f_maxhps,
             api_f_nowhps,
-            api_e_maxhps,
-            api_e_nowhps,
           } = api_destruction_battle
           each(airbase, (squad) => {
-            if (squad.api_area_id !== mapArea) return
+            if (squad.api_area_id !== api_maparea_id) return
             landBase.push(new Ship({
               id: -1,
               owner: ShipOwner.Ours,
@@ -438,6 +442,8 @@ export const reactClass = connect(
           const {
             api_ship_ke,
             api_eSlot,
+            api_e_maxhps,
+            api_e_nowhps,
             api_ship_lv,
             api_lost_kind,
             api_formation,
