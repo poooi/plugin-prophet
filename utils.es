@@ -16,10 +16,10 @@ export function getShipName(ship) {
   if (ship == null) {
     return null
   }
-  let name = i18n.resources.__(ship.api_name)
+  const name = i18n.resources.__(ship.api_name)
   const yomi = ship.api_yomi
   if (['elite', 'flagship'].includes(yomi)) {
-    name += yomi
+    return `${name} ${yomi}`
   }
   return name
 }
