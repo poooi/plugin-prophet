@@ -404,7 +404,7 @@ export const reactClass = connect(
       case '/kcsapi/api_port/port':
         this.battle = null;
         ({
-          enemyFleet, enemyEscort, sortieState, spotKind, result,
+          enemyFleet, enemyEscort, sortieState, spotKind, result, airForce,
         } = this.constructor.initState)
         break
       case '/kcsapi/api_req_map/start':
@@ -413,10 +413,10 @@ export const reactClass = connect(
           api_event_kind, api_event_id, api_destruction_battle, api_maparea_id,
         } = body
         sortieState = 1
-        spotKind = spotInfo[getSpotKind(api_event_id, api_event_kind)] || ''
-        enemyFleet = []
-        enemyEscort = []
-        landBase = []
+        spotKind = spotInfo[getSpotKind(api_event_id, api_event_kind)] || '';
+        ({
+          enemyFleet, enemyEscort, landBase, airForce,
+        } = this.constructor.initState)
         // land base air raid
         if (api_destruction_battle != null) {
         // construct virtual fleet to reprsent the base attack
