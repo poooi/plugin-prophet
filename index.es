@@ -6,8 +6,10 @@ import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
 import { observe } from 'redux-observers'
 import { promisify } from 'bluebird'
+import memoize from 'fast-memoize'
+import { createSelector } from 'reselect'
 
-import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory } from 'views/utils/selectors'
+import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory, fleetSelectorFactory } from 'views/utils/selectors'
 import { store } from 'views/create-store'
 
 import CheckboxLabelConfig from './checkbox-label-config'
@@ -34,7 +36,7 @@ const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) {
     return fleet
   }
-  return fleet.map((ship = {}, i) => ({
+  return fleet.filter(Boolean).map((ship = {}, i) => ({
     ...ship,
     stageHP: nowhps[i],
   }))
@@ -148,6 +150,24 @@ const getAirForceStatus = (stages = []) => {
   return [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
 }
 
+/* selector */
+const fleetSlotCountSelectorFactory = memoize(fleetId =>
+  createSelector(
+    [
+      fleetSelectorFactory(fleetId),
+    ], fleet => get(fleet, 'api_ship.length', 0)
+  )
+)
+
+const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
+  createSelector(
+    [
+      fleetShipsDataSelectorFactory(fleetId),
+      fleetSlotCountSelectorFactory(fleetId),
+    ], (ships, count) => ships.concat(new Array(count).fill(undefined)).slice(0, count)
+  )
+)
+
 // sortieState
 // 0: port, switch on when /kcsapi/api_port/port
 // 1: before battle, switch on when /kcsapi/api_req_map/start or /kcsapi/api_req_map/next
@@ -171,7 +191,7 @@ export const reactClass = connect(
     } else {
       fleetIds.push(0)
     }
-    const fleets = fleetIds.map(i => fleetShipsDataSelectorFactory(i)(state))
+    const fleets = fleetIds.map(i => adjustedFleetShipsDataSelectorFactory(i)(state))
     const equips = fleetIds.map(i => fleetShipsEquipDataSelectorFactory(i)(state))
     return {
       sortie,
@@ -285,7 +305,7 @@ export const reactClass = connect(
 
   transformToLibBattleClass = (fleets, equips) =>
     (fleets || []).map((fleet, fleetPos) =>
-      (fleet || []).map(([_ship, $ship], shipPos) =>
+      (fleet || []).map(([_ship, $ship] = [], shipPos) => !_ship ? null :
         new Ship({
           id: _ship.api_ship_id,
           owner: ShipOwner.Ours,
@@ -321,7 +341,7 @@ export const reactClass = connect(
 
   transformToDazzyDingClass = (fleets, equips) =>
     (fleets || []).map((fleet, fleetPos) =>
-      (fleet || []).map(([_ship, $ship], shipPos) => ({
+      (fleet || []).map(([_ship, $ship] = [], shipPos) => !_ship ? null : ({
         ...$ship,
         ..._ship,
         poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
