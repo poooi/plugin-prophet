@@ -36,7 +36,7 @@ const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) {
     return fleet
   }
-  return fleet.filter(Boolean).map((ship = {}, i) => ({
+  return fleet.map((ship, i) => !ship ? ship : ({
     ...ship,
     stageHP: nowhps[i],
   }))
