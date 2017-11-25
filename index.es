@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes, { number } from 'prop-types'
-import { isEqual, isNil, each, map, isEmpty, includes, concat, get, filter } from 'lodash'
+import _, { isEqual, isNil, each, map, isEmpty, includes, concat, get, filter } from 'lodash'
 import { join } from 'path'
 import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
@@ -426,9 +426,9 @@ export const reactClass = connect(
             api_f_maxhps,
             api_f_nowhps,
           } = api_destruction_battle
-          each(airbase, (squad) => {
-            if (squad.api_area_id !== api_maparea_id) return
-            landBase.push(new Ship({
+          landBase = _(airbase)
+            .filter(squad => squad.api_area_id === api_maparea_id)
+            .map(squad => new Ship({
               id: -1,
               owner: ShipOwner.Ours,
               pos: squad.api_rid,
@@ -437,7 +437,7 @@ export const reactClass = connect(
               items: map(squad.api_plane_info, plane => plane.api_slotid),
               raw: squad,
             }))
-          })
+            .value()
           // construct enemy
           const {
             api_ship_ke,
