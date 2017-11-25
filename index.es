@@ -164,7 +164,7 @@ const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
     [
       fleetShipsDataSelectorFactory(fleetId),
       fleetSlotCountSelectorFactory(fleetId),
-    ], (ships, count) => ships.concat(new Array(count).fill(undefined)).slice(0, count)
+    ], (ships = [], count) => ships.concat(new Array(count).fill(undefined)).slice(0, count)
   )
 )
 
