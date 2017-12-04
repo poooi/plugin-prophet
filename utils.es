@@ -177,7 +177,7 @@ const FormationName = {
   [Formation.Diamond]: __('Diamond'),
   [Formation.Echelon]: __('Echelon'),
   [Formation.Abreast]: __('Line Abreast'),
-  [Formation.Precaution]: __('Precaution'),
+  [Formation.Vanguard]: __('Vanguard'),
   [Formation.CruisingAntiSub]: __('Cruising Formation 1'),
   [Formation.CruisingForward]: __('Cruising Formation 2'),
   [Formation.CruisingDiamond]: __('Cruising Formation 3'),
