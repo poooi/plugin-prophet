@@ -35,6 +35,8 @@ const DropInfo = connect((state, props) => {
   const shipComponent = shipMessage && (
     navyAlbumShowShip ? (
       <a
+        role="link"
+        tabIndex={-1}
         onClick={() => navyAlbumShowShip(ship.api_id)}
         key={`ship-${ship.api_id}`}
       >
