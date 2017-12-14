@@ -2,7 +2,7 @@ import React from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 
-const { i18n } = window
+const { i18n, ipc } = window
 const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
 
 
@@ -23,26 +23,13 @@ const DropInfo = connect((state, props) => {
 
   let navyAlbumShowShip = null
   try {
-    // check availability right before rendering
-    const { ipc, getStore } = window
-    const navyAlbumAvailable = Boolean(
-      _.get(
-        getStore().plugins.find(p => p.id === 'poi-plugin-navy-album'),
-        'pluginWindow'
-      )
-    )
-
-    if (navyAlbumAvailable) {
-      const navyAlbumService = ipc.access('NavyAlbum')
-      if (navyAlbumService) {
-        const { showShip } = navyAlbumService
-        if (typeof showShip === 'function') {
-          navyAlbumShowShip = showShip
-        }
-      }
+    const navyAlbumService = ipc.access('NavyAlbum')
+    if (navyAlbumService) {
+      const { showShip } = navyAlbumService
+      navyAlbumShowShip = showShip
     }
   } catch (e) {
-    console.error('error while detecting navy album availability', e)
+    console.error('error while accessing NavyAlbum ipc', e)
   }
 
   const shipComponent = shipMessage && (
