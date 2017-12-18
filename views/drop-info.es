@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
 import { connect } from 'react-redux'
 import _ from 'lodash'
+import FA from 'react-fontawesome'
 
 const { i18n, ipc } = window
 const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
@@ -11,59 +12,71 @@ const DropInfo = connect((state, props) => {
   const item = _.get(state, `const.$useitems.${props.getItem}`)
   const shipType = _.get(state, `const.$shipTypes.${(ship || {}).api_stype}`)
   const navyAlbumShowShipAvailable = _.get(state, 'ipc.NavyAlbum.showShip', false)
-  const showShip = navyAlbumShowShipAvailable ? ipc.access('NavyAlbum').showShip : null
 
   return {
     ship,
     item,
     shipType,
-    showShip,
+    navyAlbumShowShipAvailable,
   }
-})(({ ship, item, shipType, showShip }) => {
-  const shipMessage = ship &&
-    __('%s "%s" joined your fleet', i18n.resources.__(shipType.api_name), i18n.resources.__(ship.api_name))
-  const itemMessage = item &&
-    __('Item "%s" got', i18n.resources.__(item.api_name))
+})(class DropInfo extends PureComponent {
+  handleClick = () => {
+    const { showShip } = ipc.access('NavyAlbum')
+    const { ship } = this.props
+    showShip(ship.api_id)
+  }
 
-  const shipComponent = shipMessage && (
-    showShip ? (
-      <a
-        role="link"
-        tabIndex={-1}
-        onClick={() => showShip(ship.api_id)}
-        key={`ship-${ship.api_id}`}
-      >
-        {shipMessage}
-      </a>
-    ) : (
-      <span
-        key={`ship-${ship.api_id}`}
-      >
-        {shipMessage}
+  render() {
+    const {
+      ship, item, shipType, navyAlbumShowShipAvailable,
+    } = this.props
+    const shipMessage = ship &&
+      __('%s "%s" joined your fleet', i18n.resources.__(shipType.api_name), i18n.resources.__(ship.api_name))
+    const itemMessage = item &&
+      __('Item "%s" got', i18n.resources.__(item.api_name))
+
+    const shipComponent = shipMessage && (
+      navyAlbumShowShipAvailable ? (
+        <button
+          bsStyle="link"
+          onClick={this.handleClick}
+          key="ship"
+          style={{
+            backgroundColor: 'initial',
+            border: 0,
+            outline: 'none',
+          }}
+        >
+          {shipMessage} <FA name="info-circle" />
+        </button>
+      ) : (
+        <span
+          key="ship"
+        >
+          {shipMessage}
+        </span>
+      )
+    )
+
+    const itemComponent = itemMessage && (
+      <span key="item">{itemMessage}</span>
+    )
+
+    const components = _.compact([shipComponent, itemComponent])
+
+    return (
+      <span className="drop-info">
+        {
+          _.flatMap(
+            components, (c, ind) =>
+              ind + 1 === components.length
+                ? [c]
+                : [c, <span key={`sep-${ind}`}> | </span>]
+          )
+        }
       </span>
     )
-  )
-
-  const itemComponent = itemMessage && (
-    <span key={`item-${item.api_id}`}>{itemMessage}</span>
-  )
-
-  const components = _.compact([shipComponent, itemComponent])
-
-  return (
-    <span className="drop-info">
-      {
-        _.flatMap(
-          components,
-          // eslint-disable-next-line no-confusing-arrow
-          (c, ind) =>
-            // add seperator if current element is not the last one
-            ind + 1 === components.length ?
-              [c] : [c, <span key={`sep-${ind}`}>{' | '}</span>]
-        )
-      }
-    </span>
-  )
+  }
 })
 
 export default DropInfo
