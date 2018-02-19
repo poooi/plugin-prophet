@@ -16,7 +16,7 @@ import CheckboxLabelConfig from './checkbox-label-config'
 import BattleViewArea from './views/battle-view-area'
 import { PLUGIN_KEY, HISTORY_PATH, initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
-import { reducer as _reducer, onBattleResult, onGetPracticeInfo, onLoadHistory, prophetObserver } from './redux'
+import { onBattleResult, onGetPracticeInfo, onLoadHistory, prophetObserver } from './redux'
 
 
 const {
@@ -661,7 +661,7 @@ export const settingsClass = () => (
   </div>
 )
 
-export const reducer = _reducer
+export { reducer } from './redux'
 
 export const switchPluginPath = [
   '/kcsapi/api_req_map/start',
