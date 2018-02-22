@@ -261,7 +261,7 @@ export const reactClass = connect(
 
     // for debug (ugly)
     if (window.dbg.isEnabled()) {
-      window.prophetTest = e => this.setState(this.handlePacket(e))
+      window.prophetTest = battle => this.setState(this.handlePacket(battle))
       window.baseDefenseTest = e => this.handleGameResponse({ detail: e })
     }
   }
@@ -349,15 +349,25 @@ export const reactClass = connect(
       }))
     ).concat([undefined, undefined]).slice(0, 2)
 
-  handlePacket = (e) => {
-    const sortieState = e.type === (BattleType.Practice || BattleType.Pratice) ? 3 : 2
-    // console.log(e)
-    const simulator = new Simulator(e.fleet, { usePoiAPI: true })
-    map(e.packet, packet => simulator.simulate(packet))
+  handlePacket = (battle) => {
+    const sortieState = battle.type === (BattleType.Practice || BattleType.Pratice) ? 3 : 2
+    // console.log(battle)
+    const simulator = new Simulator(battle.fleet, { usePoiAPI: true })
+    // correct main fleet flagship HP for possible repair usage
+    const { api_f_nowhps, api_f_maxhps } = battle.packet[0]
+    const [nowHP] = api_f_nowhps
+    if (simulator.mainFleet[0].nowHP !== nowHP) {
+      const [maxHP] = api_f_maxhps
+      // 42=応急修理要員, 43=応急修理女神
+      simulator.mainFleet[0].useItem = maxHP === nowHP ? 43 : 42
+      simulator.mainFleet[0].initHP = nowHP
+      simulator.mainFleet[0].nowHP = nowHP
+    }
+    each(battle.packet, packet => simulator.simulate(packet))
     const { result } = simulator
 
     // Attention, aynthesizeStage will break object prototype, put it to last
-    const newState = synthesizeInfo(simulator, result, e.packet)
+    const newState = synthesizeInfo(simulator, result, battle.packet)
     return {
       ...newState,
       sortieState,
@@ -365,8 +375,8 @@ export const reactClass = connect(
     }
   }
 
-  handlePacketResult = (e) => {
-    const newState = this.handlePacket(e)
+  handlePacketResult = (battle) => {
+    const newState = this.handlePacket(battle)
     // notify heavily damaged
     // as battle result does not touch hps, it is safe to notify here?
     const { mainFleet, escortFleet } = this.state
