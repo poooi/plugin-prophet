@@ -100,7 +100,7 @@ const EnemyAvatar = ({ name, nowHP, maxHP }) => (
 
 ShipName.propTypes = {
   name: PropTypes.string,
-  yomi: PropTypes.yomi,
+  yomi: PropTypes.string,
   enemy: PropTypes.bool,
 }
 
