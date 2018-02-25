@@ -107,7 +107,7 @@
   opacity: 0.8;
   text-align: right;
 }
-#plugin-prophet .ship-item.compact .ship-damage {
+#plugin-prophet .ship-item.compact.avatar .ship-damage {
   flex: 1;
 }
 #plugin-prophet .ship-info .ship-name {

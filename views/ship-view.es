@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import FontAwesome from 'react-fontawesome'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
@@ -124,11 +124,12 @@ const ShipView = connect(
       reverseLayout: _.get(state, 'config.poi.reverseLayout'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
-      enableAvatar: _.get(state, ['config', 'poi', 'enableAvatar'], false),
+      ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', true),
+      enemyAvatar: _.get(state.config, 'plugin.prophet.showVesselAvatar', true),
     }
   }
 )(({
-  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, enableAvatar, compact,
+  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, ourAvatar, enemyAvatar, compact,
 }) => {
   if (!(ship && ship.id > 0)) {
     return <div />
@@ -203,6 +204,7 @@ const ShipView = connect(
       className={cls('div-row ship-item', {
         escaped: isEscaped,
         compact,
+        avatar: data.api_sortno ? ourAvatar : enemyAvatar,
       })}
     >
       <div className="ship-view">
@@ -212,18 +214,43 @@ const ShipView = connect(
         >
           <div className="ship-info" style={{ flexGrow: compact && 0 }}>
             {
-              enableAvatar
-              && (data.api_sortno
-                ? <Avatar mstId={data.api_ship_id} height={30} style={{ position: compact && 'absolute' }} />
-                : <EnemyAvatar name={data.api_name} nowHP={ship.nowHP} maxHP={ship.maxHP} />)
-            }
-            {
-              (!enableAvatar || !compact) &&
-              <ShipName
-                name={data.api_name}
-                yomi={data.api_yomi}
-                enemy={!data.api_sortno}
-              />
+              data.api_sortno ?
+                <Fragment>
+                  {
+                    ourAvatar &&
+                    <Avatar
+                      mstId={data.api_ship_id}
+                      height={30}
+                    />
+                  }
+                  {
+                    (!ourAvatar || !compact) &&
+                    <ShipName
+                      name={data.api_name}
+                      yomi={data.api_yomi}
+                      enemy={!data.api_sortno}
+                    />
+                  }
+                </Fragment>
+                :
+                <Fragment>
+                  {
+                    enemyAvatar &&
+                    <EnemyAvatar
+                      name={data.api_name}
+                      nowHP={ship.nowHP}
+                      maxHP={ship.maxHP}
+                    />
+                  }
+                  {
+                    (!enemyAvatar || !compact) &&
+                    <ShipName
+                      name={data.api_name}
+                      yomi={data.api_yomi}
+                      enemy={!data.api_sortno}
+                    />
+                  }
+                </Fragment>
             }
             <div className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}>
               {ship.isMvp ? <FontAwesome name="trophy" /> : ''}

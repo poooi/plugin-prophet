@@ -637,7 +637,7 @@ export const reactClass = connect(
 })
 
 export const settingsClass = () => (
-  <div>
+  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
     <CheckboxLabelConfig
       label={__('Show scales on HP bar')}
       configName="plugin.prophet.showScale"
@@ -666,6 +666,16 @@ export const settingsClass = () => (
     <CheckboxLabelConfig
       label={__('Heavily damaged notification')}
       configName="plugin.prophet.notify.enable"
+      defaultVal
+    />
+    <CheckboxLabelConfig
+      label={__('Enable avatars for ship girls')}
+      configName="plugin.prophet.showAvatar"
+      defaultVal
+    />
+    <CheckboxLabelConfig
+      label={__('Enable avatars for Enemy Vessel')}
+      configName="plugin.prophet.showVesselAvatar"
       defaultVal
     />
   </div>
