@@ -33,6 +33,9 @@
 #plugin-prophet .hp-bar.lost.progress-bar {
   background-color: rgba(255, 255, 255, 0.1);
 }
+#plugin-prophet .progress-bar-grey {
+  background-color: rgba(255, 255, 255, 0.1);
+}
 #plugin-prophet .cond-indicator {
   margin-left: 0.5em;
 }

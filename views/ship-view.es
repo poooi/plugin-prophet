@@ -5,8 +5,9 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import { resolve } from 'path'
-import { getCondStyle } from 'views/utils/game-utils'
+import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import { Avatar } from 'views/components/etc/avatar'
+import { isKana } from 'wanakana'
 
 import ItemView from './item-view'
 import { FABar, HPBar } from './bar'
@@ -28,7 +29,7 @@ const ShipName = ({ name, yomi, enemy }) => {
     ? `${translated} ${yomi}`
     : translated
   if (translated === name || !enemy || fullname.length < 20) {
-    return <div className="ship-name" title={fullname}>{fullname}</div>
+    return <div className="ship-name">{fullname}</div>
   }
 
   const parts = fullname.split(' ')
@@ -47,13 +48,54 @@ const ShipName = ({ name, yomi, enemy }) => {
   }
 
   return (
-    <div className="ship-name" title={fullname} style={{ fontSize: '12px', lineHeight: '12px' }}>
+    <div className="ship-name" style={{ fontSize: '12px', lineHeight: '12px' }}>
       <span>{up.join(' ')}</span>
       <br />
       <span>{down.join(' ')}</span>
     </div>
   )
 }
+
+const getAvatarChar = (name) => {
+  if (name.includes('姫')) {
+    return (
+      <svg
+        aria-hidden="true"
+        role="img"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 512 512"
+        width="13"
+      >
+        <path
+          fill="currentColor"
+          d="M436 512H76c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h360c6.627 0 12 5.373 12 12v24c0 6.627-5.373 12-12 12zM255.579 0c-30.928 0-56 25.072-56 56s25.072 56 56 56 56-25.072 56-56-25.072-56-56-56zm204.568 154.634c-5.768-3.045-12.916-.932-16.082 4.77-8.616 15.516-22.747 37.801-44.065 37.801-28.714 0-30.625-19.804-31.686-57.542-.183-6.492-5.501-11.664-11.995-11.664h-41.006c-5.175 0-9.754 3.328-11.388 8.238-8.89 26.709-26.073 40.992-47.925 40.992s-39.034-14.283-47.925-40.992c-1.634-4.91-6.213-8.238-11.388-8.238h-41.005c-6.495 0-11.813 5.174-11.995 11.667-1.052 37.642-2.934 57.539-31.688 57.539-20.691 0-33.817-20.224-44.425-38.025-3.266-5.48-10.258-7.431-15.899-4.453l-39.179 20.679a12 12 0 0 0-5.51 15.145L112 448h288l105.014-257.448a12 12 0 0 0-5.51-15.145l-39.357-20.773z"
+        />
+      </svg>
+    )
+  }
+  if (name.includes('PT')) {
+    return 'PT'
+  }
+  if (name.includes('鬼')) {
+    return '鬼'
+  }
+  return name.split('').find(c => isKana(c)) || ''
+}
+
+const EnemyAvatar = ({ name, nowHP, maxHP }) => (
+  <div
+    className={`progress-bar-${nowHP > 0 ? getHpStyle((100 * nowHP) / maxHP) : 'grey'}`}
+    style={{
+      width: 30,
+      height: 30,
+      lineHeight: '30px',
+      textAlign: 'center',
+      marginRight: '0.5ex',
+    }}
+  >
+    {getAvatarChar(name)}
+  </div>
+)
 
 ShipName.propTypes = {
   name: PropTypes.string,
@@ -85,7 +127,7 @@ const ShipView = connect(
     }
   }
 )(({
-  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, enableAvatar,
+  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, enableAvatar, compact,
 }) => {
   if (!(ship && ship.id > 0)) {
     return <div />
@@ -109,6 +151,13 @@ const ShipView = connect(
   const tooltip = (
     <Tooltip id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
       <div className="prophet-tip">
+        <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
+          {
+            ['elite', 'flagship'].includes(data.api_yomi)
+              ? `${window.i18n.resources.__(data.api_name)} ${data.api_yomi}`
+              : window.i18n.resources.__(data.api_name)
+          }
+        </div>
         <div className="ship-essential">
           <span className="position-indicator">{ship.owner === 'Ours' ? '' : `ID ${ship.id}`}</span>
           <span>Lv. {data.api_lv || '-'}</span>
@@ -155,16 +204,21 @@ const ShipView = connect(
           placement={placements[parseInt(`${+(layout === 'vertical')}${+(reverseLayout)}`, 2)]}
           overlay={tooltip}
         >
-          <div className="ship-info">
+          <div className="ship-info" style={{ flexGrow: compact && 0 }}>
             {
               enableAvatar
-              && (Boolean(data.api_sortno) && <Avatar mstId={data.api_ship_id} height={30} />)
+              && (data.api_sortno
+                ? <Avatar mstId={data.api_ship_id} height={30} />
+                : <EnemyAvatar name={data.api_name} nowHP={ship.nowHP} maxHP={ship.maxHP} />)
             }
-            <ShipName
-              name={data.api_name}
-              yomi={data.api_yomi}
-              enemy={!data.api_sortno}
-            />
+            {
+              (!enableAvatar || !compact) &&
+              <ShipName
+                name={data.api_name}
+                yomi={data.api_yomi}
+                enemy={!data.api_sortno}
+              />
+            }
             <div className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}>
               {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
               {isEscaped ? <FontAwesome name="reply" /> : (ship.damage || 0) }
