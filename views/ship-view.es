@@ -124,8 +124,8 @@ const ShipView = connect(
       reverseLayout: _.get(state, 'config.poi.reverseLayout'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
-      ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', true),
-      enemyAvatar: _.get(state.config, 'plugin.prophet.showVesselAvatar', true),
+      ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
+      enemyAvatar: _.get(state.config, 'plugin.prophet.showVesselAvatar', false),
     }
   }
 )(({
