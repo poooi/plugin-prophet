@@ -8,11 +8,9 @@ import { getCondStyle } from 'views/utils/game-utils'
 import { resolve } from 'path'
 
 import ItemView from './item-view'
-import { getShipName } from '../utils'
 import { FABar, HPBar } from './bar'
 
 
-// const { i18n } = window
 // const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const ParamIcon = ({ name = '' }) => {
@@ -22,6 +20,45 @@ const ParamIcon = ({ name = '' }) => {
 
 ParamIcon.propTypes = {
   name: PropTypes.string,
+}
+
+const ShipName = ({ name, yomi, enemy }) => {
+  const translated = window.i18n.resources.__(name)
+  const fullname = ['elite', 'flagship'].includes(yomi)
+    ? `${translated} ${yomi}`
+    : translated
+  if (translated === name || !enemy || fullname.length < 20) {
+    return <div className="ship-name" title={fullname}>{fullname}</div>
+  }
+
+  const parts = fullname.split(' ')
+  const up = []
+  const down = []
+
+  const length = _(parts).map(_.size).sum()
+
+  while (parts.length) {
+    const word = parts.shift()
+    if (up.join(' ').length + word.length < (length / 2)) {
+      up.push(word)
+    } else {
+      down.push(word)
+    }
+  }
+
+  return (
+    <div className="ship-name" title={fullname} style={{ fontSize: '12px', lineHeight: '12px' }}>
+      <span>{up.join(' ')}</span>
+      <br />
+      <span>{down.join(' ')}</span>
+    </div>
+  )
+}
+
+ShipName.propTypes = {
+  name: PropTypes.string,
+  yomi: PropTypes.yomi,
+  enemy: PropTypes.bool,
 }
 
 const placements = {
@@ -118,9 +155,11 @@ const ShipView = connect(
           overlay={tooltip}
         >
           <div className="ship-info">
-            <div className="ship-name" title={getShipName(data)}>
-              <span>{getShipName(data)}</span>
-            </div>
+            <ShipName
+              name={data.api_name}
+              yomi={data.api_yomi}
+              enemy={!data.api_sortno}
+              />
             <div className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}>
               {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
               {isEscaped ? <FontAwesome name="reply" /> : (ship.damage || 0) }

@@ -12,18 +12,6 @@ const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 export const PLUGIN_KEY = 'poi-plugin-prophet'
 export const HISTORY_PATH = path.join(APPDATA_PATH, 'prophet-history.json')
 
-export function getShipName(ship) {
-  if (ship == null) {
-    return null
-  }
-  const name = i18n.resources.__(ship.api_name)
-  const yomi = ship.api_yomi
-  if (['elite', 'flagship'].includes(yomi)) {
-    return `${name} ${yomi}`
-  }
-  return name
-}
-
 export function getItemName(item) {
   if (item == null) {
     return null

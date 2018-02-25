@@ -6,8 +6,6 @@ import { SlotitemIcon } from 'views/components/etc/icon'
 import { get } from 'lodash'
 import { equipIsAircraft } from 'views/utils/game-utils'
 
-import { getShipName } from '../utils'
-
 const { ROOT } = window
 
 // friend item is from _slotitems, while enemy item is from $slotitems
@@ -36,7 +34,7 @@ const ItemView = connect((state, props) => ({
         }
       </span>
       <span className="item-name">
-        {`${getShipName(data)}`}
+        {window.i18n.resources.__(data.api_name)}
       </span>
       <span className="item-attr">
         <span className="alv">
