@@ -4,12 +4,12 @@ import FontAwesome from 'react-fontawesome'
 import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import _ from 'lodash'
-import { getCondStyle } from 'views/utils/game-utils'
 import { resolve } from 'path'
+import { getCondStyle } from 'views/utils/game-utils'
+import { Avatar } from 'views/components/etc/avatar'
 
 import ItemView from './item-view'
 import { FABar, HPBar } from './bar'
-
 
 // const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
@@ -81,10 +81,11 @@ const ShipView = connect(
       reverseLayout: _.get(state, 'config.poi.reverseLayout'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
+      enableAvatar: _.get(state, ['config', 'poi', 'enableAvatar'], false),
     }
   }
 )(({
-  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam,
+  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, enableAvatar,
 }) => {
   if (!(ship && ship.id > 0)) {
     return <div />
@@ -155,11 +156,15 @@ const ShipView = connect(
           overlay={tooltip}
         >
           <div className="ship-info">
+            {
+              enableAvatar
+              && (Boolean(data.api_sortno) && <Avatar mstId={data.api_ship_id} height={30} />)
+            }
             <ShipName
               name={data.api_name}
               yomi={data.api_yomi}
               enemy={!data.api_sortno}
-              />
+            />
             <div className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}>
               {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
               {isEscaped ? <FontAwesome name="reply" /> : (ship.damage || 0) }
