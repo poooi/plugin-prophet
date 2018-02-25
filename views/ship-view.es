@@ -8,6 +8,7 @@ import { resolve } from 'path'
 import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import { Avatar } from 'views/components/etc/avatar'
 import { isKana } from 'wanakana'
+import cls from 'classnames'
 
 import ItemView from './item-view'
 import { FABar, HPBar } from './bar'
@@ -198,7 +199,12 @@ const ShipView = connect(
   )
 
   return (
-    <div className={`div-row ship-item ${isEscaped ? 'escaped' : ''}`}>
+    <div
+      className={cls('div-row ship-item', {
+        escaped: isEscaped,
+        compact,
+      })}
+    >
       <div className="ship-view">
         <OverlayTrigger
           placement={placements[parseInt(`${+(layout === 'vertical')}${+(reverseLayout)}`, 2)]}
@@ -208,7 +214,7 @@ const ShipView = connect(
             {
               enableAvatar
               && (data.api_sortno
-                ? <Avatar mstId={data.api_ship_id} height={30} />
+                ? <Avatar mstId={data.api_ship_id} height={30} style={{ position: compact && 'absolute' }} />
                 : <EnemyAvatar name={data.api_name} nowHP={ship.nowHP} maxHP={ship.maxHP} />)
             }
             {

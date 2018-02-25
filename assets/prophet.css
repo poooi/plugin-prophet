@@ -56,6 +56,9 @@
 #plugin-prophet .ship-item.escaped {
   opacity: 0.4;
 }
+#plugin-prophet .ship-item.compact .ship-avatar-container {
+  position: absolute;
+}
 .prophet-icon {
   width: 15px;
 }
@@ -98,11 +101,14 @@
   min-width: 0;
 }
 #plugin-prophet .ship-info .ship-damage {
-  overflow: hidden;
+  white-space: nowrap;
   vertical-align: bottom;
   padding-top: 3px;
-  text-overflow: ellipsis;
   opacity: 0.8;
+  text-align: right;
+}
+#plugin-prophet .ship-item.compact .ship-damage {
+  flex: 1;
 }
 #plugin-prophet .ship-info .ship-name {
   flex: 1;
