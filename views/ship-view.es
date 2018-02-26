@@ -221,6 +221,7 @@ const ShipView = connect(
                     <Avatar
                       mstId={data.api_ship_id}
                       height={30}
+                      isDamaged={ship.nowHP <= ship.maxHP / 2}
                     />
                   }
                   {
