@@ -229,7 +229,6 @@ const ShipView = connect(
                     <ShipName
                       name={data.api_name}
                       yomi={data.api_yomi}
-                      enemy={!data.api_sortno}
                     />
                   }
                 </Fragment>
@@ -248,7 +247,7 @@ const ShipView = connect(
                     <ShipName
                       name={data.api_name}
                       yomi={data.api_yomi}
-                      enemy={!data.api_sortno}
+                      enemy
                     />
                   }
                 </Fragment>
