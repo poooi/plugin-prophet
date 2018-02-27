@@ -9,6 +9,14 @@ The project now contains `lib-battle` as submodule, use `git submodule init`, `g
 
 __IMPORTANT__: Before publishing new version, always check if submodule is updated.
 
+## Acknowledgement
+
+Thanks to all contributors for this plugin.
+
+Thanks to [NotLeyana](https://www.reddit.com/user/NotLeyana) for English translations of next spot messages
+
+Thanks to [旭日凰飞](https://weibo.com/u/2934513813) for Chinese translations of next spot messages
+
 ## License
 
 MIT **EXCEPT FOR SVG ICONS**
