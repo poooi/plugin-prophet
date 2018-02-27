@@ -78,7 +78,8 @@ const BattleViewArea = connect(
       airControl: props.airControl,
       isBaseDefense: props.isBaseDefense,
       sortieState: props.sortieState,
-      spotKind: props.spotKind,
+      eventId: props.eventId,
+      eventKind: props.eventKind,
       result: props.result,
       battleForm: props.battleForm,
       eFormation: props.eFormation,
@@ -100,7 +101,8 @@ const BattleViewArea = connect(
   airControl = 0,
   isBaseDefense,
   sortieState = 0,
-  spotKind = '',
+  eventId = 0,
+  eventKind = 0,
   result = {},
   battleForm = '',
   eFormation = '',
@@ -196,11 +198,11 @@ const BattleViewArea = connect(
     <div className="alert prophet-info">
       {
         sortieState === 1 && !isBaseDefense ?
-          <NextSpotInfo spotKind={spotKind} />
+          <NextSpotInfo eventId={eventId} eventKind={eventKind} />
         : isBaseDefense ?
         [
           battleInfo,
-          <NextSpotInfo spotKind={spotKind} />,
+          <NextSpotInfo eventId={eventId} eventKind={eventKind} />,
         ]
         : (getShip || getItem) ?
           <DropInfo

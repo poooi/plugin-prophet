@@ -14,7 +14,7 @@ import { store } from 'views/create-store'
 
 import CheckboxLabelConfig from './checkbox-label-config'
 import BattleViewArea from './views/battle-view-area'
-import { PLUGIN_KEY, HISTORY_PATH, initEnemy, spotInfo, getSpotKind, lostKind } from './utils'
+import { PLUGIN_KEY, HISTORY_PATH, initEnemy, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
 import { onBattleResult, onGetPracticeInfo, onLoadHistory, prophetObserver } from './redux'
 
@@ -212,7 +212,8 @@ export const reactClass = connect(
     airControl: '', // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
     isBaseDefense: false,
     sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
-    spotKind: '',
+    eventId: 0,
+    eventKind: 0,
     result: {},
     battleForm: '', // api_formation[2]
     eFormation: '', // enemy formation, api_formation[1]
@@ -423,7 +424,8 @@ export const reactClass = connect(
       airControl,
       isBaseDefense,
       sortieState,
-      spotKind,
+      eventId,
+      eventKind,
       result,
       battleForm,
       eFormation,
@@ -434,7 +436,7 @@ export const reactClass = connect(
       case '/kcsapi/api_port/port':
         this.battle = null;
         ({
-          enemyFleet, enemyEscort, sortieState, spotKind, result, airForce,
+          enemyFleet, enemyEscort, sortieState, eventId, eventKind, result, airForce,
         } = this.constructor.initState)
         break
       case '/kcsapi/api_req_map/start':
@@ -443,7 +445,9 @@ export const reactClass = connect(
           api_event_kind, api_event_id, api_destruction_battle, api_maparea_id,
         } = body
         sortieState = 1
-        spotKind = spotInfo[getSpotKind(api_event_id, api_event_kind)] || '';
+        // eventId = spotInfo[getSpotKind(api_event_id, api_event_kind)] || '';
+        eventId = api_event_id
+        eventKind = api_event_kind;
         ({
           enemyFleet, enemyEscort, landBase, airForce,
         } = this.constructor.initState)
@@ -585,7 +589,8 @@ export const reactClass = connect(
       airControl,
       isBaseDefense,
       sortieState,
-      spotKind,
+      eventId,
+      eventKind,
       result,
       battleForm,
       eFormation,
@@ -605,7 +610,8 @@ export const reactClass = connect(
       airControl,
       isBaseDefense,
       sortieState,
-      spotKind,
+      eventId,
+      eventKind,
       result,
       battleForm,
       eFormation,
@@ -625,7 +631,8 @@ export const reactClass = connect(
           airControl={airControl}
           isBaseDefense={isBaseDefense}
           sortieState={sortieState}
-          spotKind={spotKind}
+          eventId={eventId}
+          eventKind={eventKind}
           result={result}
           battleForm={battleForm}
           eFormation={eFormation}

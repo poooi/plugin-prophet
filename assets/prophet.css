@@ -193,10 +193,20 @@
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
+}
+#plugin-prophet .current-info div + div::before{
+  content: '|';
+  margin-left: 1ex;
+  margin-right: 1ex;
 }
 #plugin-prophet .compass-icon {
   width: 18px;
 }
 #plugin-prophet .current-info > span {
   margin: 0 .2ex;
+}
+
+#plugin-prophet .next-spot-info .spot-message {
+  white-space: normal;
 }
