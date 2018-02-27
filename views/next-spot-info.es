@@ -49,7 +49,7 @@ const NextSpotInfo = connect(
       currentNode: currentNode || -1,
       sortieMapId: parseInt(sortieMapId || 0, 10),
       allMaps: get(state, 'fcd.map', {}),
-      eventId: props.eventId || '?',
+      eventId: props.eventId,
       lastFormation: showLastFormation && get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
       item,
     }

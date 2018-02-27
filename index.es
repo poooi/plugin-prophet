@@ -445,7 +445,6 @@ export const reactClass = connect(
           api_event_kind, api_event_id, api_destruction_battle, api_maparea_id,
         } = body
         sortieState = 1
-        // eventId = spotInfo[getSpotKind(api_event_id, api_event_kind)] || '';
         eventId = api_event_id
         eventKind = api_event_kind;
         ({

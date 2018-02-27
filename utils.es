@@ -52,7 +52,7 @@ export const initEnemy = (
 export const spotInfo = {
   0: '',
   1: 'Start',
-  2: 'Unknown',
+  2: 'Battle Avoid',
   3: 'Obtain Resources',
   4: 'Lose Resources',
   5: 'Battle',
