@@ -96,7 +96,7 @@ export const HPBar = connect((state, props) => ({
           {
             [1, 2, 3].map(i => (
               <div
-                className="hp-indicatior"
+                className="hp-indicator"
                 key={i}
                 style={{
                   left: `-${25 * i}%`,
