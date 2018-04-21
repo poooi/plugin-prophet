@@ -6,6 +6,7 @@ module.exports = {
   },
   'extends': [
     "airbnb",
+    'poi-plugin',
   ],
   'parser': 'babel-eslint',
   'plugins': [
@@ -18,7 +19,7 @@ module.exports = {
   },
   'rules': {
     'semi': ['error', 'never'],
-    'import/no-unresolved': [2, { 'ignore': ['views/.*'] }],
+    'import/no-unresolved': ['error', { 'ignore': ['views/.*'] }],
     'react/jsx-filename-extension': 'off',
     'no-underscore-dangle': ['error', { 'allow': ['__'], 'allowAfterThis': true }],
     'import/extensions': ['error', { 'es': 'never' }],
@@ -33,38 +34,5 @@ module.exports = {
     'react/no-multi-comp': 'off',
     'react/forbid-prop-types': 'off',
     'no-underscore-dangle': 'off',
-  },
-  'settings': {
-    'import/resolver': {
-      'node': {
-        'extensions': ['.js', '.jsx', '.es'],
-        'paths': [__dirname],
-      },
-    },
-    'import/core-modules': [
-      'electron',
-      'react',
-      'react-dom',
-      'react-redux',
-      'redux',
-      'redux-observers',
-      'reselect',
-      'react-bootstrap',
-      'react-fontawesome',
-      'path-extra',
-      'fs-extra',
-      'lodash',
-      'cson',
-      'fast-memoize',
-      'classnames',
-      'semver',
-      'react-virtualized',
-      'prop-types',
-      'fuse.js',
-      'react-overlays',
-      'wanakana',
-      'classnames',
-      'react-i18next',
-    ],
   },
 }
