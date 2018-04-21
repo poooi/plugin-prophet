@@ -1,8 +1,9 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { map, get } from 'lodash'
-import ShipView from './ship-view'
 import cls from 'classnames'
+
+import ShipView from './ship-view'
 
 // const { i18n } = window
 // const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
@@ -19,7 +20,7 @@ class FleetView extends PureComponent {
   }
 
   componentDidMount = () => {
-    this.observer = new ResizeObserver(this.handleResize)
+    this.observer = new window.ResizeObserver(this.handleResize)
     this.observer.observe(this.container)
   }
 

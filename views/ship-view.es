@@ -98,6 +98,12 @@ const EnemyAvatar = ({ name, nowHP, maxHP }) => (
   </div>
 )
 
+EnemyAvatar.propTypes = {
+  name: PropTypes.string.isRequired,
+  nowHP: PropTypes.number.isRequired,
+  maxHP: PropTypes.number.isRequired,
+}
+
 ShipName.propTypes = {
   name: PropTypes.string,
   yomi: PropTypes.string,

@@ -63,6 +63,8 @@ module.exports = {
       'prop-types',
       'fuse.js',
       'react-overlays',
+      'wanakana',
+      'classnames',
     ],
   },
 }

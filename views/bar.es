@@ -4,7 +4,7 @@ import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import { MaterialIcon, SlotitemIcon } from 'views/components/etc/icon'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
-import { ProgressBar } from 'react-bootstrap'
+import { ProgressBar, Label } from 'react-bootstrap'
 
 export const FABar = ({ max, now, icon }) => {
   let pcnt
@@ -39,38 +39,25 @@ export const HPBar = connect((state, props) => ({
   const _stage = stage == null ? _from : stage
   const now = 100 * (_to / max)
   const lost = 100 * ((_stage - _to) / max)
-  const additions = []
-
-  if (_stage !== 0 && Math.max(_from - _stage, 0) - damage !== 0) {
-    additions.push(`${Math.max(_from - _stage, 0) - damage}`)
-  }
-  if (item && $equip) {
-    const itemIcon = $equip.api_type[3]
-    additions.push(
-      <span className="item-icon" key={itemIcon}>
-        <SlotitemIcon slotitemId={itemIcon} className="prophet-icon" />
-      </span>
-    )
-  }
-
-  const labels = []
-  labels.push(<span key={-1}>{`${_to} / ${max}`}</span>)
-  if (additions.length > 0) {
-    labels.push(<span key={-2}>{' ('}</span>)
-    additions.forEach((addition, i) => {
-      labels.push(addition)
-      labels.push(<span key={i}>, </span>)
-    })
-    labels.pop() // Remove last comma
-    labels.push(<span key={-3}>{')'}</span>)
-  }
 
   return (
     <div>
       <div className="ship-stat">
         <div className="div-row">
           <span className="ship-hp">
-            {labels}
+            {_to} / {max}
+            {
+              _stage !== 0 && Math.max(_from - _stage, 0) - damage !== 0 &&
+              <Label bsStyle="danger">{Math.max(_from - _stage, 0) - damage}</Label>
+            }
+            {
+              !!item && $equip &&
+              <Label bsStyle="danger">
+                <span className="item-icon">
+                  <SlotitemIcon slotitemId={$equip.api_type[3]} className="prophet-icon" />
+                </span>
+              </Label>
+            }
           </span>
           {
             typeof cond !== 'undefined' ?

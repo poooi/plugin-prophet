@@ -197,6 +197,7 @@ const BattleViewArea = connect(
   const mapInfo = (
     <div className="alert prophet-info">
       {
+        /* eslint-disable no-nested-ternary */
         sortieState === 1 && !isBaseDefense ?
           <NextSpotInfo eventId={eventId} eventKind={eventKind} />
         : isBaseDefense ?
@@ -212,6 +213,7 @@ const BattleViewArea = connect(
         : sortieState > 1 || isBaseDefense ?
           battleInfo
         : <noscript />
+        /* eslint-enable no-nested-ternary */
       }
     </div>
   )

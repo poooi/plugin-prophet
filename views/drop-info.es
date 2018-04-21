@@ -1,4 +1,5 @@
 import React, { PureComponent } from 'react'
+import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import FA from 'react-fontawesome'
@@ -20,6 +21,17 @@ const DropInfo = connect((state, props) => {
     navyAlbumShowShipAvailable,
   }
 })(class DropInfo extends PureComponent {
+  static propTypes = {
+    ship: PropTypes.shape({
+      api_id: PropTypes.number,
+    }).isRequired,
+    item: PropTypes.shape({
+      api_id: PropTypes.number,
+    }).isRequired,
+    shipType: PropTypes.objectOf(PropTypes.object).isRequired,
+    navyAlbumShowShipAvailable: PropTypes.bool.isRequired,
+  }
+
   handleClick = () => {
     const { showShip } = ipc.access('NavyAlbum')
     const { ship } = this.props
