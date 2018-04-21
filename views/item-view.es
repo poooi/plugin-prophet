@@ -1,19 +1,25 @@
-
-import { join } from 'path'
 import React from 'react'
+import { join } from 'path'
 import { connect } from 'react-redux'
-import { SlotitemIcon } from 'views/components/etc/icon'
 import { get } from 'lodash'
+import { translate } from 'react-i18next'
+import { compose } from 'redux'
+import { SlotitemIcon } from 'views/components/etc/icon'
 import { equipIsAircraft } from 'views/utils/game-utils'
 
 const { ROOT } = window
 
 // friend item is from _slotitems, while enemy item is from $slotitems
 // so for enemy item, its $item will always be undefined
-const ItemView = connect((state, props) => ({
-  $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
-}))(({
-  item, extra, label, warn, $item,
+const ItemView = compose(
+  translate('resources'),
+  connect(
+    (state, props) => ({
+      $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
+    })
+  ),
+)(({
+  item, extra, label, warn, $item, t,
 }) => {
   if (!item) {
     return <div />
@@ -34,7 +40,7 @@ const ItemView = connect((state, props) => ({
         }
       </span>
       <span className="item-name">
-        {window.i18n.resources.__(data.api_name)}
+        {t(data.api_name)}
       </span>
       <span className="item-attr">
         <span className="alv">

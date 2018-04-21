@@ -1,22 +1,24 @@
 import path from 'path'
 import _ from 'lodash'
+import i18next from 'views/env-parts/i18next'
+
 import { Models } from './lib/battle'
 
-const { i18n, APPDATA_PATH } = window
+const { APPDATA_PATH } = window
 const {
   Ship, ShipOwner, Formation, Engagement, AirControl,
 } = Models
 
-const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
-
 export const PLUGIN_KEY = 'poi-plugin-prophet'
 export const HISTORY_PATH = path.join(APPDATA_PATH, 'prophet-history.json')
+
+const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
 
 export function getItemName(item) {
   if (item == null) {
     return null
   }
-  return i18n.resources.__(item.api_name)
+  return __(item.api_name)
 }
 
 export const initEnemy = (

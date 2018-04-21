@@ -3,24 +3,27 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import FA from 'react-fontawesome'
+import { translate } from 'react-i18next'
 
-const { i18n, ipc } = window
-const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
+const { ipc } = window
 
+@translate(['poi-plugin-prophet', 'resources'])
+@connect(
+  (state, props) => {
+    const ship = _.get(state, `const.$ships.${props.getShip}`)
+    const item = _.get(state, `const.$useitems.${props.getItem}`)
+    const shipType = _.get(state, `const.$shipTypes.${(ship || {}).api_stype}`)
+    const navyAlbumShowShipAvailable = _.get(state, 'ipc.NavyAlbum.showShip', false)
 
-const DropInfo = connect((state, props) => {
-  const ship = _.get(state, `const.$ships.${props.getShip}`)
-  const item = _.get(state, `const.$useitems.${props.getItem}`)
-  const shipType = _.get(state, `const.$shipTypes.${(ship || {}).api_stype}`)
-  const navyAlbumShowShipAvailable = _.get(state, 'ipc.NavyAlbum.showShip', false)
-
-  return {
-    ship,
-    item,
-    shipType,
-    navyAlbumShowShipAvailable,
+    return {
+      ship,
+      item,
+      shipType,
+      navyAlbumShowShipAvailable,
+    }
   }
-})(class DropInfo extends PureComponent {
+)
+class DropInfo extends PureComponent {
   static propTypes = {
     ship: PropTypes.shape({
       api_id: PropTypes.number,
@@ -30,6 +33,7 @@ const DropInfo = connect((state, props) => {
     }).isRequired,
     shipType: PropTypes.objectOf(PropTypes.object).isRequired,
     navyAlbumShowShipAvailable: PropTypes.bool.isRequired,
+    t: PropTypes.func.isRequired,
   }
 
   handleClick = () => {
@@ -40,12 +44,12 @@ const DropInfo = connect((state, props) => {
 
   render() {
     const {
-      ship, item, shipType, navyAlbumShowShipAvailable,
+      ship, item, shipType, navyAlbumShowShipAvailable, t,
     } = this.props
     const shipMessage = ship &&
-      __('%s "%s" joined your fleet', i18n.resources.__(shipType.api_name), i18n.resources.__(ship.api_name))
+      t('%s "%s" joined your fleet', t(shipType.api_name), t(ship.api_name))
     const itemMessage = item &&
-      __('Item "%s" got', i18n.resources.__(item.api_name))
+      t('Item "%s" got', t(item.api_name))
 
     const shipComponent = shipMessage && (
       navyAlbumShowShipAvailable ? (
@@ -89,6 +93,6 @@ const DropInfo = connect((state, props) => {
       </span>
     )
   }
-})
+}
 
 export default DropInfo

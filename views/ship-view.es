@@ -9,11 +9,11 @@ import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import { Avatar } from 'views/components/etc/avatar'
 import { isKana } from 'wanakana'
 import cls from 'classnames'
+import { translate } from 'react-i18next'
+import { compose } from 'redux'
 
 import ItemView from './item-view'
 import { FABar, HPBar } from './bar'
-
-// const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
 
 const ParamIcon = ({ name = '' }) => {
   const iconPath = resolve(__dirname, `../assets/icons/${name}.svg`)
@@ -24,8 +24,10 @@ ParamIcon.propTypes = {
   name: PropTypes.string,
 }
 
-const ShipName = ({ name, yomi, enemy }) => {
-  const translated = window.i18n.resources.__(name)
+const ShipName = translate('resources')(({
+  name, yomi, enemy, t,
+}) => {
+  const translated = t(name)
   const fullname = ['elite', 'flagship'].includes(yomi)
     ? `${translated} ${yomi}`
     : translated
@@ -55,7 +57,7 @@ const ShipName = ({ name, yomi, enemy }) => {
       <span>{down.join(' ')}</span>
     </div>
   )
-}
+})
 
 const getAvatarChar = (name) => {
   if (name.includes('姫')) {
@@ -120,22 +122,25 @@ const placements = {
 // fParam: [0]=火力, [1]=雷装, [2]=対空, [3]=装甲
 const paramNames = ['firepower', 'torpedo', 'AA', 'armor']
 
-const ShipView = connect(
-  (state, props) => {
-    const api_ship_id = _.get(props.ship, 'raw.api_ship_id', -1)
-    return {
-      escapedPos: state.sortie.escapedPos || [],
-      ship: props.ship,
-      layout: _.get(state, 'config.poi.layout', 'horizontal'),
-      reverseLayout: _.get(state, 'config.poi.reverseLayout'),
-      $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
-      useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
-      ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
-      enemyAvatar: _.get(state.config, 'plugin.prophet.showVesselAvatar', false),
+const ShipView = compose(
+  translate('resources'),
+  connect(
+    (state, props) => {
+      const api_ship_id = _.get(props.ship, 'raw.api_ship_id', -1)
+      return {
+        escapedPos: state.sortie.escapedPos || [],
+        ship: props.ship,
+        layout: _.get(state, 'config.poi.layout', 'horizontal'),
+        reverseLayout: _.get(state, 'config.poi.reverseLayout'),
+        $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
+        useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
+        ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
+        enemyAvatar: _.get(state.config, 'plugin.prophet.showVesselAvatar', false),
+      }
     }
-  }
+  ),
 )(({
-  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, ourAvatar, enemyAvatar, compact,
+  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, ourAvatar, enemyAvatar, compact, t,
 }) => {
   if (!(ship && ship.id > 0)) {
     return <div />
@@ -162,8 +167,8 @@ const ShipView = connect(
         <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
           {
             ['elite', 'flagship'].includes(data.api_yomi)
-              ? `${window.i18n.resources.__(data.api_name)} ${data.api_yomi}`
-              : window.i18n.resources.__(data.api_name)
+              ? `${t(data.api_name)} ${data.api_yomi}`
+              : t(data.api_name)
           }
         </div>
         <div className="ship-essential">

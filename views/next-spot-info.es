@@ -3,13 +3,13 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { resolve } from 'path'
+import { translate } from 'react-i18next'
+import { compose } from 'redux'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 import { MaterialIcon } from 'views/components/etc/icon'
 
 import { PLUGIN_KEY, _t, spotIcon, spotInfo, getSpotKind, getSpotMessage } from '../utils'
-
-const __ = window.i18n['poi-plugin-prophet'].__.bind(window.i18n['poi-plugin-prophet'])
 
 const getCompassAngle = (mapspots, maproutes, currentNode) => {
   if (currentNode === -1) return NaN
@@ -38,24 +38,27 @@ SpotIcon.propTypes = {
 }
 
 
-const NextSpotInfo = connect(
-  (state, props) => {
-    const sortie = state.sortie || {}
-    const { sortieMapId, currentNode, item } = sortie
-    const spot = `${sortieMapId}-${currentNode}`
-    const showLastFormation = get(state, 'config.plugin.prophet.showLastFormation', true)
+const NextSpotInfo = compose(
+  translate('poi-plugin-prophet'),
+  connect(
+    (state, props) => {
+      const sortie = state.sortie || {}
+      const { sortieMapId, currentNode, item } = sortie
+      const spot = `${sortieMapId}-${currentNode}`
+      const showLastFormation = get(state, 'config.plugin.prophet.showLastFormation', true)
 
-    return {
-      currentNode: currentNode || -1,
-      sortieMapId: parseInt(sortieMapId || 0, 10),
-      allMaps: get(state, 'fcd.map', {}),
-      eventId: props.eventId,
-      lastFormation: showLastFormation && get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
-      item,
+      return {
+        currentNode: currentNode || -1,
+        sortieMapId: parseInt(sortieMapId || 0, 10),
+        allMaps: get(state, 'fcd.map', {}),
+        eventId: props.eventId,
+        lastFormation: showLastFormation && get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
+        item,
+      }
     }
-  }
+  ),
 )(({
-  currentNode, sortieMapId, allMaps, eventId, eventKind, lastFormation, item,
+  currentNode, sortieMapId, allMaps, eventId, eventKind, lastFormation, item, t,
 }) => {
   const mapspots = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.spots`, {})
   const maproutes = get(allMaps, `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}.route`, {})
@@ -79,7 +82,7 @@ const NextSpotInfo = connect(
     <div className="next-spot-info">
       <div className="current-info">
         <div>
-          <span>{`${__('Compass Point')}: `}</span>
+          <span>{`${t('Compass Point')}: `}</span>
           {
           Number.isNaN(compassAngle) ?
           '?' :
@@ -98,18 +101,18 @@ const NextSpotInfo = connect(
             {nextSpot} ({currentNode})
           </span>
           <SpotIcon spotKind={spotKind} />
-          <span>{__(spotKind)}</span>
+          <span>{t(spotKind)}</span>
           { resources }
         </div>
       </div>
       {
         spotMessage &&
         <div className="spot-message">
-          { __(spotMessage) }
+          { t(spotMessage) }
         </div>
       }
       <div>
-        {lastFormation && `${__('Last chosen: ')} ${_t(lastFormation)}`}
+        {lastFormation && `${t('Last chosen: ')} ${_t(lastFormation)}`}
       </div>
     </div>
   )

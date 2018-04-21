@@ -4,6 +4,8 @@ import { createSelector } from 'reselect'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
+import { translate } from 'react-i18next'
+import { compose } from 'redux'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
@@ -14,9 +16,6 @@ import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY, combinedFleetType, getTPDazzyDing } from '../utils'
-
-const { i18n } = window
-const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 
 const inEventSelector = createSelector(
   [
@@ -36,58 +35,61 @@ const escapedShipIdSelector = createSelector([
   return [] // because you could only escape in combined fleet
 })
 
-const BattleViewArea = connect(
-  (state, props) => {
-    const sortie = state.sortie || {}
-    const {
-      sortieMapId, currentNode, combinedFlag,
-    } = sortie
-    const showEnemyTitle = _.get(state, 'config.plugin.prophet.showEnemyTitle', true)
-    const spot = props.sortieState === 3 ? 'practice' : `${sortieMapId}-${currentNode}`
-    let enemyTitle = props.sortieState === 3 ? 'PvP' : 'Enemy Vessel'
-    enemyTitle = showEnemyTitle
-      ? _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle)
-      : enemyTitle
+const BattleViewArea = compose(
+  translate('poi-plugin-prophet'),
+  connect(
+    (state, props) => {
+      const sortie = state.sortie || {}
+      const {
+        sortieMapId, currentNode, combinedFlag,
+      } = sortie
+      const showEnemyTitle = _.get(state, 'config.plugin.prophet.showEnemyTitle', true)
+      const spot = props.sortieState === 3 ? 'practice' : `${sortieMapId}-${currentNode}`
+      let enemyTitle = props.sortieState === 3 ? 'PvP' : 'Enemy Vessel'
+      enemyTitle = showEnemyTitle
+        ? _.get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.title`, enemyTitle)
+        : enemyTitle
 
-    const escapedShipIds = escapedShipIdSelector(state)
-    const inEvent = inEventSelector(state)
-    const TP = inEvent
-      ? getTPDazzyDing([...(props.mainFleet || []), ...(props.escortFleet || []), escapedShipIds])
-      : { total: 0, actual: 0 }
+      const escapedShipIds = escapedShipIdSelector(state)
+      const inEvent = inEventSelector(state)
+      const TP = inEvent
+        ? getTPDazzyDing([...(props.mainFleet || []), ...(props.escortFleet || []), escapedShipIds])
+        : { total: 0, actual: 0 }
 
-    let friendTitle = 'Sortie Fleet'
-    if (showEnemyTitle) {
-      if (combinedFlag > 0) {
-        friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
-      } else {
-        friendTitle = _.get(state, `info.fleets.${props.fleetIds[0]}.api_name`, 'Sortie Fleet')
+      let friendTitle = 'Sortie Fleet'
+      if (showEnemyTitle) {
+        if (combinedFlag > 0) {
+          friendTitle = combinedFleetType[combinedFlag] || 'Combined Fleet'
+        } else {
+          friendTitle = _.get(state, `info.fleets.${props.fleetIds[0]}.api_name`, 'Sortie Fleet')
+        }
+      }
+      friendTitle = props.isBaseDefense ? 'Land Base' : friendTitle
+
+      return {
+        layout: _.get(state, 'config.poi.layout', 'horizontal'),
+        doubleTabbed: _.get(state, 'config.poi.tabarea.double', false),
+        ecGameOrder: _.get(state, 'config.plugin.prophet.ecGameOrder', true),
+        mainFleet: props.mainFleet,
+        escortFleet: props.escortFleet,
+        enemyFleet: props.enemyFleet,
+        enemyEscort: props.enemyEscort,
+        landBase: props.landBase,
+        airForce: props.airForce,
+        airControl: props.airControl,
+        isBaseDefense: props.isBaseDefense,
+        sortieState: props.sortieState,
+        eventId: props.eventId,
+        eventKind: props.eventKind,
+        result: props.result,
+        battleForm: props.battleForm,
+        eFormation: props.eFormation,
+        enemyTitle,
+        friendTitle,
+        TP,
       }
     }
-    friendTitle = props.isBaseDefense ? 'Land Base' : friendTitle
-
-    return {
-      layout: _.get(state, 'config.poi.layout', 'horizontal'),
-      doubleTabbed: _.get(state, 'config.poi.tabarea.double', false),
-      ecGameOrder: _.get(state, 'config.plugin.prophet.ecGameOrder', true),
-      mainFleet: props.mainFleet,
-      escortFleet: props.escortFleet,
-      enemyFleet: props.enemyFleet,
-      enemyEscort: props.enemyEscort,
-      landBase: props.landBase,
-      airForce: props.airForce,
-      airControl: props.airControl,
-      isBaseDefense: props.isBaseDefense,
-      sortieState: props.sortieState,
-      eventId: props.eventId,
-      eventKind: props.eventKind,
-      result: props.result,
-      battleForm: props.battleForm,
-      eFormation: props.eFormation,
-      enemyTitle,
-      friendTitle,
-      TP,
-    }
-  }
+  ),
 )(({
   layout,
   doubleTabbed,
@@ -109,6 +111,7 @@ const BattleViewArea = connect(
   enemyTitle,
   friendTitle,
   TP,
+  t,
 }) => {
   const View = isBaseDefense ? SquadView : ShipView
   const times = layout === 'horizontal' ? 1 : 2
@@ -122,20 +125,20 @@ const BattleViewArea = connect(
   const { getShip, getItem } = _.pick(result, ['getShip', 'getItem'])
   const alliedForce = (
     <div className="div-row">
-      <FleetView fleet={isBaseDefense ? landBase : mainFleet} title={__('Main Fleet')} count={times * fleetCount} View={View} />
-      <FleetView fleet={isBaseDefense ? undefined : escortFleet} title={__('Escort Fleet')} count={times * fleetCount} View={View} />
+      <FleetView fleet={isBaseDefense ? landBase : mainFleet} title={t('Main Fleet')} count={times * fleetCount} View={View} />
+      <FleetView fleet={isBaseDefense ? undefined : escortFleet} title={t('Escort Fleet')} count={times * fleetCount} View={View} />
     </div>
   )
   const enemyForce = sortieState > 1 || isBaseDefense ? (
     <div className="div-row" style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
-      <FleetView fleet={enemyFleet} title={__('Enemy Fleet')} count={times * enemyCount} />
-      <FleetView fleet={enemyEscort} title={__('Enemy Escort Fleet')} count={times * enemyCount} />
+      <FleetView fleet={enemyFleet} title={t('Enemy Fleet')} count={times * enemyCount} />
+      <FleetView fleet={enemyEscort} title={t('Enemy Escort Fleet')} count={times * enemyCount} />
     </div>
   ) : <noscript />
   const combatInfo = (
     <div className="alert div-row prophet-info">
-      <div className="combat-title" title={__(friendTitle)}>
-        <span>{`${__(friendTitle)}`}</span>
+      <div className="combat-title" title={t(friendTitle)}>
+        <span>{`${t(friendTitle)}`}</span>
         {
           TP.total > 0 && (!isBaseDefense) &&
           <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
@@ -144,7 +147,7 @@ const BattleViewArea = connect(
               overlay={
                 <Tooltip id="tp-indicator">
                   <span>
-                    {`${__('A rank: ')}${Math.floor(TP.actual * 0.7)}`}
+                    {`${t('A rank: ')}${Math.floor(TP.actual * 0.7)}`}
                   </span>
                 </Tooltip>
               }
@@ -171,7 +174,7 @@ const BattleViewArea = connect(
       {
         (sortieState > 1 || isBaseDefense)
           ?
-            <div className="combat-title" title={__(enemyTitle)}>
+            <div className="combat-title" title={t(enemyTitle)}>
               {
                 airForce[2] ?
                   <span>
@@ -179,7 +182,7 @@ const BattleViewArea = connect(
                     {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
                   </span> : ''
               }
-              {` ${__(enemyTitle)}`}
+              {` ${t(enemyTitle)}`}
             </div>
           : <div className="combat-title" />
       }

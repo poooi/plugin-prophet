@@ -8,6 +8,7 @@ import { observe } from 'redux-observers'
 import { promisify } from 'bluebird'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
+import { translate } from 'react-i18next'
 
 import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory, fleetSelectorFactory } from 'views/utils/selectors'
 import { store } from 'views/create-store'
@@ -26,11 +27,11 @@ const {
 
 
 const {
-  i18n, ROOT, getStore, dispatch,
+  ROOT, getStore, dispatch,
 } = window
 // const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
-const __ = i18n[PLUGIN_KEY].__.bind(i18n[PLUGIN_KEY])
+// const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) {
@@ -174,7 +175,8 @@ const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
 // 2: battle, switch on with PM emit type
 // 3: practice, switch on with PM emit type
 
-export const reactClass = connect(
+@translate([PLUGIN_KEY, 'resources'])
+@connect(
   (state) => {
     const sortie = state.sortie || {}
     const sortieStatus = sortie.sortieStatus || []
@@ -201,7 +203,8 @@ export const reactClass = connect(
       fleetIds,
     }
   }
-)(class Prophet extends Component {
+)
+class Prophet extends Component {
   static initState = {
     mainFleet: [], // An array of fleet
     escortFleet: [],
@@ -232,6 +235,7 @@ export const reactClass = connect(
     equips: PropTypes.arrayOf(PropTypes.array),
     airbase: PropTypes.arrayOf(PropTypes.object),
     fleetIds: PropTypes.arrayOf(PropTypes.number),
+    t: PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -377,6 +381,7 @@ export const reactClass = connect(
   }
 
   handlePacketResult = (battle) => {
+    const { t } = this.props
     const newState = this.handlePacket(battle)
     // notify heavily damaged
     // as battle result does not touch hps, it is safe to notify here?
@@ -391,12 +396,12 @@ export const reactClass = connect(
         && !includes(escapedPos, ship.pos - 1)
         && this.state.sortieState !== 3) {
         const shipName = getStore(`const.$ships.${ship.raw.api_ship_id}.api_name`, ' ')
-        damageList.push(i18n.resources.__(shipName))
+        damageList.push(t(shipName))
       }
     })
 
     if (!isEmpty(damageList) && config.get('plugin.prophet.notify.enable', true)) {
-      window.notify(`${damageList.join(', ')} ${__('Heavily damaged')}`, {
+      window.notify(`${damageList.join(', ')} ${t('Heavily damaged')}`, {
         type: 'damaged',
         icon: join(ROOT, 'views', 'components', 'main', 'assets', 'img', 'state', '4.png'),
         audio: config.get('plugin.prophet.notify.damagedAudio'),
@@ -408,6 +413,7 @@ export const reactClass = connect(
   }
 
   handleGameResponse = (e) => {
+    const { t } = this.props
     const { path, body } = e.detail
     // used in determining next spot type
 
@@ -506,7 +512,7 @@ export const reactClass = connect(
               lostHP: 0,
             }))
           }
-          result = { rank: __(lostKind[api_lost_kind] || '') }
+          result = { rank: t(lostKind[api_lost_kind] || '') }
           isBaseDefense = true
         }
         const isBoss = (body.api_event_id === 5)
@@ -640,52 +646,54 @@ export const reactClass = connect(
       </div>
     )
   }
-})
+}
 
-export const settingsClass = () => (
+export const reactClass = Prophet
+
+export const settingsClass = translate(PLUGIN_KEY)(({ t }) => (
   <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
     <CheckboxLabelConfig
-      label={__('Show scales on HP bar')}
+      label={t('Show scales on HP bar')}
       configName="plugin.prophet.showScale"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Display enemy combined fleet in game order')}
+      label={t('Display enemy combined fleet in game order')}
       configName="plugin.prophet.ecGameOrder"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Show enemy deck name if available')}
+      label={t('Show enemy deck name if available')}
       configName="plugin.prophet.showEnemyTitle"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Show last chosen formation hint')}
+      label={t('Show last chosen formation hint')}
       configName="plugin.prophet.showLastFormation"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Ship parameters include equipment bonus')}
+      label={t('Ship parameters include equipment bonus')}
       configName="plugin.prophet.useFinalParam"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Heavily damaged notification')}
+      label={t('Heavily damaged notification')}
       configName="plugin.prophet.notify.enable"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Enable avatars for ship girls')}
+      label={t('Enable avatars for ship girls')}
       configName="plugin.prophet.showAvatar"
       defaultVal={false}
     />
     <CheckboxLabelConfig
-      label={__('Enable avatars for Enemy Vessel')}
+      label={t('Enable avatars for Enemy Vessel')}
       configName="plugin.prophet.showVesselAvatar"
       defaultVal={false}
     />
   </div>
-)
+))
 
 export { reducer } from './redux'
 

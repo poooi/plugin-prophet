@@ -1,16 +1,14 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import path from 'path'
+import { translate } from 'react-i18next'
 
 import { _t } from '../utils'
 
-const { i18n } = window
-const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
-
 const BATTLE_RESULT = ['SS', 'S', 'A', 'B', 'C', 'D', 'E']
 
-const BattleInfo = ({
-  result = '', eFormation = '', battleForm = '', airControl = '',
+const BattleInfo = translate('poi-plugin-prophet')(({
+  result = '', eFormation = '', battleForm = '', airControl = '', t,
 }) => (
   <span className="battle-info">
     <span className="param-icon">
@@ -23,7 +21,7 @@ const BattleInfo = ({
             alt="result"
           />
         :
-        __(result)
+        t(result)
       }
     </span>
     {'| '}
@@ -33,7 +31,7 @@ const BattleInfo = ({
       ).join(' | ')
     }
   </span>
-)
+))
 
 
 BattleInfo.propTypes = {
@@ -41,6 +39,7 @@ BattleInfo.propTypes = {
   eFormation: PropTypes.string,
   battleForm: PropTypes.string,
   airControl: PropTypes.string,
+  t: PropTypes.func.isRequired,
 }
 
 export default BattleInfo

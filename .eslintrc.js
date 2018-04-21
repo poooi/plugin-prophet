@@ -57,7 +57,6 @@ module.exports = {
       'cson',
       'fast-memoize',
       'classnames',
-      'i18n-2',
       'semver',
       'react-virtualized',
       'prop-types',
@@ -65,6 +64,7 @@ module.exports = {
       'react-overlays',
       'wanakana',
       'classnames',
+      'react-i18next',
     ],
   },
 }

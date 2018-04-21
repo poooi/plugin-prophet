@@ -5,10 +5,6 @@ import cls from 'classnames'
 
 import ShipView from './ship-view'
 
-// const { i18n } = window
-// const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
-
-
 class FleetView extends PureComponent {
   static propTypes = {
     fleet: PropTypes.arrayOf(PropTypes.object),

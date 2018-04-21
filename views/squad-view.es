@@ -1,10 +1,8 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { translate } from 'react-i18next'
+
 import { HPBar } from './bar'
-
-
-const { i18n } = window
-const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
 
 // maybe can use compose for co-exist with redux connect
 
@@ -23,7 +21,7 @@ const actionKind = {
 }
 
 // TODO: connect store airbase
-const SquadView = ({ ship, compact }) => {
+const SquadView = translate('poi-plugin-prophet')(({ ship, compact, t }) => {
   if (ship && ship.id > 0) {
     return <div />
   }
@@ -39,7 +37,7 @@ const SquadView = ({ ship, compact }) => {
         <div className="ship-info">
           <div className="ship-name">
             <span>
-              {`${name} [${__(actionKind[action_kind] || '')}]`}
+              {`${name} [${t(actionKind[action_kind] || '')}]`}
             </span>
           </div>
         </div>
@@ -49,7 +47,7 @@ const SquadView = ({ ship, compact }) => {
       </div>
     </div>
   )
-}
+})
 
 SquadView.propTypes = {
   ship: PropTypes.shape({
