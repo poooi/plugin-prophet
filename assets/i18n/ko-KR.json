@@ -23,7 +23,7 @@
   "HP": "내구",
   "PvP": "연습상대",
   "Admiral": "사령관님 ",
-  "%s \"%s\" joined your fleet": "%s「%s」이(가) 착임했습니다.",
+  "{{type}} \"{{ship}}\" joined your fleet": "{{type}}「{{ship}}」이(가) 착임했습니다.",
   "Unknown FC": "불명",
   "Air Supremacy": "제공권 확보",
   "Air Superiority": "항공 우세",
@@ -43,6 +43,8 @@
   "Aerial Recon": "항공 정찰",
   "Compass Point": "나침반",
   "Next Spot": "다음 지점",
-  "Item \"%s:\" got! ": "「%s」을(를) 얻었습니다!",
-  "Not in sortie": "출격중이 아닙니다"
+  "Item \"{{item}}:\" got! ": "「{{item}}」을(를) 얻었습니다!",
+  "Not in sortie": "출격중이 아닙니다",
+  "last_chosen": "Last chosen: ",
+  "A_rank": "A rank"
 }

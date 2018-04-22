@@ -112,7 +112,7 @@ const NextSpotInfo = compose(
         </div>
       }
       <div>
-        {lastFormation && `${t('Last chosen: ')} ${_t(lastFormation)}`}
+        {lastFormation && `${t('last_chosen')} ${_t(lastFormation)}`}
       </div>
     </div>
   )

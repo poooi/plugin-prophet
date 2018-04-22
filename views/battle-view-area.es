@@ -147,7 +147,7 @@ const BattleViewArea = compose(
               overlay={
                 <Tooltip id="tp-indicator">
                   <span>
-                    {`${t('A rank: ')}${Math.floor(TP.actual * 0.7)}`}
+                    {`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}
                   </span>
                 </Tooltip>
               }

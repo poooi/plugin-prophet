@@ -27,11 +27,11 @@ class DropInfo extends PureComponent {
   static propTypes = {
     ship: PropTypes.shape({
       api_id: PropTypes.number,
-    }).isRequired,
+    }),
     item: PropTypes.shape({
       api_id: PropTypes.number,
-    }).isRequired,
-    shipType: PropTypes.objectOf(PropTypes.object).isRequired,
+    }),
+    shipType: PropTypes.objectOf(PropTypes.object),
     navyAlbumShowShipAvailable: PropTypes.bool.isRequired,
     t: PropTypes.func.isRequired,
   }
@@ -47,9 +47,9 @@ class DropInfo extends PureComponent {
       ship, item, shipType, navyAlbumShowShipAvailable, t,
     } = this.props
     const shipMessage = ship &&
-      t('%s "%s" joined your fleet', t(shipType.api_name), t(ship.api_name))
+      t('{{type}} "{{ship}}" joined your fleet', { type: t(shipType.api_name), ship: t(ship.api_name) })
     const itemMessage = item &&
-      t('Item "%s" got', t(item.api_name))
+      t('Item "{{item}}" got', { item: t(item.api_name) })
 
     const shipComponent = shipMessage && (
       navyAlbumShowShipAvailable ? (
