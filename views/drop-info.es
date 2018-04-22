@@ -8,21 +8,23 @@ import { translate } from 'react-i18next'
 const { ipc } = window
 
 @translate(['poi-plugin-prophet', 'resources'])
-@connect(
-  (state, props) => {
-    const ship = _.get(state, `const.$ships.${props.getShip}`)
-    const item = _.get(state, `const.$useitems.${props.getItem}`)
-    const shipType = _.get(state, `const.$shipTypes.${(ship || {}).api_stype}`)
-    const navyAlbumShowShipAvailable = _.get(state, 'ipc.NavyAlbum.showShip', false)
+@connect((state, props) => {
+  const ship = _.get(state, `const.$ships.${props.getShip}`)
+  const item = _.get(state, `const.$useitems.${props.getItem}`)
+  const shipType = _.get(state, `const.$shipTypes.${(ship || {}).api_stype}`)
+  const navyAlbumShowShipAvailable = _.get(
+    state,
+    'ipc.NavyAlbum.showShip',
+    false,
+  )
 
-    return {
-      ship,
-      item,
-      shipType,
-      navyAlbumShowShipAvailable,
-    }
+  return {
+    ship,
+    item,
+    shipType,
+    navyAlbumShowShipAvailable,
   }
-)
+})
 class DropInfo extends PureComponent {
   static propTypes = {
     ship: PropTypes.shape({
@@ -43,16 +45,19 @@ class DropInfo extends PureComponent {
   }
 
   render() {
-    const {
-      ship, item, shipType, navyAlbumShowShipAvailable, t,
-    } = this.props
-    const shipMessage = ship &&
-      t('{{type}} "{{ship}}" joined your fleet', { type: t(shipType.api_name), ship: t(ship.api_name) })
-    const itemMessage = item &&
-      t('Item "{{item}}" got', { item: t(item.api_name) })
+    const { ship, item, shipType, navyAlbumShowShipAvailable, t } = this.props
+    const shipMessage =
+      ship &&
+      t('{{type}} "{{ship}}" joined your fleet', {
+        type: t(shipType.api_name),
+        ship: t(ship.api_name),
+      })
+    const itemMessage =
+      item && t('Item "{{item}}" got', { item: t(item.api_name) })
 
-    const shipComponent = shipMessage && (
-      navyAlbumShowShipAvailable ? (
+    const shipComponent =
+      shipMessage &&
+      (navyAlbumShowShipAvailable ? (
         <button
           bsStyle="link"
           onClick={this.handleClick}
@@ -66,30 +71,22 @@ class DropInfo extends PureComponent {
           {shipMessage} <FA name="info-circle" />
         </button>
       ) : (
-        <span
-          key="ship"
-        >
-          {shipMessage}
-        </span>
-      )
-    )
+        <span key="ship">{shipMessage}</span>
+      ))
 
-    const itemComponent = itemMessage && (
-      <span key="item">{itemMessage}</span>
-    )
+    const itemComponent = itemMessage && <span key="item">{itemMessage}</span>
 
     const components = _.compact([shipComponent, itemComponent])
 
     return (
       <span className="drop-info">
-        {
-          _.flatMap(
-            components, (c, ind) =>
-              ind + 1 === components.length
-                ? [c]
-                : [c, <span key={`sep-${ind}`}> | </span>]
-          )
-        }
+        {_.flatMap(
+          components,
+          (c, ind) =>
+            ind + 1 === components.length
+              ? [c]
+              : [c, <span key={`sep-${ind}`}> | </span>],
+        )}
       </span>
     )
   }

@@ -10,12 +10,15 @@
     "eslint": "^4.19.1",
     "eslint-config-airbnb": "^16.1.0",
     "eslint-config-poi-plugin": "^1.0.0",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-plugin-import": "^2.11.0",
     "eslint-plugin-jsx-a11y": "^6.0.3",
+    "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.7.0",
     "husky": "^1.0.0-rc.1",
     "lint-staged": "^7.0.4",
-    "poi-util-transpile": "^7.6.2"
+    "poi-util-transpile": "^7.6.2",
+    "prettier": "^1.12.1"
   },
   "scripts": {
     "reset": "git clean -f && git checkout . && git submodule foreach git checkout . && git submodule foreach git clean -f",

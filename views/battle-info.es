@@ -7,32 +7,31 @@ import { _t } from '../utils'
 
 const BATTLE_RESULT = ['SS', 'S', 'A', 'B', 'C', 'D', 'E']
 
-const BattleInfo = translate('poi-plugin-prophet')(({
-  result = '', eFormation = '', battleForm = '', airControl = '', t,
-}) => (
-  <span className="battle-info">
-    <span className="param-icon">
-      {
-        BATTLE_RESULT.includes(result)
-        ?
+const BattleInfo = translate('poi-plugin-prophet')(
+  ({ result = '', eFormation = '', battleForm = '', airControl = '', t }) => (
+    <span className="battle-info">
+      <span className="param-icon">
+        {BATTLE_RESULT.includes(result) ? (
           <img
-            src={path.resolve(__dirname, `../assets/icons/result-${result}.svg`)}
-            className={`svg prophet-icon result-icon ${!window.isDarkTheme && 'light'}`}
+            src={path.resolve(
+              __dirname,
+              `../assets/icons/result-${result}.svg`,
+            )}
+            className={`svg prophet-icon result-icon ${!window.isDarkTheme &&
+              'light'}`}
             alt="result"
           />
-        :
-        t(result)
-      }
+        ) : (
+          t(result)
+        )}
+      </span>
+      {'| '}
+      {[_t(eFormation), _t(battleForm), _t(airControl)]
+        .filter(str => !!str)
+        .join(' | ')}
     </span>
-    {'| '}
-    {
-      [_t(eFormation), _t(battleForm), _t(airControl)].filter(
-        str => !!str
-      ).join(' | ')
-    }
-  </span>
-))
-
+  ),
+)
 
 BattleInfo.propTypes = {
   result: PropTypes.string,

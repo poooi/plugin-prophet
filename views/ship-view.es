@@ -17,16 +17,18 @@ import { FABar, HPBar } from './bar'
 
 const ParamIcon = ({ name = '' }) => {
   const iconPath = resolve(__dirname, `../assets/icons/${name}.svg`)
-  return <span className="param-icon"><img src={iconPath} className="svg prophet-icon" alt={name} /></span>
+  return (
+    <span className="param-icon">
+      <img src={iconPath} className="svg prophet-icon" alt={name} />
+    </span>
+  )
 }
 
 ParamIcon.propTypes = {
   name: PropTypes.string,
 }
 
-const ShipName = translate('resources')(({
-  name, yomi, enemy, t,
-}) => {
+const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
   const translated = t(name)
   const fullname = ['elite', 'flagship'].includes(yomi)
     ? `${translated} ${yomi}`
@@ -39,11 +41,13 @@ const ShipName = translate('resources')(({
   const up = []
   const down = []
 
-  const length = _(parts).map(_.size).sum()
+  const length = _(parts)
+    .map(_.size)
+    .sum()
 
   while (parts.length) {
     const word = parts.shift()
-    if (up.join(' ').length + word.length < (length / 2)) {
+    if (up.join(' ').length + word.length < length / 2) {
       up.push(word)
     } else {
       down.push(word)
@@ -59,7 +63,7 @@ const ShipName = translate('resources')(({
   )
 })
 
-const getAvatarChar = (name) => {
+const getAvatarChar = name => {
   if (name.includes('姫')) {
     return (
       <svg
@@ -87,7 +91,9 @@ const getAvatarChar = (name) => {
 
 const EnemyAvatar = ({ name, nowHP, maxHP }) => (
   <div
-    className={`progress-bar-${nowHP > 0 ? getHpStyle((100 * nowHP) / maxHP) : 'grey'}`}
+    className={`progress-bar-${
+      nowHP > 0 ? getHpStyle(100 * nowHP / maxHP) : 'grey'
+    }`}
     style={{
       width: 30,
       height: 30,
@@ -124,165 +130,177 @@ const paramNames = ['firepower', 'torpedo', 'AA', 'armor']
 
 const ShipView = compose(
   translate('resources'),
-  connect(
-    (state, props) => {
-      const api_ship_id = _.get(props.ship, 'raw.api_ship_id', -1)
-      return {
-        escapedPos: state.sortie.escapedPos || [],
-        ship: props.ship,
-        layout: _.get(state, 'config.poi.layout', 'horizontal'),
-        reverseLayout: _.get(state, 'config.poi.reverseLayout'),
-        $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
-        useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
-        ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
-        enemyAvatar: _.get(state.config, 'plugin.prophet.showVesselAvatar', false),
-      }
+  connect((state, props) => {
+    const api_ship_id = _.get(props.ship, 'raw.api_ship_id', -1)
+    return {
+      escapedPos: state.sortie.escapedPos || [],
+      ship: props.ship,
+      layout: _.get(state, 'config.poi.layout', 'horizontal'),
+      reverseLayout: _.get(state, 'config.poi.reverseLayout'),
+      $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
+      useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
+      ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
+      enemyAvatar: _.get(
+        state.config,
+        'plugin.prophet.showVesselAvatar',
+        false,
+      ),
     }
-  ),
-)(({
-  ship, $ship, escapedPos, layout, reverseLayout, useFinalParam, ourAvatar, enemyAvatar, compact, t,
-}) => {
-  if (!(ship && ship.id > 0)) {
-    return <div />
-  }
-  const isEscaped = _.includes(escapedPos, ship.pos - 1) && ship.owner === 'Ours'
-  const raw = ship.raw || {}
-  const data = {
-    ...$ship,
-    ...raw,
-  }
+  }),
+)(
+  ({
+    ship,
+    $ship,
+    escapedPos,
+    layout,
+    reverseLayout,
+    useFinalParam,
+    ourAvatar,
+    enemyAvatar,
+    compact,
+    t,
+  }) => {
+    if (!(ship && ship.id > 0)) {
+      return <div />
+    }
+    const isEscaped =
+      _.includes(escapedPos, ship.pos - 1) && ship.owner === 'Ours'
+    const raw = ship.raw || {}
+    const data = {
+      ...$ship,
+      ...raw,
+    }
 
-  if (!data.api_maxeq) {
-    data.api_maxeq = []
-  }
-  if (!data.api_onslot) {
-    data.api_onslot = data.api_maxeq
-  }
+    if (!data.api_maxeq) {
+      data.api_maxeq = []
+    }
+    if (!data.api_onslot) {
+      data.api_onslot = data.api_maxeq
+    }
 
-  const param = (useFinalParam ? ship.finalParam : ship.baseParam) || []
+    const param = (useFinalParam ? ship.finalParam : ship.baseParam) || []
 
-  const tooltip = (
-    <Tooltip id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
-      <div className="prophet-tip">
-        <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
-          {
-            ['elite', 'flagship'].includes(data.api_yomi)
+    const tooltip = (
+      <Tooltip id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
+        <div className="prophet-tip">
+          <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
+            {['elite', 'flagship'].includes(data.api_yomi)
               ? `${t(data.api_name)} ${data.api_yomi}`
-              : t(data.api_name)
-          }
-        </div>
-        <div className="ship-essential">
-          <span className="position-indicator">{ship.owner === 'Ours' ? '' : `ID ${ship.id}`}</span>
-          <span>Lv. {data.api_lv || '-'}</span>
+              : t(data.api_name)}
+          </div>
+          <div className="ship-essential">
+            <span className="position-indicator">
+              {ship.owner === 'Ours' ? '' : `ID ${ship.id}`}
+            </span>
+            <span>Lv. {data.api_lv || '-'}</span>
 
-          <span><FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} /></span>
-          <span><FABar icon={2} max={data.api_bull_max} now={data.api_bull} /></span>
-        </div>
-        <div className="ship-parameter">
-          {
-            paramNames.map((name, idx) =>
-              (typeof param[idx] !== 'undefined') &&
-              <span key={name}>
-                <ParamIcon name={name} />
-                {param[idx]}
-              </span>
-          )
-          }
-        </div>
+            <span>
+              <FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} />
+            </span>
+            <span>
+              <FABar icon={2} max={data.api_bull_max} now={data.api_bull} />
+            </span>
+          </div>
+          <div className="ship-parameter">
+            {paramNames.map(
+              (name, idx) =>
+                typeof param[idx] !== 'undefined' && (
+                  <span key={name}>
+                    <ParamIcon name={name} />
+                    {param[idx]}
+                  </span>
+                ),
+            )}
+          </div>
 
-        {
-          // the key in ItemView uses index as a special case since it won't be reordered,
+          {// the key in ItemView uses index as a special case since it won't be reordered,
           // ignore this eslint warning
-          (data.poi_slot || []).map((item, i) =>
-            item &&
-            <ItemView
-              // eslint-disable-next-line
+          (data.poi_slot || []).map(
+            (item, i) =>
+              item && (
+                <ItemView
+                  // eslint-disable-next-line
               key={i}
-              item={item}
-              extra={false}
-              warn={data.api_onslot[i] !== data.api_maxeq[i]}
-            />
-          )
-        }
+                  item={item}
+                  extra={false}
+                  warn={data.api_onslot[i] !== data.api_maxeq[i]}
+                />
+              ),
+          )}
 
-        <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
-      </div>
-    </Tooltip>
-  )
+          <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
+        </div>
+      </Tooltip>
+    )
 
-  return (
-    <div
-      className={cls('div-row ship-item', {
-        escaped: isEscaped,
-        compact,
-        avatar: data.api_sortno ? ourAvatar : enemyAvatar,
-      })}
-    >
-      <div className="ship-view">
-        <OverlayTrigger
-          placement={placements[parseInt(`${+(layout === 'vertical')}${+(reverseLayout)}`, 2)]}
-          overlay={tooltip}
-        >
-          <div className="ship-info" style={{ flexGrow: compact && 0 }}>
-            {
-              data.api_sortno ?
+    return (
+      <div
+        className={cls('div-row ship-item', {
+          escaped: isEscaped,
+          compact,
+          avatar: data.api_sortno ? ourAvatar : enemyAvatar,
+        })}
+      >
+        <div className="ship-view">
+          <OverlayTrigger
+            placement={
+              placements[
+                parseInt(`${+(layout === 'vertical')}${+reverseLayout}`, 2)
+              ]
+            }
+            overlay={tooltip}
+          >
+            <div className="ship-info" style={{ flexGrow: compact && 0 }}>
+              {data.api_sortno ? (
                 <Fragment>
-                  {
-                    ourAvatar &&
+                  {ourAvatar && (
                     <Avatar
                       mstId={data.api_ship_id}
                       height={30}
                       isDamaged={ship.nowHP <= ship.maxHP / 2}
                     />
-                  }
-                  {
-                    (!ourAvatar || !compact) &&
-                    <ShipName
-                      name={data.api_name}
-                      yomi={data.api_yomi}
-                    />
-                  }
+                  )}
+                  {(!ourAvatar || !compact) && (
+                    <ShipName name={data.api_name} yomi={data.api_yomi} />
+                  )}
                 </Fragment>
-                :
+              ) : (
                 <Fragment>
-                  {
-                    enemyAvatar &&
+                  {enemyAvatar && (
                     <EnemyAvatar
                       name={data.api_name}
                       nowHP={ship.nowHP}
                       maxHP={ship.maxHP}
                     />
-                  }
-                  {
-                    (!enemyAvatar || !compact) &&
-                    <ShipName
-                      name={data.api_name}
-                      yomi={data.api_yomi}
-                      enemy
-                    />
-                  }
+                  )}
+                  {(!enemyAvatar || !compact) && (
+                    <ShipName name={data.api_name} yomi={data.api_yomi} enemy />
+                  )}
                 </Fragment>
-            }
-            <div className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}>
-              {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
-              {isEscaped ? <FontAwesome name="reply" /> : (ship.damage || 0) }
+              )}
+              <div
+                className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}
+              >
+                {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
+                {isEscaped ? <FontAwesome name="reply" /> : ship.damage || 0}
+              </div>
             </div>
-          </div>
-        </OverlayTrigger>
+          </OverlayTrigger>
+        </div>
+        <div className="ship-hp">
+          <HPBar
+            max={ship.maxHP}
+            from={ship.initHP}
+            to={ship.nowHP}
+            damage={ship.lostHP}
+            stage={ship.stageHP}
+            item={ship.useItem}
+            cond={data.api_cond}
+          />
+        </div>
       </div>
-      <div className="ship-hp">
-        <HPBar
-          max={ship.maxHP}
-          from={ship.initHP}
-          to={ship.nowHP}
-          damage={ship.lostHP}
-          stage={ship.stageHP}
-          item={ship.useItem}
-          cond={data.api_cond}
-        />
-      </div>
-    </div>
-  )
-})
+    )
+  },
+)
 
 export default ShipView

@@ -30,20 +30,22 @@ const SquadView = translate('poi-plugin-prophet')(({ ship, compact, t }) => {
   const name = ship.raw.api_name || `${order[pos] || ''} Squadron`
   const action_kind = ship.raw.api_action_kind
 
-
   return (
     <div className="div-row ship-item">
       <div className={`ship-view ${compact ? 'compact' : ''}`}>
         <div className="ship-info">
           <div className="ship-name">
-            <span>
-              {`${name} [${t(actionKind[action_kind] || '')}]`}
-            </span>
+            <span>{`${name} [${t(actionKind[action_kind] || '')}]`}</span>
           </div>
         </div>
       </div>
       <div className="ship-hp">
-        <HPBar max={ship.maxHP} from={ship.initHP} to={ship.nowHP} damage={ship.lostHP} />
+        <HPBar
+          max={ship.maxHP}
+          from={ship.initHP}
+          to={ship.nowHP}
+          damage={ship.lostHP}
+        />
       </div>
     </div>
   )

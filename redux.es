@@ -23,11 +23,8 @@ export const onLoadHistory = ({ history }) => ({
   history,
 })
 
-
 export function reducer(state = {}, action) {
-  const {
-    type, spot, fFormation, title, history,
-  } = action
+  const { type, spot, fFormation, title, history } = action
   switch (type) {
     case '@@poi-plugin-prophet@updateHistory':
       return {
@@ -63,5 +60,5 @@ export const prophetObserver = observer(
     if (!isEqual(current, previous) && Object.keys(current).length > 0) {
       fileWriter.write(HISTORY_PATH, current)
     }
-  }
+  },
 )

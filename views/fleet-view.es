@@ -37,11 +37,20 @@ class FleetView extends PureComponent {
     const { compact } = this.state
 
     return (
-      <div className={cls({ 'fleet-view': Boolean(get(fleet, 'length')) })} ref={(ref) => { this.container = ref }}>
+      <div
+        className={cls({ 'fleet-view': Boolean(get(fleet, 'length')) })}
+        ref={ref => {
+          this.container = ref
+        }}
+      >
         <div>
-          {map(fleet, ship =>
-            ship && <View ship={ship} key={ship.pos || 0} compact={compact} />
-        )}
+          {map(
+            fleet,
+            ship =>
+              ship && (
+                <View ship={ship} key={ship.pos || 0} compact={compact} />
+              ),
+          )}
         </div>
       </div>
     )
