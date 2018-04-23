@@ -1,3 +1,3 @@
 module.exports = {
-  '*.{es,js}': 'eslint',
+  '*.{es,js}': 'eslint && stylelint',
 }
