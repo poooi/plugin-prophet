@@ -28,7 +28,7 @@ import {
 import { store } from 'views/create-store'
 
 import CheckboxLabelConfig from './checkbox-label-config'
-import BattleViewArea from './views/battle-view-area'
+import BattleViewArea from './views'
 import { PLUGIN_KEY, HISTORY_PATH, initEnemy, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
 import {
