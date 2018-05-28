@@ -17,12 +17,18 @@ const { ipc } = window
     'ipc.NavyAlbum.showShip',
     false,
   )
+  const count = _.get(
+    state,
+    ['ext', 'poi-plugin-prophet', '_', 'useitem', props.getItem, 'api_count'],
+    0,
+  )
 
   return {
     ship,
     item,
     shipType,
     navyAlbumShowShipAvailable,
+    count,
   }
 })
 class DropInfo extends PureComponent {
@@ -36,6 +42,7 @@ class DropInfo extends PureComponent {
     shipType: PropTypes.objectOf(PropTypes.object),
     navyAlbumShowShipAvailable: PropTypes.bool.isRequired,
     t: PropTypes.func.isRequired,
+    count: PropTypes.number,
   }
 
   handleClick = () => {
@@ -45,7 +52,14 @@ class DropInfo extends PureComponent {
   }
 
   render() {
-    const { ship, item, shipType, navyAlbumShowShipAvailable, t } = this.props
+    const {
+      ship,
+      item,
+      shipType,
+      navyAlbumShowShipAvailable,
+      t,
+      count,
+    } = this.props
     const shipMessage =
       ship &&
       t('{{type}} "{{ship}}" joined your fleet', {
@@ -53,7 +67,7 @@ class DropInfo extends PureComponent {
         ship: t(ship.api_name),
       })
     const itemMessage =
-      item && t('Item "{{item}}" got', { item: t(item.api_name) })
+      item && t('Useitem_got', { item: t(item.api_name), count })
 
     const shipComponent =
       shipMessage &&

@@ -24,7 +24,7 @@
   "PvP": "PvP",
   "Admiral": "Admiral",
   "{{type}} \"{{ship}}\" joined your fleet": "{{type}} \"{{ship}}\" joined your fleet",
-  "Item \"{{item}}\" got": "Item \"{{item}}\" got",
+  "Useitem_got": "Item \"{{item}}\"({{count}}) got",
   "Unknown FC": "Unknown FC",
   "Air Supremacy": "AS+",
   "Air Superiority": "AS",
