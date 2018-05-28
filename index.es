@@ -12,10 +12,8 @@ import _, {
   filter,
 } from 'lodash'
 import { join } from 'path'
-import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
 import { observe } from 'redux-observers'
-import { promisify } from 'bluebird'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
 import { translate } from 'react-i18next'
@@ -29,13 +27,13 @@ import { store } from 'views/create-store'
 
 import CheckboxLabelConfig from './checkbox-label-config'
 import BattleViewArea from './views/battle-view-area'
-import { PLUGIN_KEY, HISTORY_PATH, initEnemy, lostKind } from './utils'
+import { PLUGIN_KEY, initEnemy, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
 import {
   onBattleResult,
   onGetPracticeInfo,
-  onLoadHistory,
-  prophetObserver,
+  historyObserver,
+  useitemObserver,
 } from './redux'
 
 const {
@@ -287,19 +285,10 @@ class Prophet extends Component {
     // initialize repsonse listener
     window.addEventListener('game.response', this.handleGameResponse)
 
-    // read history file
-    try {
-      const history = await promisify(readJSON)(HISTORY_PATH)
-      dispatch(
-        onLoadHistory({
-          history,
-        }),
-      )
-    } catch (e) {
-      console.warn(e.stack)
-    }
-
-    this.unsubscribeObserver = observe(store, [prophetObserver])
+    this.unsubscribeObserver = observe(store, [
+      historyObserver,
+      useitemObserver,
+    ])
 
     // for debug (ugly)
     if (window.dbg.isEnabled()) {
