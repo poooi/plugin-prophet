@@ -63,7 +63,10 @@ const indexify = data => keyBy(data, 'api_id')
 
 const increment = (state, key, value) => ({
   ...state,
-  [key]: (state[key] || 0) + value,
+  [key]: {
+    ...(state[key] || {}),
+    api_count: (state[key]?.api_count || 0) + value,
+  },
 })
 
 const UseItemReducer = (state = CACHE.useitem || {}, action) => {
