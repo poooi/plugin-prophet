@@ -1,12 +1,18 @@
 import { observer } from 'redux-observers'
-import { isEqual, get } from 'lodash'
+import { isEqual, get, keyBy, debounce, set } from 'lodash'
 import { combineReducers } from 'redux'
 import { createSelector } from 'reselect'
+import { compareUpdate } from 'views/utils/tools'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
-import { PLUGIN_KEY, HISTORY_PATH } from './utils'
-import FileWriter from './file-writer'
+import { PLUGIN_KEY } from './utils'
+
+const LS_PATH = '_prophet'
+const CACHE = do {
+  const item = window.isSafeMode ? '{}' : localStorage.getItem(LS_PATH)
+  JSON.parse(item || '{}')
+}
 
 export const onBattleResult = ({ spot, fFormation, title }) => ({
   type: '@@poi-plugin-prophet@updateHistory',
@@ -25,7 +31,7 @@ export const onLoadHistory = ({ history }) => ({
   history,
 })
 
-const HistoryReducer = (state = {}, action) => {
+const HistoryReducer = (state = CACHE.history || {}, action) => {
   const { type, spot, fFormation, title, history } = action
   switch (type) {
     case '@@poi-plugin-prophet@updateHistory':
@@ -53,26 +59,101 @@ const HistoryReducer = (state = {}, action) => {
   return state
 }
 
-const UseItemReducer = (state = {}) => state
+const indexify = data => keyBy(data, 'api_id')
+
+const increment = (state, key, value) => ({
+  ...state,
+  [key]: (state[key] || 0) + value,
+})
+
+const UseItemReducer = (state = CACHE.useitem || {}, action) => {
+  const { type, body = {} } = action
+  switch (type) {
+    case '@@Response/kcsapi/api_get_member/require_info':
+      return compareUpdate(state, indexify(body.api_useitem))
+    case '@@Response/kcsapi/api_get_member/useitem':
+      return compareUpdate(state, indexify(body))
+    case '@@Response/kcsapi/api_req_kousyou/remodel_slotlist_detail': {
+      const {
+        api_req_useitem_id,
+        api_req_useitem_num,
+        api_req_useitem_id2,
+        api_req_useitem_num2,
+      } = body
+      let nextState = { ...state }
+
+      // assume there's enough items
+      if (api_req_useitem_id) {
+        nextState = increment(
+          nextState,
+          api_req_useitem_id,
+          api_req_useitem_num,
+        )
+      }
+      if (api_req_useitem_id2) {
+        nextState = increment(
+          nextState,
+          api_req_useitem_id2,
+          api_req_useitem_num2,
+        )
+      }
+      return compareUpdate(state, nextState)
+    }
+    case '@@Response/kcsapi/api_req_mission/result': {
+      const { api_get_item1 } = body
+      if (api_get_item1?.api_useitem_id > 0) {
+        return increment(
+          state,
+          api_get_item1.api_useitem_id,
+          api_get_item1.api_useitem_count,
+        )
+      }
+      break
+    }
+    case '@@Response/kcsapi/api_req_combined_battle/battleresult':
+    case '@@Response/kcsapi/api_req_sortie/battleresult': {
+      const { api_get_useitem, api_get_exmap_useitem_id } = body
+      let nextState = { ...state }
+      if (api_get_useitem?.api_useitem_id > 0) {
+        nextState = increment(nextState, api_get_useitem.api_useitem_id, 1)
+      }
+      if (api_get_exmap_useitem_id > 0) {
+        nextState = increment(nextState, api_get_exmap_useitem_id, 1)
+      }
+      return compareUpdate(state, nextState)
+    }
+    // item consommation for api_exchange_type is not self complete, not going to support
+    case '@@Request/kcsapi/api_req_member/itemuse':
+    case '@@Response/kcsapi/api_req_member/itemuse':
+    default:
+  }
+  return state
+}
 
 export const reducer = combineReducers({
   history: HistoryReducer,
   useitem: UseItemReducer,
 })
 
-const fileWriter = new FileWriter()
+const setLocalStorage = () =>
+  process.nextTick(() => {
+    localStorage.setItem(LS_PATH, JSON.stringify(CACHE))
+  })
 
-const historySelector = createSelector(
-  [extensionSelectorFactory(PLUGIN_KEY)],
-  ext => get(ext, 'history', {}),
-)
+const setLocalStorageDebounced = debounce(setLocalStorage, 5000)
 
-export const prophetObserver = observer(
-  historySelector,
-  (dispatch, current = {}, previous) => {
-    // avoid initial state overwrites file
+const createObserver = path => {
+  const selector = createSelector([extensionSelectorFactory(PLUGIN_KEY)], ext =>
+    get(ext, path, {}),
+  )
+
+  return observer(selector, (dispatch, current = {}, previous) => {
     if (!isEqual(current, previous) && Object.keys(current).length > 0) {
-      fileWriter.write(HISTORY_PATH, current)
+      set(CACHE, path, current)
+      setLocalStorageDebounced()
     }
-  },
-)
+  })
+}
+
+export const historyObserver = createObserver('history')
+export const useitemObserver = createObserver('useitem')
