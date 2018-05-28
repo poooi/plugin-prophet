@@ -1,5 +1,7 @@
 import { observer } from 'redux-observers'
-import { isEqual } from 'lodash'
+import { isEqual, get } from 'lodash'
+import { combineReducers } from 'redux'
+import { createSelector } from 'reselect'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
@@ -23,7 +25,7 @@ export const onLoadHistory = ({ history }) => ({
   history,
 })
 
-export function reducer(state = {}, action) {
+const HistoryReducer = (state = {}, action) => {
   const { type, spot, fFormation, title, history } = action
   switch (type) {
     case '@@poi-plugin-prophet@updateHistory':
@@ -51,10 +53,22 @@ export function reducer(state = {}, action) {
   return state
 }
 
+const UseItemReducer = (state = {}) => state
+
+export const reducer = combineReducers({
+  history: HistoryReducer,
+  useitem: UseItemReducer,
+})
+
 const fileWriter = new FileWriter()
 
+const historySelector = createSelector(
+  [extensionSelectorFactory(PLUGIN_KEY)],
+  ext => get(ext, 'history', {}),
+)
+
 export const prophetObserver = observer(
-  extensionSelectorFactory(PLUGIN_KEY),
+  historySelector,
   (dispatch, current = {}, previous) => {
     // avoid initial state overwrites file
     if (!isEqual(current, previous) && Object.keys(current).length > 0) {
