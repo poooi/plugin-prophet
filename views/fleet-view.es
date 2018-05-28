@@ -1,12 +1,9 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import { map, get } from 'lodash'
-import ShipView from './ship-view'
 import cls from 'classnames'
 
-// const { i18n } = window
-// const __ = i18n["poi-plugin-prophet"].__.bind(i18n["poi-plugin-prophet"])
-
+import ShipView from './ship-view'
 
 class FleetView extends PureComponent {
   static propTypes = {
@@ -19,7 +16,7 @@ class FleetView extends PureComponent {
   }
 
   componentDidMount = () => {
-    this.observer = new ResizeObserver(this.handleResize)
+    this.observer = new window.ResizeObserver(this.handleResize)
     this.observer.observe(this.container)
   }
 
@@ -40,11 +37,20 @@ class FleetView extends PureComponent {
     const { compact } = this.state
 
     return (
-      <div className={cls({ 'fleet-view': Boolean(get(fleet, 'length')) })} ref={(ref) => { this.container = ref }}>
+      <div
+        className={cls({ 'fleet-view': Boolean(get(fleet, 'length')) })}
+        ref={ref => {
+          this.container = ref
+        }}
+      >
         <div>
-          {map(fleet, ship =>
-            ship && <View ship={ship} key={ship.pos || 0} compact={compact} />
-        )}
+          {map(
+            fleet,
+            ship =>
+              ship && (
+                <View ship={ship} key={ship.pos || 0} compact={compact} />
+              ),
+          )}
         </div>
       </div>
     )

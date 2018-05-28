@@ -1,29 +1,35 @@
 import path from 'path'
 import _ from 'lodash'
+import i18next from 'views/env-parts/i18next'
+
 import { Models } from './lib/battle'
 
-const { i18n, APPDATA_PATH } = window
-const {
-  Ship, ShipOwner, Formation, Engagement, AirControl,
-} = Models
-
-const __ = i18n['poi-plugin-prophet'].__.bind(i18n['poi-plugin-prophet'])
+const { APPDATA_PATH } = window
+const { Ship, ShipOwner, Formation, Engagement, AirControl } = Models
 
 export const PLUGIN_KEY = 'poi-plugin-prophet'
 export const HISTORY_PATH = path.join(APPDATA_PATH, 'prophet-history.json')
+
+const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
 
 export function getItemName(item) {
   if (item == null) {
     return null
   }
-  return i18n.resources.__(item.api_name)
+  return __(item.api_name)
 }
 
 export const initEnemy = (
-  intl = 0, api_ship_ke = [], api_eSlot, api_maxhps, api_nowhps, api_ship_lv) => {
+  intl = 0,
+  api_ship_ke = [],
+  api_eSlot,
+  api_maxhps,
+  api_nowhps,
+  api_ship_lv,
+) => {
   if (!(api_ship_ke != null)) return []
   const fleet = []
-  _.range(api_ship_ke.length).forEach((i) => {
+  _.range(api_ship_ke.length).forEach(i => {
     const id = api_ship_ke[i]
     const slots = api_eSlot[i] || []
     let ship
@@ -32,7 +38,9 @@ export const initEnemy = (
       raw = {
         api_ship_id: id,
         api_lv: api_ship_lv[i],
-        poi_slot: slots.map(slotId => window.getStore(`const.$equips.${slotId}`)),
+        poi_slot: slots.map(slotId =>
+          window.getStore(`const.$equips.${slotId}`),
+        ),
       }
       ship = new Ship({
         id,
@@ -87,20 +95,26 @@ export const spotIcon = {
 // update according to https://github.com/andanteyk/ElectronicObserver/blob/1052a7b177a62a5838b23387ff35283618f688dd/ElectronicObserver/Other/Information/apilist.txt
 export const getSpotKind = (api_event_id, api_event_kind) => {
   // console.log(`api_event_id = ${api_event_id}, api_event_kind = ${api_event_kind}`)
-  if (api_event_id === 4) { // 4=通常戦闘
+  if (api_event_id === 4) {
+    // 4=通常戦闘
     if (api_event_kind === 2) return 14 // 2=夜戦
     if (api_event_kind === 4) return 8 // 4=航空戦
     if (api_event_kind === 5) return 15 // 5=敵連合艦隊戦
     if (api_event_kind === 6) return 11 // 6=長距離空襲戦
   }
-  if (api_event_id === 6) { // 6=気のせいだった
-    if (api_event_kind === 1) { // 1="敵影を見ず。"
+  if (api_event_id === 6) {
+    // 6=気のせいだった
+    if (api_event_kind === 1) {
+      // 1="敵影を見ず。"
       return 7
-    } else if (api_event_kind === 2) { // 2=能動分岐
+    } else if (api_event_kind === 2) {
+      // 2=能動分岐
       return 12
     }
-  } else if (api_event_id === 7) { // 7=航空戦or航空偵察
-    if (api_event_kind === 0) { // 4=航空戦
+  } else if (api_event_id === 7) {
+    // 7=航空戦or航空偵察
+    if (api_event_kind === 0) {
+      // 4=航空戦
       return 13
     }
   }
@@ -126,8 +140,7 @@ export const AttackType = {
   Torpedo_Torpedo_CI: 'TTCI', // カットイン(魚雷/魚雷)
 }
 
-
-export const getAttackTypeName = (type) => {
+export const getAttackTypeName = type => {
   switch (type) {
     case AttackType.Normal:
       return __('AT.Normal')
@@ -191,7 +204,6 @@ const AirControlName = {
   [AirControl.Incapability]: __('Air Incapability'),
 }
 
-
 // build a translation object, to map lib battle string-parsed API to prophet's translation
 // it requires that there's no duplicated keys
 // if lib battle returns API number, then the translation should be done separately
@@ -236,24 +248,39 @@ const TPByShipType = {
 
 // ships: [ship for ship in fleet]
 // equips: [[equip for equip on ship] for ship in fleet]
-export const getTransportPoint = (shipsData, equipsData, escapedShipIds = []) => {
-  const ignores = _.map(shipsData, ship =>
-    escapedShipIds.includes(ship.api_id) || ship.api_nowhp * 4 <= ship.api_maxhp
+export const getTransportPoint = (
+  shipsData,
+  equipsData,
+  escapedShipIds = [],
+) => {
+  const ignores = _.map(
+    shipsData,
+    ship =>
+      escapedShipIds.includes(ship.api_id) ||
+      ship.api_nowhp * 4 <= ship.api_maxhp,
   )
 
-  const shipTPs = _.map(shipsData, ship =>
-    (TPByShipType[ship.api_stype] || 0) + (TPByShip[ship.api_ship_id] || 0)
+  const shipTPs = _.map(
+    shipsData,
+    ship =>
+      (TPByShipType[ship.api_stype] || 0) + (TPByShip[ship.api_ship_id] || 0),
   )
 
   const equipTPs = _.map(equipsData, equipData =>
-    _.sum(_.map(equipData, ([equip] = []) => TPByItem[equip.api_slotitem_id] || 0))
+    _.sum(
+      _.map(equipData, ([equip] = []) => TPByItem[equip.api_slotitem_id] || 0),
+    ),
   )
 
   const shipTP = _.sum(shipTPs)
   const equipTP = _.sum(equipTPs)
 
-  const shipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index])))
-  const equipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : equipTPs[index])))
+  const shipActualTP = _.sum(
+    _.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index])),
+  )
+  const equipActualTP = _.sum(
+    _.map(ignores, (ignore, index) => (ignore ? 0 : equipTPs[index])),
+  )
 
   return {
     total: equipTP ? shipTP + equipTP : 0,
@@ -263,28 +290,44 @@ export const getTransportPoint = (shipsData, equipsData, escapedShipIds = []) =>
 
 // ships: [ship (dazzy ding format) for ship in fleet]
 export const getTPDazzyDing = (ships, escapedShipIds = []) => {
-  const ignores = _(ships).filter(Boolean).map(({ raw = {} } = {}) =>
-    escapedShipIds.includes(raw.api_id) || raw.api_nowhp * 4 <= raw.api_maxhp
-  ).value()
+  const ignores = _(ships)
+    .filter(Boolean)
+    .map(
+      ({ raw = {} } = {}) =>
+        escapedShipIds.includes(raw.api_id) ||
+        raw.api_nowhp * 4 <= raw.api_maxhp,
+    )
+    .value()
 
-  const shipTPs = _(ships).filter(Boolean).map(({ raw = {} } = {}) =>
-    (TPByShipType[raw.api_stype] || 0) + (TPByShip[raw.api_ship_id] || 0)
-  ).value()
+  const shipTPs = _(ships)
+    .filter(Boolean)
+    .map(
+      ({ raw = {} } = {}) =>
+        (TPByShipType[raw.api_stype] || 0) + (TPByShip[raw.api_ship_id] || 0),
+    )
+    .value()
 
   const equipTPs = _(ships)
     .filter(Boolean)
     .flatMap(({ raw: { poi_slot = [], poi_slot_ex } = {} } = {}) =>
-      _.sum(_.map(poi_slot.concat(poi_slot_ex), equip =>
-        TPByItem[(equip || {}).api_slotitem_id] || 0
-      ))
+      _.sum(
+        _.map(
+          poi_slot.concat(poi_slot_ex),
+          equip => TPByItem[(equip || {}).api_slotitem_id] || 0,
+        ),
+      ),
     )
     .value()
 
   const shipTP = _.sum(shipTPs)
   const equipTP = _.sum(equipTPs)
 
-  const shipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index])))
-  const equipActualTP = _.sum(_.map(ignores, (ignore, index) => (ignore ? 0 : equipTPs[index])))
+  const shipActualTP = _.sum(
+    _.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index])),
+  )
+  const equipActualTP = _.sum(
+    _.map(ignores, (ignore, index) => (ignore ? 0 : equipTPs[index])),
+  )
 
   return {
     total: equipTP ? shipTP + equipTP : 0,

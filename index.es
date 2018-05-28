@@ -1,6 +1,16 @@
 import React, { Component } from 'react'
 import PropTypes, { number } from 'prop-types'
-import _, { isEqual, isNil, each, map, isEmpty, includes, concat, get, filter } from 'lodash'
+import _, {
+  isEqual,
+  isNil,
+  each,
+  map,
+  isEmpty,
+  includes,
+  concat,
+  get,
+  filter,
+} from 'lodash'
 import { join } from 'path'
 import { readJSON } from 'fs-extra'
 import { connect } from 'react-redux'
@@ -8,38 +18,56 @@ import { observe } from 'redux-observers'
 import { promisify } from 'bluebird'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
+import { translate } from 'react-i18next'
 
-import { fleetShipsDataSelectorFactory, fleetShipsEquipDataSelectorFactory, fleetSelectorFactory } from 'views/utils/selectors'
+import {
+  fleetShipsDataSelectorFactory,
+  fleetShipsEquipDataSelectorFactory,
+  fleetSelectorFactory,
+} from 'views/utils/selectors'
 import { store } from 'views/create-store'
 
 import CheckboxLabelConfig from './checkbox-label-config'
 import BattleViewArea from './views/battle-view-area'
 import { PLUGIN_KEY, HISTORY_PATH, initEnemy, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
-import { onBattleResult, onGetPracticeInfo, onLoadHistory, prophetObserver } from './redux'
-
+import {
+  onBattleResult,
+  onGetPracticeInfo,
+  onLoadHistory,
+  prophetObserver,
+} from './redux'
 
 const {
-  Ship, ShipOwner, StageType, Battle, BattleType, Fleet,
-  FormationMap, EngagementMap, AirControlMap,
+  Ship,
+  ShipOwner,
+  StageType,
+  Battle,
+  BattleType,
+  Fleet,
+  FormationMap,
+  EngagementMap,
+  AirControlMap,
 } = Models
 
-
-const {
-  i18n, ROOT, getStore, dispatch,
-} = window
+const { ROOT, getStore, dispatch } = window
 // const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
-const __ = i18n[PLUGIN_KEY].__.bind(i18n[PLUGIN_KEY])
+// const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) {
     return fleet
   }
-  return fleet.map((ship, i) => !ship ? ship : ({
-    ...ship,
-    stageHP: nowhps[i],
-  }))
+  return fleet.map(
+    (ship, i) =>
+      !ship
+        ? ship
+        : {
+            ...ship,
+            stageHP: nowhps[i],
+          },
+  )
 }
 
 const updateIfExist = (obj, key, prev) => get(obj, key, prev)
@@ -47,9 +75,7 @@ const updateIfExist = (obj, key, prev) => get(obj, key, prev)
 // extracts necessary information
 // infomation: mvp, formation, aerial, hp (day and night)
 const synthesizeInfo = (_simulator, result, packets) => {
-  let {
-    mainFleet, escortFleet, enemyFleet, enemyEscort,
-  } = { ..._simulator }
+  let { mainFleet, escortFleet, enemyFleet, enemyEscort } = { ..._simulator }
   const { stages } = { ..._simulator }
   let airForce = [0, 0, 0, 0] // [fPlaneInit, fLost, ePlaneInit, eLost]
   let airControl = ''
@@ -66,9 +92,9 @@ const synthesizeInfo = (_simulator, result, packets) => {
   let eResidule = 0
   let eLost = 0
 
-  each(stages, (stage) => {
+  each(stages, stage => {
     if (isNil(stage)) return
-    const { engagement, aerial, type } = (stage || {})
+    const { engagement, aerial, type } = stage || {}
 
     if (engagement && type === StageType.Engagement) {
       // There might be multiple engagements (day and night)
@@ -80,9 +106,7 @@ const synthesizeInfo = (_simulator, result, packets) => {
 
     if (aerial && type === StageType.Aerial) {
       // There might be multiple aerial stages, e.g. jet assult, 1-6 air battle
-      const {
-        fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control,
-      } = aerial
+      const { fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control } = aerial
       // [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
       fResidule = fPlaneNow
       eResidule = ePlaneNow
@@ -93,22 +117,25 @@ const synthesizeInfo = (_simulator, result, packets) => {
     }
   })
 
-  airForce = [
-    fResidule + fLost,
-    fLost,
-    eResidule + eLost,
-    eLost,
-  ]
+  airForce = [fResidule + fLost, fLost, eResidule + eLost, eLost]
 
   let api_f_nowhps
   let api_e_nowhps
   let api_f_nowhps_combined
   let api_e_nowhps_combined
-  each(packets, (packet) => {
+  each(packets, packet => {
     api_f_nowhps = updateIfExist(packet, 'api_f_nowhps', api_f_nowhps)
     api_e_nowhps = updateIfExist(packet, 'api_e_nowhps', api_e_nowhps)
-    api_f_nowhps_combined = updateIfExist(packet, 'api_f_nowhps_combined', api_f_nowhps_combined)
-    api_e_nowhps_combined = updateIfExist(packet, 'api_e_nowhps_combined', api_e_nowhps_combined)
+    api_f_nowhps_combined = updateIfExist(
+      packet,
+      'api_f_nowhps_combined',
+      api_f_nowhps_combined,
+    )
+    api_e_nowhps_combined = updateIfExist(
+      packet,
+      'api_e_nowhps_combined',
+      api_e_nowhps_combined,
+    )
   })
 
   mainFleet = updateByStageHp(mainFleet, api_f_nowhps)
@@ -136,10 +163,13 @@ const getAirForceStatus = (stages = []) => {
   let t_api_f_lostcount = 0
   let t_api_e_count = 0
   let t_api_e_lostcount = 0
-  stages.forEach((stage) => {
+  stages.forEach(stage => {
     if (stage) {
       const {
-        api_f_count, api_f_lostcount, api_e_count, api_e_lostcount,
+        api_f_count,
+        api_f_lostcount,
+        api_e_count,
+        api_e_lostcount,
       } = stage
       t_api_f_count = Math.max(t_api_f_count, api_f_count || 0)
       t_api_f_lostcount += api_f_lostcount || 0
@@ -152,11 +182,9 @@ const getAirForceStatus = (stages = []) => {
 
 /* selector */
 const fleetSlotCountSelectorFactory = memoize(fleetId =>
-  createSelector(
-    [
-      fleetSelectorFactory(fleetId),
-    ], fleet => get(fleet, 'api_ship.length', 0)
-  )
+  createSelector([fleetSelectorFactory(fleetId)], fleet =>
+    get(fleet, 'api_ship.length', 0),
+  ),
 )
 
 const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
@@ -164,8 +192,10 @@ const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
     [
       fleetShipsDataSelectorFactory(fleetId),
       fleetSlotCountSelectorFactory(fleetId),
-    ], (ships = [], count) => ships.concat(new Array(count).fill(undefined)).slice(0, count)
-  )
+    ],
+    (ships = [], count) =>
+      ships.concat(new Array(count).fill(undefined)).slice(0, count),
+  ),
 )
 
 // sortieState
@@ -174,34 +204,39 @@ const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
 // 2: battle, switch on with PM emit type
 // 3: practice, switch on with PM emit type
 
-export const reactClass = connect(
-  (state) => {
-    const sortie = state.sortie || {}
-    const sortieStatus = sortie.sortieStatus || []
-    const airbase = state.info.airbase || {}
-    const fleetIds = []
-    if (sortieStatus.reduce((a, b) => a || b)) {
-      sortieStatus.forEach((a, i) => {
-        if (a) fleetIds.push(i)
-      })
-    } else if (sortie.combinedFlag) {
-      fleetIds.push(0, 1)
-    } else if (filter(get(state, 'info.fleets.2.api_ship'), id => id > 0).length === 7) { // FIXME: 17 autumn event 7 ship fleet
-      fleetIds.push(2)
-    } else {
-      fleetIds.push(0)
-    }
-    const fleets = fleetIds.map(i => adjustedFleetShipsDataSelectorFactory(i)(state))
-    const equips = fleetIds.map(i => fleetShipsEquipDataSelectorFactory(i)(state))
-    return {
-      sortie,
-      airbase,
-      fleets,
-      equips,
-      fleetIds,
-    }
+@translate([PLUGIN_KEY, 'resources'])
+@connect(state => {
+  const sortie = state.sortie || {}
+  const sortieStatus = sortie.sortieStatus || []
+  const airbase = state.info.airbase || {}
+  const fleetIds = []
+  if (sortieStatus.reduce((a, b) => a || b)) {
+    sortieStatus.forEach((a, i) => {
+      if (a) fleetIds.push(i)
+    })
+  } else if (sortie.combinedFlag) {
+    fleetIds.push(0, 1)
+  } else if (
+    filter(get(state, 'info.fleets.2.api_ship'), id => id > 0).length === 7
+  ) {
+    // FIXME: 17 autumn event 7 ship fleet
+    fleetIds.push(2)
+  } else {
+    fleetIds.push(0)
   }
-)(class Prophet extends Component {
+  const fleets = fleetIds.map(i =>
+    adjustedFleetShipsDataSelectorFactory(i)(state),
+  )
+  const equips = fleetIds.map(i => fleetShipsEquipDataSelectorFactory(i)(state))
+  return {
+    sortie,
+    airbase,
+    fleets,
+    equips,
+    fleetIds,
+  }
+})
+class Prophet extends Component {
   static initState = {
     mainFleet: [], // An array of fleet
     escortFleet: [],
@@ -232,11 +267,15 @@ export const reactClass = connect(
     equips: PropTypes.arrayOf(PropTypes.array),
     airbase: PropTypes.arrayOf(PropTypes.object),
     fleetIds: PropTypes.arrayOf(PropTypes.number),
+    t: PropTypes.func.isRequired,
   }
 
   constructor(props) {
     super(props)
-    const [mainFleet, escortFleet] = this.transformToLibBattleClass(props.fleets, props.equips)
+    const [mainFleet, escortFleet] = this.transformToLibBattleClass(
+      props.fleets,
+      props.equips,
+    )
     this.state = {
       ...this.constructor.initState,
       mainFleet,
@@ -251,9 +290,11 @@ export const reactClass = connect(
     // read history file
     try {
       const history = await promisify(readJSON)(HISTORY_PATH)
-      dispatch(onLoadHistory({
-        history,
-      }))
+      dispatch(
+        onLoadHistory({
+          history,
+        }),
+      )
     } catch (e) {
       console.warn(e.stack)
     }
@@ -268,14 +309,18 @@ export const reactClass = connect(
   }
 
   componentWillReceiveProps(nextProps) {
-    const fleetUpdate = !isEqual(this.props.fleets, nextProps.fleets)
-      || !isEqual(this.props.equips, nextProps.equips)
-    const combinedFlagUpdate = nextProps.sortie.combinedFlag != null
-      && nextProps.sortie.combinedFlag !== this.state.combinedFlag
+    const fleetUpdate =
+      !isEqual(this.props.fleets, nextProps.fleets) ||
+      !isEqual(this.props.equips, nextProps.equips)
+    const combinedFlagUpdate =
+      nextProps.sortie.combinedFlag != null &&
+      nextProps.sortie.combinedFlag !== this.state.combinedFlag
     let newState = {}
     if (fleetUpdate) {
-      const [mainFleet, escortFleet] =
-        this.transformToLibBattleClass(nextProps.fleets, nextProps.equips)
+      const [mainFleet, escortFleet] = this.transformToLibBattleClass(
+        nextProps.fleets,
+        nextProps.equips,
+      )
       newState = {
         ...newState,
         mainFleet,
@@ -305,53 +350,74 @@ export const reactClass = connect(
   }
 
   transformToLibBattleClass = (fleets, equips) =>
-    (fleets || []).map((fleet, fleetPos) =>
-      (fleet || []).map(([_ship, $ship] = [], shipPos) => !_ship ? null :
-        new Ship({
-          id: _ship.api_ship_id,
-          owner: ShipOwner.Ours,
-          pos: (fleetPos * 6) + shipPos + 1,
-          maxHP: _ship.api_maxhp,
-          nowHP: _ship.api_nowhp,
-          initHP: _ship.api_nowhp,
-          lostHP: 0,
-          damage: 0,
-          items: equips[fleetPos][shipPos].map(e => (e ? e[0].api_slotitem_id : null)),
-          useItem: null,
-          baseParam: [
-            $ship.api_houg[0] + _ship.api_kyouka[0],
-            $ship.api_raig[0] + _ship.api_kyouka[1],
-            $ship.api_tyku[0] + _ship.api_kyouka[2],
-            $ship.api_souk[0] + _ship.api_kyouka[3],
-          ],
-          finalParam: [
-            _ship.api_karyoku[0],
-            _ship.api_raisou[0],
-            _ship.api_taiku[0],
-            _ship.api_soukou[0],
-          ],
-          raw: {
-            ...$ship,
-            ..._ship,
-            poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
-            poi_slot_ex: null,
-          },
-        })
+    (fleets || [])
+      .map((fleet, fleetPos) =>
+        (fleet || []).map(
+          ([_ship, $ship] = [], shipPos) =>
+            !_ship
+              ? null
+              : new Ship({
+                  id: _ship.api_ship_id,
+                  owner: ShipOwner.Ours,
+                  pos: fleetPos * 6 + shipPos + 1,
+                  maxHP: _ship.api_maxhp,
+                  nowHP: _ship.api_nowhp,
+                  initHP: _ship.api_nowhp,
+                  lostHP: 0,
+                  damage: 0,
+                  items: equips[fleetPos][shipPos].map(
+                    e => (e ? e[0].api_slotitem_id : null),
+                  ),
+                  useItem: null,
+                  baseParam: [
+                    $ship.api_houg[0] + _ship.api_kyouka[0],
+                    $ship.api_raig[0] + _ship.api_kyouka[1],
+                    $ship.api_tyku[0] + _ship.api_kyouka[2],
+                    $ship.api_souk[0] + _ship.api_kyouka[3],
+                  ],
+                  finalParam: [
+                    _ship.api_karyoku[0],
+                    _ship.api_raisou[0],
+                    _ship.api_taiku[0],
+                    _ship.api_soukou[0],
+                  ],
+                  raw: {
+                    ...$ship,
+                    ..._ship,
+                    poi_slot: equips[fleetPos][shipPos].map(
+                      e => (e ? e[0] : null),
+                    ),
+                    poi_slot_ex: null,
+                  },
+                }),
+        ),
       )
-    ).concat([undefined, undefined]).slice(0, 2)
+      .concat([undefined, undefined])
+      .slice(0, 2)
 
   transformToDazzyDingClass = (fleets, equips) =>
-    (fleets || []).map((fleet, fleetPos) =>
-      (fleet || []).map(([_ship, $ship] = [], shipPos) => !_ship ? null : ({
-        ...$ship,
-        ..._ship,
-        poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
-        poi_slot_ex: null,
-      }))
-    ).concat([undefined, undefined]).slice(0, 2)
+    (fleets || [])
+      .map((fleet, fleetPos) =>
+        (fleet || []).map(
+          ([_ship, $ship] = [], shipPos) =>
+            !_ship
+              ? null
+              : {
+                  ...$ship,
+                  ..._ship,
+                  poi_slot: equips[fleetPos][shipPos].map(
+                    e => (e ? e[0] : null),
+                  ),
+                  poi_slot_ex: null,
+                },
+        ),
+      )
+      .concat([undefined, undefined])
+      .slice(0, 2)
 
-  handlePacket = (battle) => {
-    const sortieState = battle.type === (BattleType.Practice || BattleType.Pratice) ? 3 : 2
+  handlePacket = battle => {
+    const sortieState =
+      battle.type === (BattleType.Practice || BattleType.Pratice) ? 3 : 2
     // console.log(battle)
     const simulator = new Simulator(battle.fleet, { usePoiAPI: true })
     // correct main fleet flagship HP for possible repair usage
@@ -376,7 +442,8 @@ export const reactClass = connect(
     }
   }
 
-  handlePacketResult = (battle) => {
+  handlePacketResult = battle => {
+    const { t } = this.props
     const newState = this.handlePacket(battle)
     // notify heavily damaged
     // as battle result does not touch hps, it is safe to notify here?
@@ -385,20 +452,37 @@ export const reactClass = connect(
     const friendShips = concat(mainFleet, escortFleet)
     const damageList = []
 
-    each(friendShips, (ship) => {
+    each(friendShips, ship => {
       if (ship == null) return
-      if ((ship.nowHP / ship.maxHP <= 0.25)
-        && !includes(escapedPos, ship.pos - 1)
-        && this.state.sortieState !== 3) {
-        const shipName = getStore(`const.$ships.${ship.raw.api_ship_id}.api_name`, ' ')
-        damageList.push(i18n.resources.__(shipName))
+      if (
+        ship.nowHP / ship.maxHP <= 0.25 &&
+        !includes(escapedPos, ship.pos - 1) &&
+        this.state.sortieState !== 3
+      ) {
+        const shipName = getStore(
+          `const.$ships.${ship.raw.api_ship_id}.api_name`,
+          ' ',
+        )
+        damageList.push(t(shipName))
       }
     })
 
-    if (!isEmpty(damageList) && config.get('plugin.prophet.notify.enable', true)) {
-      window.notify(`${damageList.join(', ')} ${__('Heavily damaged')}`, {
+    if (
+      !isEmpty(damageList) &&
+      config.get('plugin.prophet.notify.enable', true)
+    ) {
+      window.notify(`${damageList.join(', ')} ${t('Heavily damaged')}`, {
         type: 'damaged',
-        icon: join(ROOT, 'views', 'components', 'main', 'assets', 'img', 'state', '4.png'),
+        icon: join(
+          ROOT,
+          'views',
+          'components',
+          'main',
+          'assets',
+          'img',
+          'state',
+          '4.png',
+        ),
         audio: config.get('plugin.prophet.notify.damagedAudio'),
       })
     }
@@ -407,14 +491,12 @@ export const reactClass = connect(
     }
   }
 
-  handleGameResponse = (e) => {
+  handleGameResponse = e => {
+    const { t } = this.props
     const { path, body } = e.detail
     // used in determining next spot type
 
-    const {
-      mainFleet,
-      escortFleet,
-    } = this.state
+    const { mainFleet, escortFleet } = this.state
 
     let {
       enemyFleet,
@@ -434,25 +516,37 @@ export const reactClass = connect(
     switch (path) {
       case '/kcsapi/api_start2': // refresh game page
       case '/kcsapi/api_port/port':
-        this.battle = null;
-        ({
-          enemyFleet, enemyEscort, sortieState, eventId, eventKind, result, airForce,
+        this.battle = null
+        ;({
+          enemyFleet,
+          enemyEscort,
+          sortieState,
+          eventId,
+          eventKind,
+          result,
+          airForce,
         } = this.constructor.initState)
         break
       case '/kcsapi/api_req_map/start':
       case '/kcsapi/api_req_map/next': {
         const {
-          api_event_kind, api_event_id, api_destruction_battle, api_maparea_id,
+          api_event_kind,
+          api_event_id,
+          api_destruction_battle,
+          api_maparea_id,
         } = body
         sortieState = 1
         eventId = api_event_id
-        eventKind = api_event_kind;
-        ({
-          enemyFleet, enemyEscort, landBase, airForce,
+        eventKind = api_event_kind
+        ;({
+          enemyFleet,
+          enemyEscort,
+          landBase,
+          airForce,
         } = this.constructor.initState)
         // land base air raid
         if (api_destruction_battle != null) {
-        // construct virtual fleet to reprsent the base attack
+          // construct virtual fleet to reprsent the base attack
           const { airbase } = this.props
           const {
             api_air_base_attack,
@@ -461,15 +555,18 @@ export const reactClass = connect(
           } = api_destruction_battle
           landBase = _(airbase)
             .filter(squad => squad.api_area_id === api_maparea_id)
-            .map(squad => new Ship({
-              id: -1,
-              owner: ShipOwner.Ours,
-              pos: squad.api_rid,
-              maxHP: api_f_maxhps[squad.api_rid - 1] || 200,
-              nowHP: api_f_nowhps[squad.api_rid - 1] || 0,
-              items: map(squad.api_plane_info, plane => plane.api_slotid),
-              raw: squad,
-            }))
+            .map(
+              squad =>
+                new Ship({
+                  id: -1,
+                  owner: ShipOwner.Ours,
+                  pos: squad.api_rid,
+                  maxHP: api_f_maxhps[squad.api_rid - 1] || 200,
+                  nowHP: api_f_nowhps[squad.api_rid - 1] || 0,
+                  items: map(squad.api_plane_info, plane => plane.api_slotid),
+                  raw: squad,
+                }),
+            )
             .value()
           // construct enemy
           const {
@@ -481,7 +578,14 @@ export const reactClass = connect(
             api_lost_kind,
             api_formation,
           } = api_destruction_battle
-          enemyFleet = initEnemy(0, api_ship_ke, api_eSlot, api_e_maxhps, api_e_nowhps, api_ship_lv)
+          enemyFleet = initEnemy(
+            0,
+            api_ship_ke,
+            api_eSlot,
+            api_e_maxhps,
+            api_e_nowhps,
+            api_ship_lv,
+          )
           // simulation
           battleForm = EngagementMap[(api_formation || {})[2]] || ''
           eFormation = FormationMap[(api_formation || {})[1]] || ''
@@ -506,10 +610,10 @@ export const reactClass = connect(
               lostHP: 0,
             }))
           }
-          result = { rank: __(lostKind[api_lost_kind] || '') }
+          result = { rank: t(lostKind[api_lost_kind] || '') }
           isBaseDefense = true
         }
-        const isBoss = (body.api_event_id === 5)
+        const isBoss = body.api_event_id === 5
         this.battle = new Battle({
           type: isBoss ? BattleType.Boss : BattleType.Normal,
           map: [],
@@ -522,9 +626,11 @@ export const reactClass = connect(
       }
       case '/kcsapi/api_req_member/get_practice_enemyinfo': {
         const { api_deckname } = body
-        dispatch(onGetPracticeInfo({
-          title: api_deckname,
-        }))
+        dispatch(
+          onGetPracticeInfo({
+            title: api_deckname,
+          }),
+        )
         break
       }
       case '/kcsapi/api_req_practice/battle': {
@@ -539,16 +645,24 @@ export const reactClass = connect(
         break
       }
       default:
-        /* do nothing */
+      /* do nothing */
     }
     let newState = {}
-    if (this.battle &&
-      !['/kcsapi/api_req_map/start', '/kcsapi/api_req_map/next', '/kcsapi/api_req_map/start_air_base'].includes(path)) {
+    if (
+      this.battle &&
+      ![
+        '/kcsapi/api_req_map/start',
+        '/kcsapi/api_req_map/next',
+        '/kcsapi/api_req_map/start_air_base',
+      ].includes(path)
+    ) {
       const packet = Object.clone(body)
       packet.poi_path = e.detail.path
       if (!this.battle.fleet) {
-        const [_mainFleet, _escortFleet] =
-          this.transformToDazzyDingClass(this.props.fleets, this.props.equips)
+        const [_mainFleet, _escortFleet] = this.transformToDazzyDingClass(
+          this.props.fleets,
+          this.props.equips,
+        )
         this.battle.fleet = new Fleet({
           type: _escortFleet ? this.state.combinedFlag : 0,
           main: _mainFleet,
@@ -567,11 +681,13 @@ export const reactClass = connect(
         const { sortieMapId, currentNode } = this.props.sortie
         const spot = `${sortieMapId}-${currentNode}`
         const { fFormation } = this.state
-        dispatch(onBattleResult({
-          spot,
-          title,
-          fFormation,
-        }))
+        dispatch(
+          onBattleResult({
+            spot,
+            title,
+            fFormation,
+          }),
+        )
         newState = this.handlePacketResult(this.battle)
         this.battle = null
       } else if (this.battle) {
@@ -597,7 +713,6 @@ export const reactClass = connect(
     })
   }
 
-
   render() {
     const {
       mainFleet,
@@ -619,7 +734,10 @@ export const reactClass = connect(
     const { fleetIds } = this.props
     return (
       <div id="plugin-prophet">
-        <link rel="stylesheet" href={join(__dirname, 'assets', 'prophet.css')} />
+        <link
+          rel="stylesheet"
+          href={join(__dirname, 'assets', 'prophet.css')}
+        />
         <BattleViewArea
           mainFleet={mainFleet}
           escortFleet={escortFleet}
@@ -640,52 +758,60 @@ export const reactClass = connect(
       </div>
     )
   }
-})
+}
 
-export const settingsClass = () => (
-  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+export const reactClass = Prophet
+
+export const settingsClass = translate(PLUGIN_KEY)(({ t }) => (
+  <div
+    style={{
+      display: 'flex',
+      flexWrap: 'wrap',
+      justifyContent: 'space-between',
+    }}
+  >
     <CheckboxLabelConfig
-      label={__('Show scales on HP bar')}
+      label={t('Show scales on HP bar')}
       configName="plugin.prophet.showScale"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Display enemy combined fleet in game order')}
+      label={t('Display enemy combined fleet in game order')}
       configName="plugin.prophet.ecGameOrder"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Show enemy deck name if available')}
+      label={t('Show enemy deck name if available')}
       configName="plugin.prophet.showEnemyTitle"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Show last chosen formation hint')}
+      label={t('Show last chosen formation hint')}
       configName="plugin.prophet.showLastFormation"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Ship parameters include equipment bonus')}
+      label={t('Ship parameters include equipment bonus')}
       configName="plugin.prophet.useFinalParam"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Heavily damaged notification')}
+      label={t('Heavily damaged notification')}
       configName="plugin.prophet.notify.enable"
       defaultVal
     />
     <CheckboxLabelConfig
-      label={__('Enable avatars for ship girls')}
+      label={t('Enable avatars for ship girls')}
       configName="plugin.prophet.showAvatar"
       defaultVal={false}
     />
     <CheckboxLabelConfig
-      label={__('Enable avatars for Enemy Vessel')}
+      label={t('Enable avatars for Enemy Vessel')}
       configName="plugin.prophet.showVesselAvatar"
       defaultVal={false}
     />
   </div>
-)
+))
 
 export { reducer } from './redux'
 
