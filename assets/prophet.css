@@ -213,21 +213,12 @@
 
 #plugin-prophet .loss {
   margin-left: 1ex;
-  font-weight: 600;
 }
 
-#plugin-prophet .loss-red {
-  color: #d50000;
+#plugin-prophet .loss::before {
+  content: '(';
 }
 
-#plugin-prophet .loss-orange {
-  color: #f57c00;
-}
-
-#plugin-prophet .loss-yellow {
-  color: #fbc02d;
-}
-
-#plugin-prophet .loss-green {
-  color: #4caf50;
+#plugin-prophet .loss::after {
+  content: ')';
 }

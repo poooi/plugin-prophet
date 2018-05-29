@@ -5,7 +5,6 @@ import { MaterialIcon, SlotitemIcon } from 'views/components/etc/icon'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { ProgressBar } from 'react-bootstrap'
-import cls from 'classnames'
 
 export const FABar = ({ max, now, icon }) => {
   let pcnt
@@ -29,17 +28,6 @@ FABar.propTypes = {
   icon: PropTypes.number,
 }
 
-const getLossStyle = percent => {
-  if (percent >= 75) {
-    return 'red'
-  } else if (percent >= 50) {
-    return 'orange'
-  } else if (percent >= 25) {
-    return 'yellow'
-  }
-  return 'green'
-}
-
 export const HPBar = connect((state, props) => ({
   showScale: get(state, 'config.plugin.prophet.showScale', true),
   $equip: get(state, `const.$equips.${props.item}`),
@@ -58,17 +46,7 @@ export const HPBar = connect((state, props) => ({
         <div className="div-row">
           <span className="ship-hp">
             {_to} / {max}
-            {_stage !== 0 &&
-              loss !== 0 && (
-                <span
-                  className={cls(
-                    'loss',
-                    `loss-${getLossStyle(100 * (-loss / max))}`,
-                  )}
-                >
-                  {loss}
-                </span>
-              )}
+            {_stage !== 0 && loss !== 0 && <span className="loss">{loss}</span>}
             {!!item &&
               $equip && (
                 <span className="item-icon">
