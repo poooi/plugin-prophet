@@ -55,7 +55,7 @@ const BattleViewArea = compose(
     enemyTitle = showEnemyTitle
       ? _.get(
           extensionSelectorFactory(PLUGIN_KEY)(state),
-          `${spot}.title`,
+          ['history', spot, 'title'],
           enemyTitle,
         )
       : enemyTitle

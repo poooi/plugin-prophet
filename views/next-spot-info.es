@@ -69,7 +69,11 @@ const NextSpotInfo = compose(
       eventId: props.eventId,
       lastFormation:
         showLastFormation &&
-        get(extensionSelectorFactory(PLUGIN_KEY)(state), `${spot}.fFormation`),
+        get(extensionSelectorFactory(PLUGIN_KEY)(state), [
+          'history',
+          spot,
+          'fFormation',
+        ]),
       item,
     }
   }),
