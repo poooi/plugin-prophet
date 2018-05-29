@@ -4,7 +4,8 @@ import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
 import { MaterialIcon, SlotitemIcon } from 'views/components/etc/icon'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
-import { ProgressBar, Label } from 'react-bootstrap'
+import { ProgressBar } from 'react-bootstrap'
+import cls from 'classnames'
 
 export const FABar = ({ max, now, icon }) => {
   let pcnt
@@ -28,6 +29,17 @@ FABar.propTypes = {
   icon: PropTypes.number,
 }
 
+const getLossStyle = percent => {
+  if (percent >= 75) {
+    return 'red'
+  } else if (percent >= 50) {
+    return 'orange'
+  } else if (percent >= 25) {
+    return 'yellow'
+  }
+  return 'green'
+}
+
 export const HPBar = connect((state, props) => ({
   showScale: get(state, 'config.plugin.prophet.showScale', true),
   $equip: get(state, `const.$equips.${props.item}`),
@@ -38,6 +50,8 @@ export const HPBar = connect((state, props) => ({
   const now = 100 * (_to / max)
   const lost = 100 * ((_stage - _to) / max)
 
+  const loss = Math.max(_from - _stage, 0) - damage
+
   return (
     <div>
       <div className="ship-stat">
@@ -45,21 +59,24 @@ export const HPBar = connect((state, props) => ({
           <span className="ship-hp">
             {_to} / {max}
             {_stage !== 0 &&
-              Math.max(_from - _stage, 0) - damage !== 0 && (
-                <Label bsStyle="danger">
-                  {Math.max(_from - _stage, 0) - damage}
-                </Label>
+              loss !== 0 && (
+                <span
+                  className={cls(
+                    'loss',
+                    `loss-${getLossStyle(100 * (-loss / max))}`,
+                  )}
+                >
+                  {loss}
+                </span>
               )}
             {!!item &&
               $equip && (
-                <Label bsStyle="danger">
-                  <span className="item-icon">
-                    <SlotitemIcon
-                      slotitemId={$equip.api_type[3]}
-                      className="prophet-icon"
-                    />
-                  </span>
-                </Label>
+                <span className="item-icon">
+                  <SlotitemIcon
+                    slotitemId={$equip.api_type[3]}
+                    className="prophet-icon"
+                  />
+                </span>
               )}
           </span>
           {typeof cond !== 'undefined' ? (
