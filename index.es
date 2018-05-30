@@ -202,7 +202,7 @@ const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
 // 2: battle, switch on with PM emit type
 // 3: practice, switch on with PM emit type
 
-@translate([PLUGIN_KEY, 'resources'])
+@translate([PLUGIN_KEY, 'resources'], { nsMode: 'fallback' })
 @connect(state => {
   const sortie = state.sortie || {}
   const sortieStatus = sortie.sortieStatus || []

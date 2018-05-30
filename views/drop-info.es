@@ -7,7 +7,7 @@ import { translate } from 'react-i18next'
 
 const { ipc } = window
 
-@translate(['poi-plugin-prophet', 'resources'])
+@translate(['poi-plugin-prophet', 'resources'], { nsMode: 'fallback' })
 @connect((state, props) => {
   const ship = _.get(state, `const.$ships.${props.getShip}`)
   const item = _.get(state, `const.$useitems.${props.getItem}`)
