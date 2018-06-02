@@ -2,7 +2,7 @@ import { observer } from 'redux-observers'
 import { isEqual, get, keyBy, debounce, set } from 'lodash'
 import { combineReducers } from 'redux'
 import { createSelector } from 'reselect'
-import { compareUpdate } from 'views/utils/tools'
+import { compareUpdate, pickExisting } from 'views/utils/tools'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
@@ -72,10 +72,14 @@ const increment = (state, key, value) => ({
 const UseItemReducer = (state = CACHE.useitem || {}, action) => {
   const { type, body = {} } = action
   switch (type) {
-    case '@@Response/kcsapi/api_get_member/require_info':
-      return compareUpdate(state, indexify(body.api_useitem))
-    case '@@Response/kcsapi/api_get_member/useitem':
-      return compareUpdate(state, indexify(body))
+    case '@@Response/kcsapi/api_get_member/require_info': {
+      const newState = indexify(body.api_useitem)
+      return compareUpdate(pickExisting(state, newState), newState)
+    }
+    case '@@Response/kcsapi/api_get_member/useitem': {
+      const newState = indexify(body)
+      return compareUpdate(pickExisting(state, newState), newState)
+    }
     case '@@Response/kcsapi/api_req_kousyou/remodel_slotlist_detail': {
       const {
         api_req_useitem_id,
