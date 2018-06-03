@@ -28,6 +28,37 @@ ParamIcon.propTypes = {
   name: PropTypes.string,
 }
 
+/**
+ * compute css font size and font-family info based on main wrapper
+ */
+const getFont = () => {
+  const mainWrapper = document.querySelector('#plugin-prophet')
+  if (!mainWrapper) {
+    return ''
+  }
+
+  const mainWrapperStyle = window.getComputedStyle(mainWrapper, null)
+
+  return `${mainWrapperStyle.getPropertyValue(
+    'font-size',
+  )} ${mainWrapperStyle.getPropertyValue('font-family')}`
+}
+
+const textCanvas = document.createElement('canvas')
+let computedFont = ''
+
+/**
+ * mesure given text's rendered width
+ * @param text {string} text to measure
+ */
+const getTextWidth = text => {
+  const context = textCanvas.getContext('2d')
+  computedFont = computedFont || getFont()
+  context.font = computedFont
+  const metrics = context.measureText(text)
+  return Math.ceil(metrics.width)
+}
+
 const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
   const translated = t(name)
   const fullname = ['elite', 'flagship'].includes(yomi)
@@ -41,15 +72,16 @@ const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
   const up = []
   const down = []
 
-  const length = _(parts)
-    .map(_.size)
-    .sum()
+  const length = getTextWidth(fullname)
 
+  let isUpFull = false
   while (parts.length) {
     const word = parts.shift()
-    if (up.join(' ').length + word.length < length / 2) {
+    // 0.618: let's be golden
+    if (getTextWidth([...up, word].join(' ')) <= length * 0.618 && !isUpFull) {
       up.push(word)
     } else {
+      isUpFull = true
       down.push(word)
     }
   }
