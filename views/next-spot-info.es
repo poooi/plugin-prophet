@@ -28,7 +28,7 @@ const getCompassAngle = (mapspots, maproutes, currentNode) => {
   if (!last || !next || !Object.keys(last).length || !Object.keys(next).length)
     return NaN
 
-  return Math.atan2(next[1] - last[1], next[0] - last[0]) / Math.PI * 180 + 90
+  return (Math.atan2(next[1] - last[1], next[0] - last[0]) / Math.PI) * 180 + 90
 }
 
 const SpotIcon = ({ spotKind }) => {

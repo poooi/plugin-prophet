@@ -11,7 +11,7 @@ export const FABar = ({ max, now, icon }) => {
   if (!(max && now)) {
     pcnt = 100
   } else {
-    pcnt = Math.round(100 * now / max)
+    pcnt = Math.round((100 * now) / max)
   }
 
   return (

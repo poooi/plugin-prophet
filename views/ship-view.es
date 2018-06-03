@@ -124,7 +124,7 @@ const getAvatarChar = name => {
 const EnemyAvatar = ({ name, nowHP, maxHP }) => (
   <div
     className={`progress-bar-${
-      nowHP > 0 ? getHpStyle(100 * nowHP / maxHP) : 'grey'
+      nowHP > 0 ? getHpStyle((100 * nowHP) / maxHP) : 'grey'
     }`}
     style={{
       width: 30,

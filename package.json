@@ -18,7 +18,7 @@
     "husky": "^1.0.0-rc.1",
     "lint-staged": "^7.1.2",
     "poi-util-transpile": "^8.2.2",
-    "prettier": "^1.12.1"
+    "prettier": "^1.13.4"
   },
   "scripts": {
     "reset": "git clean -f && git checkout . && git submodule foreach git checkout . && git submodule foreach git clean -f",
