@@ -62,7 +62,7 @@ const getTextWidth = text => {
 const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
   const translated = t(name)
   const fullname = ['elite', 'flagship'].includes(yomi)
-    ? `${translated} ${yomi}`
+    ? `${translated} ${_.capitalize(yomi)}`
     : translated
   if (translated === name || !enemy || fullname.length < 20) {
     return <div className="ship-name">{fullname}</div>
@@ -87,7 +87,7 @@ const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
   }
 
   return (
-    <div className="ship-name" style={{ fontSize: '12px', lineHeight: '12px' }}>
+    <div className={cls('ship-name', 'half')}>
       <span>{up.join(' ')}</span>
       <br />
       <span>{down.join(' ')}</span>

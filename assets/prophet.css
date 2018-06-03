@@ -91,6 +91,7 @@
 }
 #plugin-prophet .ship-item {
   margin-bottom: 5px;
+  height: 2.5em;
 }
 #plugin-prophet .ship-info {
   flex: 1;
@@ -113,10 +114,13 @@
 #plugin-prophet .ship-info .ship-name {
   flex: 1;
   padding-top: 3px;
-  font-size: 16px;
-  overflow: hidden;
+  font-size: 1.25em;
+  overflow-x: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+#plugin-prophet .ship-info .ship-name.half {
+  font-size: 0.9em;
 }
 #plugin-prophet .status-cond {
   margin-left: auto;
