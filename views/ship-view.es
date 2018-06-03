@@ -64,15 +64,14 @@ const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
   const fullname = ['elite', 'flagship'].includes(yomi)
     ? `${translated} ${_.capitalize(yomi)}`
     : translated
-  if (translated === name || !enemy || fullname.length < 20) {
+  const length = getTextWidth(fullname)
+  if (translated === name || !enemy || length < 120) {
     return <div className="ship-name">{fullname}</div>
   }
 
   const parts = fullname.split(' ')
   const up = []
   const down = []
-
-  const length = getTextWidth(fullname)
 
   let isUpFull = false
   while (parts.length) {
