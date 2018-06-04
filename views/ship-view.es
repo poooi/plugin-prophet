@@ -216,7 +216,7 @@ const ShipView = compose(
         <div className="prophet-tip">
           <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
             {['elite', 'flagship'].includes(data.api_yomi)
-              ? `${t(data.api_name)} ${data.api_yomi}`
+              ? `${t(data.api_name)} ${_.capitalize(data.api_yomi)}`
               : t(data.api_name)}
           </div>
           <div className="ship-essential">
