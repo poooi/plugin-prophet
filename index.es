@@ -790,13 +790,8 @@ export const settingsClass = translate(PLUGIN_KEY)(({ t }) => (
       defaultVal
     />
     <CheckboxLabelConfig
-      label={t('Enable avatars for ship girls')}
+      label={t('Enable avatars')}
       configName="plugin.prophet.showAvatar"
-      defaultVal={false}
-    />
-    <CheckboxLabelConfig
-      label={t('Enable avatars for Enemy Vessel')}
-      configName="plugin.prophet.showVesselAvatar"
       defaultVal={false}
     />
   </div>

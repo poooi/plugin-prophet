@@ -94,55 +94,6 @@ const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
   )
 })
 
-const getAvatarChar = name => {
-  if (name.includes('姫')) {
-    return (
-      <svg
-        aria-hidden="true"
-        role="img"
-        xmlns="http://www.w3.org/2000/svg"
-        viewBox="0 0 512 512"
-        width="13"
-      >
-        <path
-          fill="currentColor"
-          d="M436 512H76c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h360c6.627 0 12 5.373 12 12v24c0 6.627-5.373 12-12 12zM255.579 0c-30.928 0-56 25.072-56 56s25.072 56 56 56 56-25.072 56-56-25.072-56-56-56zm204.568 154.634c-5.768-3.045-12.916-.932-16.082 4.77-8.616 15.516-22.747 37.801-44.065 37.801-28.714 0-30.625-19.804-31.686-57.542-.183-6.492-5.501-11.664-11.995-11.664h-41.006c-5.175 0-9.754 3.328-11.388 8.238-8.89 26.709-26.073 40.992-47.925 40.992s-39.034-14.283-47.925-40.992c-1.634-4.91-6.213-8.238-11.388-8.238h-41.005c-6.495 0-11.813 5.174-11.995 11.667-1.052 37.642-2.934 57.539-31.688 57.539-20.691 0-33.817-20.224-44.425-38.025-3.266-5.48-10.258-7.431-15.899-4.453l-39.179 20.679a12 12 0 0 0-5.51 15.145L112 448h288l105.014-257.448a12 12 0 0 0-5.51-15.145l-39.357-20.773z"
-        />
-      </svg>
-    )
-  }
-  if (name.includes('PT')) {
-    return 'PT'
-  }
-  if (name.includes('鬼')) {
-    return '鬼'
-  }
-  return name.split('').find(c => isKana(c)) || ''
-}
-
-const EnemyAvatar = ({ name, nowHP, maxHP }) => (
-  <div
-    className={`progress-bar-${
-      nowHP > 0 ? getHpStyle((100 * nowHP) / maxHP) : 'grey'
-    }`}
-    style={{
-      width: 30,
-      height: 30,
-      lineHeight: '30px',
-      textAlign: 'center',
-      marginRight: '0.5ex',
-    }}
-  >
-    {getAvatarChar(name)}
-  </div>
-)
-
-EnemyAvatar.propTypes = {
-  name: PropTypes.string.isRequired,
-  nowHP: PropTypes.number.isRequired,
-  maxHP: PropTypes.number.isRequired,
-}
-
 ShipName.propTypes = {
   name: PropTypes.string,
   yomi: PropTypes.string,
@@ -170,12 +121,7 @@ const ShipView = compose(
       reverseLayout: _.get(state, 'config.poi.reverseLayout'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
-      ourAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
-      enemyAvatar: _.get(
-        state.config,
-        'plugin.prophet.showVesselAvatar',
-        false,
-      ),
+      enableAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
     }
   }),
 )(
@@ -186,8 +132,7 @@ const ShipView = compose(
     layout,
     reverseLayout,
     useFinalParam,
-    ourAvatar,
-    enemyAvatar,
+    enableAvatar,
     compact,
     t,
   }) => {
@@ -269,7 +214,7 @@ const ShipView = compose(
         className={cls('div-row ship-item', {
           escaped: isEscaped,
           compact,
-          avatar: data.api_sortno ? ourAvatar : enemyAvatar,
+          avatar: enableAvatar,
         })}
       >
         <div className="ship-view">
@@ -282,33 +227,18 @@ const ShipView = compose(
             overlay={tooltip}
           >
             <div className="ship-info" style={{ flexGrow: compact && 0 }}>
-              {data.api_sortno ? (
-                <Fragment>
-                  {ourAvatar && (
-                    <Avatar
-                      mstId={data.api_ship_id}
-                      height={30}
-                      isDamaged={ship.nowHP <= ship.maxHP / 2}
-                    />
-                  )}
-                  {(!ourAvatar || !compact) && (
-                    <ShipName name={data.api_name} yomi={data.api_yomi} />
-                  )}
-                </Fragment>
-              ) : (
-                <Fragment>
-                  {enemyAvatar && (
-                    <EnemyAvatar
-                      name={data.api_name}
-                      nowHP={ship.nowHP}
-                      maxHP={ship.maxHP}
-                    />
-                  )}
-                  {(!enemyAvatar || !compact) && (
-                    <ShipName name={data.api_name} yomi={data.api_yomi} enemy />
-                  )}
-                </Fragment>
-              )}
+              <Fragment>
+                {enableAvatar && (
+                  <Avatar
+                    mstId={data.api_ship_id}
+                    height={30}
+                    isDamaged={ship.nowHP <= ship.maxHP / 2}
+                  />
+                )}
+                {(!enableAvatar || !compact) && (
+                  <ShipName name={data.api_name} yomi={data.api_yomi} />
+                )}
+              </Fragment>
               <div
                 className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}
               >
