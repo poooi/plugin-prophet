@@ -58,14 +58,15 @@ const getTextWidth = text => {
   return Math.ceil(metrics.width)
 }
 
-const yomis = ['elite', 'flagship']
-
 const getFullname = (t, name, yomi, apiId) => {
-  const translated = t(name, { context: apiId && apiId.toString() })
-  return yomis.includes(yomi) &&
-    !yomis.some(e => translated.match(` ${_.capitalize(e)}`))
-    ? `${translated} ${_.capitalize(yomi)}`
-    : translated
+  const baseName = t(name)
+  const fullName = t(name, { context: apiId && apiId.toString() })
+  return (
+    (fullName !== baseName && fullName) ||
+    (['elite', 'flagship'].includes(yomi)
+      ? `${baseName} ${_.capitalize(yomi)}`
+      : baseName)
+  )
 }
 
 const ShipName = translate('resources')(({ name, yomi, apiId, enemy, t }) => {
