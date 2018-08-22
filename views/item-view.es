@@ -40,7 +40,10 @@ const ItemView = compose(
       </span>
       <span className="item-name">
         {/* use key separator because some item name contains `.` */}
-        {t(data.api_name, { keySeparator: 'chiba' })}
+        {t(data.api_name, {
+          context: data.api_id && data.api_id.toString(),
+          keySeparator: 'chiba',
+        })}
       </span>
       <span className="item-attr">
         <span className="alv">
