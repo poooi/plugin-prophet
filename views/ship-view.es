@@ -5,9 +5,8 @@ import { OverlayTrigger, Tooltip } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import { resolve } from 'path'
-import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
+import { getCondStyle } from 'views/utils/game-utils'
 import { Avatar } from 'views/components/etc/avatar'
-import { isKana } from 'wanakana'
 import cls from 'classnames'
 import { translate } from 'react-i18next'
 import { compose } from 'redux'
@@ -59,11 +58,19 @@ const getTextWidth = text => {
   return Math.ceil(metrics.width)
 }
 
-const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
-  const translated = t(name)
-  const fullname = ['elite', 'flagship'].includes(yomi)
+const yomis = ['elite', 'flagship']
+
+const getFullname = (t, name, yomi, apiId) => {
+  const translated = t(name, { context: apiId && apiId.toString() })
+  return yomis.includes(yomi) &&
+    !yomis.some(e => translated.match(` ${_.capitalize(e)}`))
     ? `${translated} ${_.capitalize(yomi)}`
     : translated
+}
+
+const ShipName = translate('resources')(({ name, yomi, apiId, enemy, t }) => {
+  const translated = t(name)
+  const fullname = getFullname(t, name, yomi, apiId)
   const length = getTextWidth(fullname)
   if (translated === name || !enemy || length < 120) {
     return <div className="ship-name">{fullname}</div>
@@ -97,6 +104,7 @@ const ShipName = translate('resources')(({ name, yomi, enemy, t }) => {
 ShipName.propTypes = {
   name: PropTypes.string,
   yomi: PropTypes.string,
+  apiId: PropTypes.number,
   enemy: PropTypes.bool,
 }
 
@@ -160,9 +168,7 @@ const ShipView = compose(
       <Tooltip id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
         <div className="prophet-tip">
           <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
-            {['elite', 'flagship'].includes(data.api_yomi)
-              ? `${t(data.api_name)} ${_.capitalize(data.api_yomi)}`
-              : t(data.api_name)}
+            {getFullname(t, data.api_name, data.api_yomi, data.api_id)}
           </div>
           <div className="ship-essential">
             <span className="position-indicator">
@@ -236,7 +242,11 @@ const ShipView = compose(
                   />
                 )}
                 {(!enableAvatar || !compact) && (
-                  <ShipName name={data.api_name} yomi={data.api_yomi} />
+                  <ShipName
+                    name={data.api_name}
+                    yomi={data.api_yomi}
+                    apiId={data.api_id}
+                  />
                 )}
               </Fragment>
               <div
