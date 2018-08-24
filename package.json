@@ -15,7 +15,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^7.7.0",
-    "husky": "^1.0.0-rc.1",
+    "husky": "^1.0.0-rc.13",
     "lint-staged": "^7.1.2",
     "poi-util-transpile": "^8.2.2",
     "prettier": "^1.13.4"
@@ -56,7 +56,7 @@
   "dependencies": {},
   "husky": {
     "hooks": {
-      "commit-msg": "commitlint -e $GIT_PARAMS",
+      "commit-msg": "commitlint -e $HUSKY_GIT_PARAMS",
       "pre-commit": "lint-staged"
     }
   }
