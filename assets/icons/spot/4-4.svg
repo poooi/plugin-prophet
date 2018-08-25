@@ -3,7 +3,6 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="400px" height="400px" viewBox="0 0 400 400" enable-background="new 0 0 400 400" xml:space="preserve">
-<line fill="none" x1="-8006.833" y1="102" x2="8376.167" y2="102"/>
 <polygon fill="none" points="0,300 0,0 400,0 400,100 220,160 200,200 180,240 "/>
 <g>
 	<defs>
@@ -13,8 +12,8 @@
 		<use xlink:href="#SVGID_1_"  overflow="visible"/>
 	</clipPath>
 	
-		<circle clip-path="url(#SVGID_2_)" fill="none" stroke="#D32F2F" stroke-width="20" stroke-miterlimit="10" cx="200" cy="199" r="175"/>
-	<circle clip-path="url(#SVGID_2_)" fill="#EF9A9A" cx="200" cy="198" r="135"/>
+		<circle clip-path="url(#SVGID_2_)" fill="none" stroke="#512DA8" stroke-width="20" stroke-miterlimit="10" cx="200" cy="199" r="175"/>
+	<circle clip-path="url(#SVGID_2_)" fill="#B39DDB" cx="200" cy="198" r="135"/>
 </g>
 <polygon fill="none" points="400,100 400,400 0,400 0,300 180,240 200,200 220,160 "/>
 <g>
@@ -25,7 +24,7 @@
 		<use xlink:href="#SVGID_3_"  overflow="visible"/>
 	</clipPath>
 	
-		<circle clip-path="url(#SVGID_4_)" fill="none" stroke="#512DA8" stroke-width="20" stroke-miterlimit="10" cx="200" cy="200" r="175"/>
-	<circle clip-path="url(#SVGID_4_)" fill="#B39DDB" cx="200" cy="199" r="135"/>
+		<circle clip-path="url(#SVGID_4_)" fill="none" stroke="#D32F2F" stroke-width="20" stroke-miterlimit="10" cx="200" cy="200" r="175"/>
+	<circle clip-path="url(#SVGID_4_)" fill="#EF9A9A" cx="200" cy="199" r="135"/>
 </g>
 </svg>
