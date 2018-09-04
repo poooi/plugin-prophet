@@ -85,8 +85,6 @@ const BattleViewArea = compose(
     friendTitle = props.isBaseDefense ? 'Land Base' : friendTitle
 
     return {
-      layout: _.get(state, 'config.poi.layout', 'horizontal'),
-      doubleTabbed: _.get(state, 'config.poi.tabarea.double', false),
       ecGameOrder: _.get(state, 'config.plugin.prophet.ecGameOrder', true),
       mainFleet: props.mainFleet,
       escortFleet: props.escortFleet,
@@ -109,8 +107,6 @@ const BattleViewArea = compose(
   }),
 )(
   ({
-    layout,
-    doubleTabbed,
     ecGameOrder,
     mainFleet = [],
     escortFleet = [],
@@ -130,10 +126,10 @@ const BattleViewArea = compose(
     friendTitle,
     TP,
     t,
+    useVerticalLayout,
   }) => {
     const View = isBaseDefense ? SquadView : ShipView
-    const times = layout === 'horizontal' ? 1 : 2
-    const useVerticalLayout = !doubleTabbed && layout !== 'horizontal'
+    const times = !useVerticalLayout ? 1 : 2
     // adapt the view according to layout by setting FleetView's div xs = 12/count
     // this can support 12v6, 6v12 and 12v12
     const fleetCount =

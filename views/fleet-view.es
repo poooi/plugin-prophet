@@ -13,6 +13,7 @@ class FleetView extends PureComponent {
 
   state = {
     compact: false,
+    tooltipPos: 'left',
   }
 
   componentDidMount = () => {
@@ -25,16 +26,20 @@ class FleetView extends PureComponent {
   }
 
   handleResize = ([entry]) => {
+    const { top, left, right } = $('#poi-plugin-prophet').parentElement.parentElement.getBoundingClientRect()
     const compact = entry.contentRect.width < 250
-    if (compact !== this.state.compact) {
-      this.setState({ compact })
+    const tooltipPos = left >= 200 ? 'left'
+      : window.innerWidth - right + entry.contentRect.width / 2 >= 200 ? 'right'
+      : top >= 150 ? 'top' : 'bottom'
+    if (compact !== this.state.compact || tooltipPos !== this.state.tooltipPos) {
+      this.setState({ compact, tooltipPos })
     }
   }
 
   render() {
     const { fleet, View = ShipView } = this.props
 
-    const { compact } = this.state
+    const { compact, tooltipPos } = this.state
 
     return (
       <div
@@ -48,7 +53,7 @@ class FleetView extends PureComponent {
             fleet,
             ship =>
               ship && (
-                <View ship={ship} key={ship.pos || 0} compact={compact} />
+                <View ship={ship} key={ship.pos || 0} compact={compact} tooltipPos={tooltipPos} />
               ),
           )}
         </div>

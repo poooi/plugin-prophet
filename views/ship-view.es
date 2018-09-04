@@ -109,13 +109,6 @@ ShipName.propTypes = {
   enemy: PropTypes.bool,
 }
 
-const placements = {
-  0: 'left', // horizontal, normal 00
-  1: 'right', // horizontal, reversed 01
-  2: 'top', // vertical, normal 10
-  3: 'bottom', // vertical reversed 11
-}
-
 // fParam: [0]=火力, [1]=雷装, [2]=対空, [3]=装甲
 const paramNames = ['firepower', 'torpedo', 'AA', 'armor']
 
@@ -126,8 +119,6 @@ const ShipView = compose(
     return {
       escapedPos: state.sortie.escapedPos || [],
       ship: props.ship,
-      layout: _.get(state, 'config.poi.layout', 'horizontal'),
-      reverseLayout: _.get(state, 'config.poi.reverseLayout'),
       $ship: _.get(state, `const.$ships.${api_ship_id}`) || {},
       useFinalParam: _.get(state, 'config.plugin.prophet.useFinalParam', true),
       enableAvatar: _.get(state.config, 'plugin.prophet.showAvatar', false),
@@ -138,8 +129,7 @@ const ShipView = compose(
     ship,
     $ship,
     escapedPos,
-    layout,
-    reverseLayout,
+    tooltipPos,
     useFinalParam,
     enableAvatar,
     compact,
@@ -226,11 +216,7 @@ const ShipView = compose(
       >
         <div className="ship-view">
           <OverlayTrigger
-            placement={
-              placements[
-                parseInt(`${+(layout === 'vertical')}${+reverseLayout}`, 2)
-              ]
-            }
+            placement={tooltipPos}
             overlay={tooltip}
           >
             <div className="ship-info" style={{ flexGrow: compact && 0 }}>

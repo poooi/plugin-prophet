@@ -252,6 +252,12 @@ class Prophet extends Component {
     eFormation: '', // enemy formation, api_formation[1]
     fFormation: '',
     combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
+    width: 500,
+    height: 400,
+    top: 30,
+    bottom: 0,
+    left: 800,
+    right: 0,
   }
 
   static propTypes = {
@@ -289,6 +295,20 @@ class Prophet extends Component {
       historyObserver,
       useitemObserver,
     ])
+
+    this.resizeObserver = new ResizeObserver(([{ contentRect }]) => {
+      const { width, height, top, right, bottom, left } = contentRect
+      this.setState({
+        width,
+        height,
+        top,
+        right,
+        bottom,
+        left,
+      })
+    })
+
+    this.resizeObserver.observe($('#poi-plugin-prophet'))
 
     // for debug (ugly)
     if (window.dbg.isEnabled()) {
@@ -333,6 +353,8 @@ class Prophet extends Component {
     if (this.unsubscribeObserver) {
       this.unsubscribeObserver()
     }
+
+    this.resizeObserver.unobserve(document.querySelector('kan-game webview'))
 
     delete window.prophetTest
     delete window.baseDefenseTest
@@ -718,6 +740,8 @@ class Prophet extends Component {
       result,
       battleForm,
       eFormation,
+      width,
+      height,
     } = this.state
 
     const { fleetIds } = this.props
@@ -743,6 +767,7 @@ class Prophet extends Component {
           battleForm={battleForm}
           eFormation={eFormation}
           fleetIds={fleetIds}
+          useVerticalLayout={height < 400 && width >= 700}
         />
       </div>
     )
