@@ -215,10 +215,7 @@ const ShipView = compose(
         })}
       >
         <div className="ship-view">
-          <OverlayTrigger
-            placement={tooltipPos}
-            overlay={tooltip}
-          >
+          <OverlayTrigger placement={tooltipPos} overlay={tooltip}>
             <div className="ship-info" style={{ flexGrow: compact && 0 }}>
               <Fragment>
                 {enableAvatar && (
