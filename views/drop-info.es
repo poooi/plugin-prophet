@@ -49,6 +49,10 @@ class DropInfo extends PureComponent {
     const { showShip } = ipc.access('NavyAlbum')
     const { ship } = this.props
     showShip(ship.api_id)
+    const mainWindow = ipc.access('MainWindow')
+    if (mainWindow && mainWindow.ipcFocusPlugin) {
+      mainWindow.ipcFocusPlugin('poi-plugin-navy-album')
+    }
   }
 
   render() {
