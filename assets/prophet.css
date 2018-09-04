@@ -1,5 +1,7 @@
 #plugin-prophet {
   padding: 5px 10px;
+  height: 100%;
+  overflow: scroll;
 }
 #plugin-prophet .fleet-container {
   display: flex;
@@ -26,10 +28,10 @@
 #plugin-prophet .hp-bar.progess-bar:before {
   background-color: transparent !important;
 }
-#plugin-prophet .hp-bar.progress {
-  /*background-color: #1F1F1F;*/
-  /* background-color: rgba(0, 0, 0, 0.2); */
-}
+/* #plugin-prophet .hp-bar.progress {
+  background-color: #1F1F1F;
+  background-color: rgba(0, 0, 0, 0.2);
+} */
 #plugin-prophet .hp-bar.lost.progress-bar {
   background-color: rgba(255, 255, 255, 0.1);
 }

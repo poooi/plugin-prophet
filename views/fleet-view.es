@@ -9,6 +9,7 @@ class FleetView extends PureComponent {
   static propTypes = {
     fleet: PropTypes.arrayOf(PropTypes.object),
     View: PropTypes.func,
+    root: PropTypes.node,
   }
 
   state = {
@@ -26,12 +27,35 @@ class FleetView extends PureComponent {
   }
 
   handleResize = ([entry]) => {
-    const { top, left, right } = $('#poi-plugin-prophet').parentElement.parentElement.getBoundingClientRect()
+    if (!this.props.root) {
+      setTimeout(() => this.handleResize([entry]), 500)
+      return
+    }
+    const {
+      top,
+      left,
+      right,
+    } = this.props.root.parentElement.parentElement.parentElement.getBoundingClientRect()
     const compact = entry.contentRect.width < 250
-    const tooltipPos = left >= 200 ? 'left'
-      : window.innerWidth - right + entry.contentRect.width / 2 >= 200 ? 'right'
-      : top >= 150 ? 'top' : 'bottom'
-    if (compact !== this.state.compact || tooltipPos !== this.state.tooltipPos) {
+    let tooltipPos
+    if (left >= 200) {
+      tooltipPos = 'left'
+    } else if (
+      this.props.root.offsetParent.clientWidth -
+        right +
+        entry.contentRect.width / 2 >=
+      200
+    ) {
+      tooltipPos = 'right'
+    } else if (top >= 150) {
+      tooltipPos = 'top'
+    } else {
+      tooltipPos = 'bottom'
+    }
+    if (
+      compact !== this.state.compact ||
+      tooltipPos !== this.state.tooltipPos
+    ) {
       this.setState({ compact, tooltipPos })
     }
   }
@@ -53,7 +77,12 @@ class FleetView extends PureComponent {
             fleet,
             ship =>
               ship && (
-                <View ship={ship} key={ship.pos || 0} compact={compact} tooltipPos={tooltipPos} />
+                <View
+                  ship={ship}
+                  key={ship.pos || 0}
+                  compact={compact}
+                  tooltipPos={tooltipPos}
+                />
               ),
           )}
         </div>

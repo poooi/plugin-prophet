@@ -296,19 +296,15 @@ class Prophet extends Component {
       useitemObserver,
     ])
 
-    this.resizeObserver = new ResizeObserver(([{ contentRect }]) => {
-      const { width, height, top, right, bottom, left } = contentRect
+    this.resizeObserver = new window.ResizeObserver(([{ contentRect }]) => {
+      const { width, height } = contentRect
       this.setState({
         width,
         height,
-        top,
-        right,
-        bottom,
-        left,
       })
     })
 
-    this.resizeObserver.observe($('#poi-plugin-prophet'))
+    this.resizeObserver.observe(this.root.current)
 
     // for debug (ugly)
     if (window.dbg.isEnabled()) {
@@ -724,6 +720,8 @@ class Prophet extends Component {
     })
   }
 
+  root = React.createRef()
+
   render() {
     const {
       mainFleet,
@@ -746,7 +744,7 @@ class Prophet extends Component {
 
     const { fleetIds } = this.props
     return (
-      <div id="plugin-prophet">
+      <div id="plugin-prophet" ref={this.root}>
         <link
           rel="stylesheet"
           href={join(__dirname, 'assets', 'prophet.css')}
@@ -768,6 +766,7 @@ class Prophet extends Component {
           eFormation={eFormation}
           fleetIds={fleetIds}
           useVerticalLayout={height < 400 && width >= 700}
+          root={this.root.current}
         />
       </div>
     )

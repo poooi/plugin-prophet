@@ -127,6 +127,7 @@ const BattleViewArea = compose(
     TP,
     t,
     useVerticalLayout,
+    root,
   }) => {
     const View = isBaseDefense ? SquadView : ShipView
     const times = !useVerticalLayout ? 1 : 2
@@ -146,12 +147,14 @@ const BattleViewArea = compose(
           title={t('Main Fleet')}
           count={times * fleetCount}
           View={View}
+          root={root}
         />
         <FleetView
           fleet={isBaseDefense ? undefined : escortFleet}
           title={t('Escort Fleet')}
           count={times * fleetCount}
           View={View}
+          root={root}
         />
       </div>
     )
@@ -165,11 +168,13 @@ const BattleViewArea = compose(
             fleet={enemyFleet}
             title={t('Enemy Fleet')}
             count={times * enemyCount}
+            root={root}
           />
           <FleetView
             fleet={enemyEscort}
             title={t('Enemy Escort Fleet')}
             count={times * enemyCount}
+            root={root}
           />
         </div>
       ) : (
