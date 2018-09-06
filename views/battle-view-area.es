@@ -126,11 +126,11 @@ const BattleViewArea = compose(
     friendTitle,
     TP,
     t,
-    useVerticalLayout,
+    horizontalLayout,
     root,
   }) => {
     const View = isBaseDefense ? SquadView : ShipView
-    const times = !useVerticalLayout ? 1 : 2
+    const times = !horizontalLayout ? 1 : 2
     // adapt the view according to layout by setting FleetView's div xs = 12/count
     // this can support 12v6, 6v12 and 12v12
     const fleetCount =
@@ -270,38 +270,36 @@ const BattleViewArea = compose(
     )
     return (
       <div id="overview-area">
-        {useVerticalLayout ? combatInfo : null}
-        <div className={useVerticalLayout ? 'div-row' : ''}>
+        {horizontalLayout ? combatInfo : null}
+        <div className={horizontalLayout ? 'div-row' : ''}>
           <div
             className="fleet-container"
             style={{
-              flex: useVerticalLayout ? fleetWidth : 1,
+              flex: horizontalLayout ? fleetWidth : 1,
               flexDirection:
-                useVerticalLayout &&
-                (escortFleet || []).length &&
-                !isBaseDefense
+                horizontalLayout && (escortFleet || []).length && !isBaseDefense
                   ? 'column-reverse'
                   : 'column',
             }}
           >
             {alliedForce}
-            {!useVerticalLayout ? combatInfo : null}
+            {!horizontalLayout ? combatInfo : null}
           </div>
           <div
             className="fleet-container"
             style={{
-              flex: useVerticalLayout ? enemyWidth : 1,
+              flex: horizontalLayout ? enemyWidth : 1,
               flexDirection:
-                useVerticalLayout && (enemyEscort || []).length
+                horizontalLayout && (enemyEscort || []).length
                   ? 'column-reverse'
                   : 'column',
             }}
           >
             {enemyForce}
-            {!useVerticalLayout ? mapInfo : null}
+            {!horizontalLayout ? mapInfo : null}
           </div>
         </div>
-        {useVerticalLayout ? mapInfo : null}
+        {horizontalLayout ? mapInfo : null}
       </div>
     )
   },

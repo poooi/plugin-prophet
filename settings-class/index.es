@@ -93,6 +93,7 @@ class SettingsClass extends Component {
           <RadioCheck
             label={t('Layout')}
             configName="plugin.prophet.layout"
+            default="auto"
             options={[
               {
                 label: t('Auto'),
