@@ -349,7 +349,7 @@ class Prophet extends Component {
       this.unsubscribeObserver()
     }
 
-    this.resizeObserver.unobserve(document.querySelector('kan-game webview'))
+    this.resizeObserver.unobserve(this.root.current)
 
     delete window.prophetTest
     delete window.baseDefenseTest
