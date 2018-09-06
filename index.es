@@ -26,7 +26,7 @@ import {
 import { store } from 'views/create-store'
 
 import BattleViewArea from './views/battle-view-area'
-import { PLUGIN_KEY, initEnemy, lostKind } from './utils'
+import { PLUGIN_KEY, initEnemy, lostKind, getAutoLayout } from './utils'
 import { Models, Simulator } from './lib/battle'
 import {
   onBattleResult,
@@ -231,6 +231,7 @@ const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
     fleets,
     equips,
     fleetIds,
+    layout: get(state.config, 'plugin.prophet.layout', 'auto'),
   }
 })
 class Prophet extends Component {
@@ -271,6 +272,7 @@ class Prophet extends Component {
     airbase: PropTypes.arrayOf(PropTypes.object),
     fleetIds: PropTypes.arrayOf(PropTypes.number),
     t: PropTypes.func.isRequired,
+    layout: PropTypes.string.isRequired,
   }
 
   constructor(props) {
@@ -741,7 +743,11 @@ class Prophet extends Component {
       height,
     } = this.state
 
-    const { fleetIds } = this.props
+    const { fleetIds, layout } = this.props
+
+    const finalLayout =
+      layout === 'auto' ? getAutoLayout(width, height) : layout
+
     return (
       <div id="plugin-prophet" ref={this.root}>
         <link
@@ -764,7 +770,7 @@ class Prophet extends Component {
           battleForm={battleForm}
           eFormation={eFormation}
           fleetIds={fleetIds}
-          useVerticalLayout={height < 400 && width >= 700}
+          horizontalLayout={finalLayout === 'horizontal'}
           root={this.root.current}
         />
       </div>
