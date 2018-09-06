@@ -17,6 +17,7 @@ import { observe } from 'redux-observers'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
 import { translate } from 'react-i18next'
+import { Button } from 'react-bootstrap'
 
 import {
   fleetShipsDataSelectorFactory,
@@ -26,6 +27,7 @@ import {
 import { store } from 'views/create-store'
 
 import CheckboxLabelConfig from './checkbox-label-config'
+import RadioCheck from './radio-check'
 import BattleViewArea from './views/battle-view-area'
 import { PLUGIN_KEY, initEnemy, lostKind } from './utils'
 import { Models, Simulator } from './lib/battle'
@@ -776,49 +778,86 @@ class Prophet extends Component {
 export const reactClass = Prophet
 
 export const settingsClass = translate(PLUGIN_KEY)(({ t }) => (
-  <div
-    style={{
-      display: 'flex',
-      flexWrap: 'wrap',
-      justifyContent: 'space-between',
-    }}
-  >
-    <CheckboxLabelConfig
-      label={t('Show scales on HP bar')}
-      configName="plugin.prophet.showScale"
-      defaultVal
+  <>
+    <div
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+      }}
+    >
+      <CheckboxLabelConfig
+        label={t('Show scales on HP bar')}
+        configName="plugin.prophet.showScale"
+        defaultVal
+      />
+      <CheckboxLabelConfig
+        label={t('Display enemy combined fleet in game order')}
+        configName="plugin.prophet.ecGameOrder"
+        defaultVal
+      />
+      <CheckboxLabelConfig
+        label={t('Show enemy deck name if available')}
+        configName="plugin.prophet.showEnemyTitle"
+        defaultVal
+      />
+      <CheckboxLabelConfig
+        label={t('Show last chosen formation hint')}
+        configName="plugin.prophet.showLastFormation"
+        defaultVal
+      />
+      <CheckboxLabelConfig
+        label={t('Ship parameters include equipment bonus')}
+        configName="plugin.prophet.useFinalParam"
+        defaultVal
+      />
+      <CheckboxLabelConfig
+        label={t('Heavily damaged notification')}
+        configName="plugin.prophet.notify.enable"
+        defaultVal
+      />
+      <CheckboxLabelConfig
+        label={t('Enable avatars')}
+        configName="plugin.prophet.showAvatar"
+        defaultVal={false}
+      />
+    </div>
+    <div
+      style={{
+        height: '2em',
+        width: '100%',
+      }}
     />
-    <CheckboxLabelConfig
-      label={t('Display enemy combined fleet in game order')}
-      configName="plugin.prophet.ecGameOrder"
-      defaultVal
+    <div>
+      <RadioCheck
+        label={t('Layout')}
+        configName="plugin.prophet.layout"
+        options={[
+          {
+            label: t('Auto'),
+            value: 'auto',
+          },
+          {
+            label: t('Horizontal'),
+            value: 'horizontal',
+          },
+          {
+            label: t('Vertical'),
+            value: 'vertical',
+          },
+        ]}
+      />
+    </div>
+    <div
+      style={{
+        height: '2em',
+        width: '100%',
+      }}
     />
-    <CheckboxLabelConfig
-      label={t('Show enemy deck name if available')}
-      configName="plugin.prophet.showEnemyTitle"
-      defaultVal
-    />
-    <CheckboxLabelConfig
-      label={t('Show last chosen formation hint')}
-      configName="plugin.prophet.showLastFormation"
-      defaultVal
-    />
-    <CheckboxLabelConfig
-      label={t('Ship parameters include equipment bonus')}
-      configName="plugin.prophet.useFinalParam"
-      defaultVal
-    />
-    <CheckboxLabelConfig
-      label={t('Heavily damaged notification')}
-      configName="plugin.prophet.notify.enable"
-      defaultVal
-    />
-    <CheckboxLabelConfig
-      label={t('Enable avatars')}
-      configName="plugin.prophet.showAvatar"
-      defaultVal={false}
-    />
-  </div>
+    <div>
+      <Button>{t('Clear map history')}</Button>
+    </div>
+  </>
 ))
 
 export { reducer } from './redux'

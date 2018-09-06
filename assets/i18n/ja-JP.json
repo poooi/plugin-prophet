@@ -73,5 +73,10 @@
   "Transport Escort": "輸送護衛部隊",
   "Combined Fleet": "連合艦隊",
   "A_rank": "A 勝：",
-  "Enable avatars": "アバターを表示する"
+  "Enable avatars": "アバターを表示する",
+  "Layout": "レイアウト",
+  "Auto": "適応",
+  "Horizontal": "左右",
+  "Vertical": "上下",
+  "Clear map history": "海域の履歴を消しする"
 }
