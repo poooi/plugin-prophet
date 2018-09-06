@@ -8,8 +8,8 @@ import { extensionSelectorFactory } from 'views/utils/selectors'
 
 import { PLUGIN_KEY } from './utils'
 
-const LS_PATH = '_prophet'
-const CACHE = do {
+export const LS_PATH = '_prophet'
+export const CACHE = do {
   const item = window.isSafeMode ? '{}' : localStorage.getItem(LS_PATH)
   JSON.parse(item || '{}')
 }
@@ -54,6 +54,8 @@ const HistoryReducer = (state = CACHE.history || {}, action) => {
         ...state,
         ...history,
       }
+    case '@@poi-plugin-prophet@clearHistory':
+      return {}
     default:
   }
   return state
@@ -142,7 +144,7 @@ export const reducer = combineReducers({
   useitem: UseItemReducer,
 })
 
-const setLocalStorage = () =>
+export const setLocalStorage = () =>
   process.nextTick(() => {
     localStorage.setItem(LS_PATH, JSON.stringify(CACHE))
   })
