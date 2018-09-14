@@ -8,7 +8,7 @@ import { ProgressBar } from 'react-bootstrap'
 
 export const FABar = ({ max, now, icon }) => {
   let pcnt
-  if (!(max && now)) {
+  if (!(max && now) && now !== 0) {
     pcnt = 100
   } else {
     pcnt = Math.round((100 * now) / max)
