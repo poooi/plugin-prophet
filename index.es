@@ -10,6 +10,7 @@ import _, {
   concat,
   get,
   filter,
+  first,
 } from 'lodash'
 import { join } from 'path'
 import { connect } from 'react-redux'
@@ -430,9 +431,12 @@ class Prophet extends Component {
     const simulator = new Simulator(battle.fleet, { usePoiAPI: true })
     // correct main fleet flagship HP for possible repair usage
     const { api_f_nowhps, api_f_maxhps } = battle.packet[0]
-    const [nowHP] = api_f_nowhps
-    if (simulator.mainFleet[0].nowHP !== nowHP) {
-      const [maxHP] = api_f_maxhps
+    const nowHP = first(api_f_nowhps)
+    if (
+      simulator.mainFleet[0].nowHP !== nowHP &&
+      typeof nowHP !== 'undefined'
+    ) {
+      const maxHP = first(api_f_maxhps)
       // 42=応急修理要員, 43=応急修理女神
       simulator.mainFleet[0].useItem = maxHP === nowHP ? 43 : 42
       simulator.mainFleet[0].initHP = nowHP
