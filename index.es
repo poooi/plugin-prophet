@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes, { number } from 'prop-types'
 import _, {
+  isEqual,
   isNil,
   each,
   map,
@@ -342,8 +343,8 @@ class Prophet extends Component {
   static getDerivedStateFromProps(props, state) {
     let nextState = state
     if (
-      state.propsFleets !== props.fleets ||
-      state.propsEquips !== props.equips
+      !isEqual(state.propsFleets, props.fleets) ||
+      !isEqual(state.propsEquips, props.equips)
     ) {
       const { fleets: propsFleets, equips: propsEquips } = props
       const [mainFleet, escortFleet] = transformToLibBattleClass(
