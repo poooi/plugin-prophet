@@ -340,16 +340,31 @@ class Prophet extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    const [mainFleet, escortFleet] = transformToLibBattleClass(
-      props.fleets,
-      props.equips,
-    )
-    return {
-      ...state,
-      mainFleet,
-      escortFleet,
-      combinedFlag: props.sortie.combinedFlag,
+    let nextState = state
+    if (
+      state.propsFleets !== props.fleets ||
+      state.propsEquips !== props.equips
+    ) {
+      const { fleets: propsFleets, equips: propsEquips } = props
+      const [mainFleet, escortFleet] = transformToLibBattleClass(
+        propsFleets,
+        propsEquips,
+      )
+      nextState = {
+        ...nextState,
+        mainFleet,
+        escortFleet,
+        propsFleets,
+        propsEquips,
+      }
     }
+    if (state.combinedFlag !== props.sortie.combinedFlag) {
+      nextState = {
+        ...nextState,
+        combinedFlag: props.sortie.combinedFlag,
+      }
+    }
+    return nextState
   }
 
   constructor(props) {
