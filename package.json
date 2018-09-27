@@ -25,7 +25,8 @@
     "prepack": "poi-util-transpile --sm --replace",
     "postpublish": "npm run reset",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .es"
+    "lint": "eslint . --ext .es",
+    "lint:fix": "eslint . --ext .es --fix"
   },
   "repository": {
     "type": "git",
