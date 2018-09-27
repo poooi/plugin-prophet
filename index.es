@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes, { number } from 'prop-types'
 import _, {
-  isEqual,
   isNil,
   each,
   map,
@@ -67,6 +66,70 @@ const updateByStageHp = (fleet, nowhps) => {
           },
   )
 }
+
+const transformToLibBattleClass = (fleets, equips) =>
+  (fleets || [])
+    .map((fleet, fleetPos) =>
+      (fleet || []).map(
+        ([_ship, $ship] = [], shipPos) =>
+          !_ship
+            ? null
+            : new Ship({
+                id: _ship.api_ship_id,
+                owner: ShipOwner.Ours,
+                pos: fleetPos * 6 + shipPos + 1,
+                maxHP: _ship.api_maxhp,
+                nowHP: _ship.api_nowhp,
+                initHP: _ship.api_nowhp,
+                lostHP: 0,
+                damage: 0,
+                items: equips[fleetPos][shipPos].map(
+                  e => (e ? e[0].api_slotitem_id : null),
+                ),
+                useItem: null,
+                baseParam: [
+                  $ship.api_houg[0] + _ship.api_kyouka[0],
+                  $ship.api_raig[0] + _ship.api_kyouka[1],
+                  $ship.api_tyku[0] + _ship.api_kyouka[2],
+                  $ship.api_souk[0] + _ship.api_kyouka[3],
+                ],
+                finalParam: [
+                  _ship.api_karyoku[0],
+                  _ship.api_raisou[0],
+                  _ship.api_taiku[0],
+                  _ship.api_soukou[0],
+                ],
+                raw: {
+                  ...$ship,
+                  ..._ship,
+                  poi_slot: equips[fleetPos][shipPos].map(
+                    e => (e ? e[0] : null),
+                  ),
+                  poi_slot_ex: null,
+                },
+              }),
+      ),
+    )
+    .concat([undefined, undefined])
+    .slice(0, 2)
+
+const transformToDazzyDingClass = (fleets, equips) =>
+  (fleets || [])
+    .map((fleet, fleetPos) =>
+      (fleet || []).map(
+        ([_ship, $ship] = [], shipPos) =>
+          !_ship
+            ? null
+            : {
+                ...$ship,
+                ..._ship,
+                poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
+                poi_slot_ex: null,
+              },
+      ),
+    )
+    .concat([undefined, undefined])
+    .slice(0, 2)
 
 const updateIfExist = (obj, key, prev) => get(obj, key, prev)
 
@@ -276,9 +339,22 @@ class Prophet extends Component {
     layout: PropTypes.string.isRequired,
   }
 
+  static getDerivedStateFromProps(props, state) {
+    const [mainFleet, escortFleet] = transformToLibBattleClass(
+      props.fleets,
+      props.equips,
+    )
+    return {
+      ...state,
+      mainFleet,
+      escortFleet,
+      combinedFlag: props.sortie.combinedFlag,
+    }
+  }
+
   constructor(props) {
     super(props)
-    const [mainFleet, escortFleet] = this.transformToLibBattleClass(
+    const [mainFleet, escortFleet] = transformToLibBattleClass(
       props.fleets,
       props.equips,
     )
@@ -315,36 +391,6 @@ class Prophet extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    const fleetUpdate =
-      !isEqual(this.props.fleets, nextProps.fleets) ||
-      !isEqual(this.props.equips, nextProps.equips)
-    const combinedFlagUpdate =
-      nextProps.sortie.combinedFlag != null &&
-      nextProps.sortie.combinedFlag !== this.state.combinedFlag
-    let newState = {}
-    if (fleetUpdate) {
-      const [mainFleet, escortFleet] = this.transformToLibBattleClass(
-        nextProps.fleets,
-        nextProps.equips,
-      )
-      newState = {
-        ...newState,
-        mainFleet,
-        escortFleet,
-      }
-    }
-    if (combinedFlagUpdate) {
-      newState = {
-        ...newState,
-        combinedFlag: nextProps.sortie.combinedFlag,
-      }
-    }
-    if (fleetUpdate || combinedFlagUpdate) {
-      this.setState(newState)
-    }
-  }
-
   componentWillUnmount() {
     window.removeEventListener('game.response', this.handleGameResponse)
 
@@ -357,72 +403,6 @@ class Prophet extends Component {
     delete window.prophetTest
     delete window.baseDefenseTest
   }
-
-  transformToLibBattleClass = (fleets, equips) =>
-    (fleets || [])
-      .map((fleet, fleetPos) =>
-        (fleet || []).map(
-          ([_ship, $ship] = [], shipPos) =>
-            !_ship
-              ? null
-              : new Ship({
-                  id: _ship.api_ship_id,
-                  owner: ShipOwner.Ours,
-                  pos: fleetPos * 6 + shipPos + 1,
-                  maxHP: _ship.api_maxhp,
-                  nowHP: _ship.api_nowhp,
-                  initHP: _ship.api_nowhp,
-                  lostHP: 0,
-                  damage: 0,
-                  items: equips[fleetPos][shipPos].map(
-                    e => (e ? e[0].api_slotitem_id : null),
-                  ),
-                  useItem: null,
-                  baseParam: [
-                    $ship.api_houg[0] + _ship.api_kyouka[0],
-                    $ship.api_raig[0] + _ship.api_kyouka[1],
-                    $ship.api_tyku[0] + _ship.api_kyouka[2],
-                    $ship.api_souk[0] + _ship.api_kyouka[3],
-                  ],
-                  finalParam: [
-                    _ship.api_karyoku[0],
-                    _ship.api_raisou[0],
-                    _ship.api_taiku[0],
-                    _ship.api_soukou[0],
-                  ],
-                  raw: {
-                    ...$ship,
-                    ..._ship,
-                    poi_slot: equips[fleetPos][shipPos].map(
-                      e => (e ? e[0] : null),
-                    ),
-                    poi_slot_ex: null,
-                  },
-                }),
-        ),
-      )
-      .concat([undefined, undefined])
-      .slice(0, 2)
-
-  transformToDazzyDingClass = (fleets, equips) =>
-    (fleets || [])
-      .map((fleet, fleetPos) =>
-        (fleet || []).map(
-          ([_ship, $ship] = [], shipPos) =>
-            !_ship
-              ? null
-              : {
-                  ...$ship,
-                  ..._ship,
-                  poi_slot: equips[fleetPos][shipPos].map(
-                    e => (e ? e[0] : null),
-                  ),
-                  poi_slot_ex: null,
-                },
-        ),
-      )
-      .concat([undefined, undefined])
-      .slice(0, 2)
 
   handlePacket = battle => {
     const sortieState =
@@ -671,7 +651,7 @@ class Prophet extends Component {
       const packet = Object.clone(body)
       packet.poi_path = e.detail.path
       if (!this.battle.fleet) {
-        const [_mainFleet, _escortFleet] = this.transformToDazzyDingClass(
+        const [_mainFleet, _escortFleet] = transformToDazzyDingClass(
           this.props.fleets,
           this.props.equips,
         )
