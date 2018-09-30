@@ -674,16 +674,15 @@ class Prophet extends Component {
       }
     }
     // Update fleet info from props
-    const { propsFleets, propsEquips } = this.state
     if (
-      (!isEqual(propsFleets, this.props.fleets) ||
-        !isEqual(propsEquips, this.props.equips)) &&
+      (!isEqual(this.state.propsFleets, this.props.fleets) ||
+        !isEqual(this.state.propsEquips, this.props.equips)) &&
       !this.battle &&
       !e.detail.path.includes('result')
     ) {
       const [_mainFleet, _escortFleet] = transformToLibBattleClass(
-        propsFleets,
-        propsEquips,
+        this.props.fleets,
+        this.props.equips,
       )
       newState = {
         ...newState,
