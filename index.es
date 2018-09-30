@@ -494,7 +494,7 @@ class Prophet extends Component {
     isBaseDefense = false
     let updateFleetStateFromLibBattle = !!this.battle
     switch (path) {
-      case '/kcsapi/api_start2': // refresh game page
+      case '/kcsapi/api_start2/getData': // refresh game page
       case '/kcsapi/api_port/port':
         this.battle = null
         ;({
