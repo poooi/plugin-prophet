@@ -343,8 +343,9 @@ class Prophet extends Component {
   static getDerivedStateFromProps(props, state) {
     let nextState = state
     if (
-      !isEqual(state.propsFleets, props.fleets) ||
-      !isEqual(state.propsEquips, props.equips)
+      (!isEqual(state.propsFleets, props.fleets) ||
+        !isEqual(state.propsEquips, props.equips)) &&
+      !state.inBattle
     ) {
       const { fleets: propsFleets, equips: propsEquips } = props
       const [mainFleet, escortFleet] = transformToLibBattleClass(
@@ -534,6 +535,8 @@ class Prophet extends Component {
           result,
           airForce,
         } = this.constructor.initState)
+        // eslint-disable-next-line react/no-unused-state
+        this.setState({ inBattle: false })
         break
       case '/kcsapi/api_req_map/start':
       case '/kcsapi/api_req_map/next': {
@@ -630,6 +633,8 @@ class Prophet extends Component {
           fleet: null, // Assign later
           packet: [],
         })
+        // eslint-disable-next-line react/no-unused-state
+        this.setState({ inBattle: true })
         break
       }
       case '/kcsapi/api_req_member/get_practice_enemyinfo': {
@@ -650,6 +655,8 @@ class Prophet extends Component {
           fleet: null, // Assign later
           packet: [],
         })
+        // eslint-disable-next-line react/no-unused-state
+        this.setState({ inBattle: true })
         break
       }
       default:
@@ -698,6 +705,8 @@ class Prophet extends Component {
         )
         newState = this.handlePacketResult(this.battle)
         this.battle = null
+        // eslint-disable-next-line react/no-unused-state
+        this.setState({ inBattle: false })
       } else if (this.battle) {
         newState = this.handlePacket(this.battle)
       }
