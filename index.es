@@ -316,13 +316,13 @@ class Prophet extends Component {
     battleForm: '', // api_formation[2]
     eFormation: '', // enemy formation, api_formation[1]
     fFormation: '',
-    combinedFlag: 0, // 0=无, 1=水上打击, 2=空母機動, 3=輸送
     width: 500,
     height: 400,
     top: 30,
     bottom: 0,
     left: 800,
     right: 0,
+    inBattle: false,
   }
 
   static propTypes = {
@@ -341,7 +341,6 @@ class Prophet extends Component {
   }
 
   static getDerivedStateFromProps(props, state) {
-    let nextState = state
     if (
       (!isEqual(state.propsFleets, props.fleets) ||
         !isEqual(state.propsEquips, props.equips)) &&
@@ -352,21 +351,14 @@ class Prophet extends Component {
         propsFleets,
         propsEquips,
       )
-      nextState = {
-        ...nextState,
+      return {
         mainFleet,
         escortFleet,
         propsFleets,
         propsEquips,
       }
     }
-    if (state.combinedFlag !== props.sortie.combinedFlag) {
-      nextState = {
-        ...nextState,
-        combinedFlag: props.sortie.combinedFlag,
-      }
-    }
-    return nextState
+    return null
   }
 
   constructor(props) {
@@ -633,8 +625,6 @@ class Prophet extends Component {
           fleet: null, // Assign later
           packet: [],
         })
-        // eslint-disable-next-line react/no-unused-state
-        this.setState({ inBattle: true })
         break
       }
       case '/kcsapi/api_req_member/get_practice_enemyinfo': {
@@ -679,7 +669,7 @@ class Prophet extends Component {
           this.props.equips,
         )
         this.battle.fleet = new Fleet({
-          type: _escortFleet ? this.state.combinedFlag : 0,
+          type: _escortFleet ? this.props.sortie.combinedFlag : 0,
           main: _mainFleet,
           escort: _escortFleet,
           support: null,
@@ -687,6 +677,8 @@ class Prophet extends Component {
         })
       }
       if (!this.battle.packet) {
+        // eslint-disable-next-line react/no-unused-state
+        this.setState({ inBattle: true })
         this.battle.packet = []
       }
       this.battle.packet.push(packet)
