@@ -322,7 +322,6 @@ class Prophet extends Component {
     bottom: 0,
     left: 800,
     right: 0,
-    inBattle: false,
   }
 
   static propTypes = {
@@ -338,27 +337,6 @@ class Prophet extends Component {
     fleetIds: PropTypes.arrayOf(PropTypes.number),
     t: PropTypes.func.isRequired,
     layout: PropTypes.string.isRequired,
-  }
-
-  static getDerivedStateFromProps(props, state) {
-    if (
-      (!isEqual(state.propsFleets, props.fleets) ||
-        !isEqual(state.propsEquips, props.equips)) &&
-      !state.inBattle
-    ) {
-      const { fleets: propsFleets, equips: propsEquips } = props
-      const [mainFleet, escortFleet] = transformToLibBattleClass(
-        propsFleets,
-        propsEquips,
-      )
-      return {
-        mainFleet,
-        escortFleet,
-        propsFleets,
-        propsEquips,
-      }
-    }
-    return null
   }
 
   constructor(props) {
@@ -527,8 +505,6 @@ class Prophet extends Component {
           result,
           airForce,
         } = this.constructor.initState)
-        // eslint-disable-next-line react/no-unused-state
-        this.setState({ inBattle: false })
         break
       case '/kcsapi/api_req_map/start':
       case '/kcsapi/api_req_map/next': {
@@ -645,8 +621,6 @@ class Prophet extends Component {
           fleet: null, // Assign later
           packet: [],
         })
-        // eslint-disable-next-line react/no-unused-state
-        this.setState({ inBattle: true })
         break
       }
       default:
@@ -677,8 +651,6 @@ class Prophet extends Component {
         })
       }
       if (!this.battle.packet) {
-        // eslint-disable-next-line react/no-unused-state
-        this.setState({ inBattle: true })
         this.battle.packet = []
       }
       this.battle.packet.push(packet)
@@ -697,10 +669,28 @@ class Prophet extends Component {
         )
         newState = this.handlePacketResult(this.battle)
         this.battle = null
-        // eslint-disable-next-line react/no-unused-state
-        this.setState({ inBattle: false })
       } else if (this.battle) {
         newState = this.handlePacket(this.battle)
+      }
+    }
+    // Update fleet info from props
+    const { propsFleets, propsEquips } = this.state
+    if (
+      (!isEqual(propsFleets, this.props.fleets) ||
+        !isEqual(propsEquips, this.props.equips)) &&
+      !this.battle &&
+      !e.detail.path.includes('result')
+    ) {
+      const [_mainFleet, _escortFleet] = transformToLibBattleClass(
+        propsFleets,
+        propsEquips,
+      )
+      newState = {
+        ...newState,
+        mainFleet: _mainFleet,
+        escortFleet: _escortFleet,
+        propsFleets: this.props.fleets,
+        propsEquips: this.props.equips,
       }
     }
     this.setState({
