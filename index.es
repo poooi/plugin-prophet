@@ -492,7 +492,7 @@ class Prophet extends Component {
       eFormation,
     } = this.state
     isBaseDefense = false
-    const updateFlag = !this.battle
+    let updateFleetStateFromLibBattle = !!this.battle
     switch (path) {
       case '/kcsapi/api_start2': // refresh game page
       case '/kcsapi/api_port/port':
@@ -506,6 +506,7 @@ class Prophet extends Component {
           result,
           airForce,
         } = this.constructor.initState)
+        updateFleetStateFromLibBattle = false
         break
       case '/kcsapi/api_req_map/start':
       case '/kcsapi/api_req_map/next': {
@@ -628,14 +629,8 @@ class Prophet extends Component {
       /* do nothing */
     }
     let newState = {}
-    if (
-      this.battle &&
-      ![
-        '/kcsapi/api_req_map/start',
-        '/kcsapi/api_req_map/next',
-        '/kcsapi/api_req_map/start_air_base',
-      ].includes(path)
-    ) {
+    if (updateFleetStateFromLibBattle) {
+      // Update fleet state from lib-battle
       const packet = Object.clone(body)
       packet.poi_path = e.detail.path
       if (!this.battle.fleet) {
@@ -670,16 +665,14 @@ class Prophet extends Component {
         )
         newState = this.handlePacketResult(this.battle)
         this.battle = null
-      } else if (this.battle) {
+      } else {
         newState = this.handlePacket(this.battle)
       }
-    }
-    // Update fleet info from props
-    if (
-      (!isEqual(this.state.propsFleets, this.props.fleets) ||
-        !isEqual(this.state.propsEquips, this.props.equips)) &&
-      updateFlag
+    } else if (
+      !isEqual(this.state.propsFleets, this.props.fleets) ||
+      !isEqual(this.state.propsEquips, this.props.equips)
     ) {
+      // Update fleet state from props
       const [_mainFleet, _escortFleet] = transformToLibBattleClass(
         this.props.fleets,
         this.props.equips,
