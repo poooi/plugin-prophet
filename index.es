@@ -492,6 +492,7 @@ class Prophet extends Component {
       eFormation,
     } = this.state
     isBaseDefense = false
+    const updateFlag = !this.battle
     switch (path) {
       case '/kcsapi/api_start2': // refresh game page
       case '/kcsapi/api_port/port':
@@ -677,8 +678,7 @@ class Prophet extends Component {
     if (
       (!isEqual(this.state.propsFleets, this.props.fleets) ||
         !isEqual(this.state.propsEquips, this.props.equips)) &&
-      !this.battle &&
-      !e.detail.path.includes('result')
+      updateFlag
     ) {
       const [_mainFleet, _escortFleet] = transformToLibBattleClass(
         this.props.fleets,
