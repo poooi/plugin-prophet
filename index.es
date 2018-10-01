@@ -603,6 +603,7 @@ class Prophet extends Component {
           fleet: null, // Assign later
           packet: [],
         })
+        updateFleetStateFromLibBattle = false
         break
       }
       case '/kcsapi/api_req_member/get_practice_enemyinfo': {
@@ -612,6 +613,7 @@ class Prophet extends Component {
             title: api_deckname,
           }),
         )
+        updateFleetStateFromLibBattle = false
         break
       }
       case '/kcsapi/api_req_practice/battle': {
@@ -623,6 +625,7 @@ class Prophet extends Component {
           fleet: null, // Assign later
           packet: [],
         })
+        updateFleetStateFromLibBattle = true
         break
       }
       default:
