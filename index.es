@@ -606,6 +606,10 @@ class Prophet extends Component {
         updateFleetStateFromLibBattle = false
         break
       }
+      case '/kcsapi/api_req_map/start_air_base': {
+        updateFleetStateFromLibBattle = false
+        break
+      }
       case '/kcsapi/api_req_member/get_practice_enemyinfo': {
         const { api_deckname } = body
         dispatch(
