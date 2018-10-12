@@ -59,7 +59,7 @@
   opacity: 0.4;
 }
 #plugin-prophet .ship-item.compact .ship-avatar-container {
-  position: absolute;
+  position: relative;
 }
 .prophet-icon {
   width: 15px;
@@ -103,6 +103,12 @@
   flex-flow: row nowrap;
   justify-content: space-between;
   min-width: 0;
+  position: relative;
+}
+#plugin-prophet .ship-info .ship-avatar-container {
+  position: relative;
+  top: 0;
+  left: 0;
 }
 #plugin-prophet .ship-info .ship-damage {
   white-space: nowrap;
