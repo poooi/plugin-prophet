@@ -78,6 +78,7 @@ class DropInfo extends PureComponent {
       (navyAlbumShowShipAvailable ? (
         <button
           bsStyle="link"
+          type="button"
           onClick={this.handleClick}
           key="ship"
           style={{
@@ -98,12 +99,10 @@ class DropInfo extends PureComponent {
 
     return (
       <span className="drop-info">
-        {_.flatMap(
-          components,
-          (c, ind) =>
-            ind + 1 === components.length
-              ? [c]
-              : [c, <span key={`sep-${ind}`}> | </span>],
+        {_.flatMap(components, (c, ind) =>
+          ind + 1 === components.length
+            ? [c]
+            : [c, <span key={`sep-${ind}`}> | </span>],
         )}
       </span>
     )

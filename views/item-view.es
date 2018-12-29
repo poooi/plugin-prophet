@@ -47,21 +47,19 @@ const ItemView = compose(
       </span>
       <span className="item-attr">
         <span className="alv">
-          {data.api_alv &&
-            data.api_alv >= 1 &&
-            data.api_alv <= 7 && (
-              <img
-                className="alv-img prophet-icon"
-                src={join(
-                  ROOT,
-                  'assets',
-                  'img',
-                  'airplane',
-                  `alv${data.api_alv}.png`,
-                )}
-                alt="alv"
-              />
-            )}
+          {data.api_alv && data.api_alv >= 1 && data.api_alv <= 7 && (
+            <img
+              className="alv-img prophet-icon"
+              src={join(
+                ROOT,
+                'assets',
+                'img',
+                'airplane',
+                `alv${data.api_alv}.png`,
+              )}
+              alt="alv"
+            />
+          )}
         </span>
         <span className="level">
           {data.api_level > 0 ? `★${data.api_level}` : ''}

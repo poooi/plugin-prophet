@@ -152,8 +152,9 @@ export const setLocalStorage = () =>
 const setLocalStorageDebounced = debounce(setLocalStorage, 5000)
 
 const createObserver = path => {
-  const selector = createSelector([extensionSelectorFactory(PLUGIN_KEY)], ext =>
-    get(ext, path, {}),
+  const selector = createSelector(
+    [extensionSelectorFactory(PLUGIN_KEY)],
+    ext => get(ext, path, {}),
   )
 
   return observer(selector, (dispatch, current = {}, previous) => {

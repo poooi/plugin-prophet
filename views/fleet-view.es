@@ -27,7 +27,9 @@ class FleetView extends PureComponent {
   }
 
   handleResize = ([entry]) => {
-    if (!this.props.root) {
+    const { root } = this.props
+    const { compact: stateCompact, tooltipPos: stateTooltipPos } = this.state
+    if (!root) {
       setTimeout(() => this.handleResize([entry]), 500)
       return
     }
@@ -35,15 +37,13 @@ class FleetView extends PureComponent {
       top,
       left,
       right,
-    } = this.props.root.parentElement.parentElement.parentElement.getBoundingClientRect()
+    } = root.parentElement.parentElement.parentElement.getBoundingClientRect()
     const compact = entry.contentRect.width < 250
     let tooltipPos
     if (left >= 200) {
       tooltipPos = 'left'
     } else if (
-      this.props.root.offsetParent.clientWidth -
-        right +
-        entry.contentRect.width / 2 >=
+      root.offsetParent.clientWidth - right + entry.contentRect.width / 2 >=
       200
     ) {
       tooltipPos = 'right'
@@ -52,10 +52,7 @@ class FleetView extends PureComponent {
     } else {
       tooltipPos = 'bottom'
     }
-    if (
-      compact !== this.state.compact ||
-      tooltipPos !== this.state.tooltipPos
-    ) {
+    if (compact !== stateCompact || tooltipPos !== stateTooltipPos) {
       this.setState({ compact, tooltipPos })
     }
   }

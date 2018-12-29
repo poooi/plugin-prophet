@@ -184,32 +184,26 @@ const BattleViewArea = compose(
       <div className="alert div-row prophet-info">
         <div className="combat-title" title={t(friendTitle)}>
           <span>{`${t(friendTitle)}`}</span>
-          {TP.total > 0 &&
-            !isBaseDefense && (
-              <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
-                <OverlayTrigger
-                  placement="bottom"
-                  overlay={
-                    <Tooltip id="tp-indicator">
-                      <span>
-                        {`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}
-                      </span>
-                    </Tooltip>
-                  }
-                >
-                  <span>
-                    <FontAwesome
-                      name="database"
-                      style={{ marginRight: '1ex' }}
-                    />
-                    [
-                    {TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
-                    <span>{TP.total}</span>
-                    ]
-                  </span>
-                </OverlayTrigger>
-              </span>
-            )}
+          {TP.total > 0 && !isBaseDefense && (
+            <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
+              <OverlayTrigger
+                placement="bottom"
+                overlay={
+                  <Tooltip id="tp-indicator">
+                    <span>
+                      {`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}
+                    </span>
+                  </Tooltip>
+                }
+              >
+                <span>
+                  <FontAwesome name="database" style={{ marginRight: '1ex' }} />
+                  [{TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
+                  <span>{TP.total}</span>]
+                </span>
+              </OverlayTrigger>
+            </span>
+          )}
           {airForce[0] ? (
             <span>
               <FontAwesome name="plane" style={{ marginRight: '1ex' }} />

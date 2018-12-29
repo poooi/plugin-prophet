@@ -47,15 +47,14 @@ export const HPBar = connect((state, props) => ({
           <span className="ship-hp">
             {_to} / {max}
             {_stage !== 0 && loss !== 0 && <span className="loss">{loss}</span>}
-            {!!item &&
-              $equip && (
-                <span className="item-icon">
-                  <SlotitemIcon
-                    slotitemId={$equip.api_type[3]}
-                    className="prophet-icon"
-                  />
-                </span>
-              )}
+            {!!item && $equip && (
+              <span className="item-icon">
+                <SlotitemIcon
+                  slotitemId={$equip.api_type[3]}
+                  className="prophet-icon"
+                />
+              </span>
+            )}
           </span>
           {typeof cond !== 'undefined' ? (
             <div className="status-cond">

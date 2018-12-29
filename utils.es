@@ -107,7 +107,8 @@ export const getSpotKind = (api_event_id, api_event_kind) => {
     if (api_event_kind === 1) {
       // 1="敵影を見ず。"
       return 7
-    } else if (api_event_kind === 2) {
+    }
+    if (api_event_kind === 2) {
       // 2=能動分岐
       return 12
     }
