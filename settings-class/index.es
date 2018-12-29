@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { translate } from 'react-i18next'
+import { withNamespaces } from 'react-i18next'
 import { Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { set } from 'lodash'
@@ -12,7 +12,7 @@ import RadioCheck from './radio-check'
 import { PLUGIN_KEY } from '../utils'
 import { CACHE, setLocalStorage } from '../redux'
 
-@translate(PLUGIN_KEY)
+@withNamespaces(PLUGIN_KEY)
 @connect()
 class SettingsClass extends Component {
   static propTypes = {
@@ -25,7 +25,8 @@ class SettingsClass extends Component {
   }
 
   handleClearHistory = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props
+    dispatch({
       type: '@@poi-plugin-prophet@clearHistory',
     })
     set(CACHE, 'history', {})

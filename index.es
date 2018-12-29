@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 import { observe } from 'redux-observers'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
-import { translate } from 'react-i18next'
+import { withNamespaces } from 'react-i18next'
 
 import {
   fleetShipsDataSelectorFactory,
@@ -262,7 +262,7 @@ const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
 // 2: battle, switch on with PM emit type
 // 3: practice, switch on with PM emit type
 
-@translate([PLUGIN_KEY, 'resources'], { nsMode: 'fallback' })
+@withNamespaces([PLUGIN_KEY, 'resources'], { nsMode: 'fallback' })
 @connect(state => {
   const sortie = state.sortie || {}
   const sortieStatus = sortie.sortieStatus || []
