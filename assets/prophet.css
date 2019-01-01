@@ -117,6 +117,12 @@
   opacity: 0.8;
   text-align: right;
 }
+#plugin-prophet .ship-info .ship-damage.no-pseudo {
+  margin-right: 0;
+}
+#plugin-prophet .ship-info .ship-damage.no-pseudo::after {
+  display: none;
+}
 #plugin-prophet .ship-item.compact.avatar .ship-damage {
   flex: 1;
 }
