@@ -239,7 +239,9 @@ const ShipView = compose(
                 )}
               </Fragment>
               <div
-                className={`ship-damage ${ship.isMvp ? getCondStyle(100) : ''}`}
+                className={`ship-damage ${
+                  ship.isMvp ? getCondStyle(100, true) : ''
+                }`}
               >
                 {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
                 {isEscaped ? <FontAwesome name="reply" /> : ship.damage || 0}
