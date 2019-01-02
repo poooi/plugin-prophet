@@ -1,6 +1,6 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { withNamespaces } from 'react-i18next'
+import { translate } from 'react-i18next'
 
 import { HPBar } from './bar'
 
@@ -21,37 +21,35 @@ const actionKind = {
 }
 
 // TODO: connect store airbase
-const SquadView = withNamespaces('poi-plugin-prophet')(
-  ({ ship, compact, t }) => {
-    if (ship && ship.id > 0) {
-      return <div />
-    }
-    const pos = ship.pos || 0
+const SquadView = translate('poi-plugin-prophet')(({ ship, compact, t }) => {
+  if (ship && ship.id > 0) {
+    return <div />
+  }
+  const pos = ship.pos || 0
 
-    const name = ship.raw.api_name || `${order[pos] || ''} Squadron`
-    const action_kind = ship.raw.api_action_kind
+  const name = ship.raw.api_name || `${order[pos] || ''} Squadron`
+  const action_kind = ship.raw.api_action_kind
 
-    return (
-      <div className="div-row ship-item">
-        <div className={`ship-view ${compact ? 'compact' : ''}`}>
-          <div className="ship-info">
-            <div className="ship-name">
-              <span>{`${name} [${t(actionKind[action_kind] || '')}]`}</span>
-            </div>
+  return (
+    <div className="div-row ship-item">
+      <div className={`ship-view ${compact ? 'compact' : ''}`}>
+        <div className="ship-info">
+          <div className="ship-name">
+            <span>{`${name} [${t(actionKind[action_kind] || '')}]`}</span>
           </div>
         </div>
-        <div className="ship-hp">
-          <HPBar
-            max={ship.maxHP}
-            from={ship.initHP}
-            to={ship.nowHP}
-            damage={ship.lostHP}
-          />
-        </div>
       </div>
-    )
-  },
-)
+      <div className="ship-hp">
+        <HPBar
+          max={ship.maxHP}
+          from={ship.initHP}
+          to={ship.nowHP}
+          damage={ship.lostHP}
+        />
+      </div>
+    </div>
+  )
+})
 
 SquadView.propTypes = {
   ship: PropTypes.shape({

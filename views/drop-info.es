@@ -3,11 +3,11 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import FA from 'react-fontawesome'
-import { withNamespaces } from 'react-i18next'
+import { translate } from 'react-i18next'
 
 const { ipc } = window
 
-@withNamespaces(['poi-plugin-prophet', 'resources'], { nsMode: 'fallback' })
+@translate(['poi-plugin-prophet', 'resources'], { nsMode: 'fallback' })
 @connect((state, props) => {
   const ship = _.get(state, `const.$ships.${props.getShip}`)
   const item = _.get(state, `const.$useitems.${props.getItem}`)

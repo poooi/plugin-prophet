@@ -8,7 +8,7 @@ import { resolve } from 'path'
 import { getCondStyle } from 'views/utils/game-utils'
 import { Avatar } from 'views/components/etc/avatar'
 import cls from 'classnames'
-import { withNamespaces } from 'react-i18next'
+import { translate } from 'react-i18next'
 import { compose } from 'redux'
 
 import ItemView from './item-view'
@@ -69,43 +69,38 @@ const getFullname = (t, name, yomi, apiId) => {
   )
 }
 
-const ShipName = withNamespaces('resources')(
-  ({ name, yomi, apiId, enemy, t }) => {
-    const translated = t(name)
-    const fullname = getFullname(t, name, yomi, apiId)
-    const length = getTextWidth(fullname)
-    if (translated === name || !enemy || length < 120) {
-      return <div className="ship-name">{fullname}</div>
+const ShipName = translate('resources')(({ name, yomi, apiId, enemy, t }) => {
+  const translated = t(name)
+  const fullname = getFullname(t, name, yomi, apiId)
+  const length = getTextWidth(fullname)
+  if (translated === name || !enemy || length < 120) {
+    return <div className="ship-name">{fullname}</div>
+  }
+
+  const parts = fullname.split(' ')
+  const up = []
+  const down = []
+
+  let isUpFull = false
+  while (parts.length) {
+    const word = parts.shift()
+    // 0.618: let's be golden
+    if (getTextWidth([...up, word].join(' ')) <= length * 0.618 && !isUpFull) {
+      up.push(word)
+    } else {
+      isUpFull = true
+      down.push(word)
     }
+  }
 
-    const parts = fullname.split(' ')
-    const up = []
-    const down = []
-
-    let isUpFull = false
-    while (parts.length) {
-      const word = parts.shift()
-      // 0.618: let's be golden
-      if (
-        getTextWidth([...up, word].join(' ')) <= length * 0.618 &&
-        !isUpFull
-      ) {
-        up.push(word)
-      } else {
-        isUpFull = true
-        down.push(word)
-      }
-    }
-
-    return (
-      <div className={cls('ship-name', 'half')}>
-        <span>{up.join(' ')}</span>
-        <br />
-        <span>{down.join(' ')}</span>
-      </div>
-    )
-  },
-)
+  return (
+    <div className={cls('ship-name', 'half')}>
+      <span>{up.join(' ')}</span>
+      <br />
+      <span>{down.join(' ')}</span>
+    </div>
+  )
+})
 
 ShipName.propTypes = {
   name: PropTypes.string,
@@ -118,7 +113,7 @@ ShipName.propTypes = {
 const paramNames = ['firepower', 'torpedo', 'AA', 'armor']
 
 const ShipView = compose(
-  withNamespaces('resources'),
+  translate('resources'),
   connect((state, props) => {
     const api_ship_id = _.get(props.ship, 'raw.api_ship_id', -1)
     return {

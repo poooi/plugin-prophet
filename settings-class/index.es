@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import { withNamespaces } from 'react-i18next'
+import { translate } from 'react-i18next'
 import { Button } from 'react-bootstrap'
 import { connect } from 'react-redux'
 import { set } from 'lodash'
@@ -12,7 +12,7 @@ import RadioCheck from './radio-check'
 import { PLUGIN_KEY } from '../utils'
 import { CACHE, setLocalStorage } from '../redux'
 
-@withNamespaces(PLUGIN_KEY)
+@translate(PLUGIN_KEY)
 @connect()
 class SettingsClass extends Component {
   static propTypes = {
