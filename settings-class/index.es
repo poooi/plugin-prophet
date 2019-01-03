@@ -1,11 +1,11 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { withNamespaces } from 'react-i18next'
-import { Button } from 'react-bootstrap'
+import { Button } from '@blueprintjs/core'
 import { connect } from 'react-redux'
 import { set } from 'lodash'
 import styled from 'styled-components'
-import FA from '@skagami/react-fontawesome'
+// import FA from '@skagami/react-fontawesome'
 
 import CheckboxLabelConfig from './checkbox-label-config'
 import RadioCheck from './radio-check'
@@ -114,10 +114,13 @@ class SettingsClass extends Component {
         </div>
         <Gap />
         <div>
-          <Button onClick={this.handleClearHistory}>
+          <Button
+            rightIcon={done ? 'small-tick' : undefined}
+            intent="primary"
+            onClick={this.handleClearHistory}
+          >
             {t('Clear map history')}
-          </Button>{' '}
-          {done && <FA name="check" />}
+          </Button>
         </div>
       </>
     )

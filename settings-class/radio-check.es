@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import propTypes from 'prop-types'
-// import { div } from 'react-bootstrap'
+import { Radio } from '@blueprintjs/core'
 import { connect } from 'react-redux'
 import { get, map } from 'lodash'
 import styled from 'styled-components'
@@ -11,13 +11,6 @@ const RadioContainer = styled.div`
 
 const Name = styled.div`
   padding-right: 2em;
-`
-
-const Radio = styled.div`
-  background-color: ${({ isCurrent }) => isCurrent && '#4caf50'};
-  border: 1px solid #fff;
-  padding: 0 1em;
-  margin-right: -1px;
 `
 
 // single option check
@@ -52,10 +45,9 @@ const RadioCheck = connect((state, props) => ({
           {map(options, ({ label, value }) => (
             <Radio
               key={value}
-              role="button"
-              tabIndex="0"
+              style={{ marginRight: 10 }}
               onClick={this.handleClickRadio(value)}
-              isCurrent={value === current}
+              checked={value === current}
             >
               {label}
             </Radio>

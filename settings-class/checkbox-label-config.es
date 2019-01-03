@@ -4,6 +4,11 @@ import PropTypes from 'prop-types'
 
 import { get } from 'lodash'
 import { Checkbox } from '@blueprintjs/core'
+import styled from 'styled-components'
+
+const CheckboxLabelConfigContainer = styled.div`
+  padding-right: 2em;
+`
 
 const CheckboxLabelConfig = connect((state, props) => ({
   value: get(state.config, props.configName, props.defaultVal),
@@ -25,15 +30,11 @@ const CheckboxLabelConfig = connect((state, props) => ({
     render() {
       const { value, label } = this.props
       return (
-        <div
-          style={{
-            paddingRight: '2em',
-          }}
-        >
+        <CheckboxLabelConfigContainer>
           <Checkbox checked={value} onChange={this.handleChange}>
             {label}
           </Checkbox>
-        </div>
+        </CheckboxLabelConfigContainer>
       )
     }
   },
