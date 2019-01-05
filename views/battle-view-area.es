@@ -3,7 +3,7 @@ import React from 'react'
 import { createSelector } from 'reselect'
 import _ from 'lodash'
 import { connect } from 'react-redux'
-import { Tooltip, OverlayTrigger } from 'react-bootstrap'
+import { Tooltip } from '@blueprintjs/core'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 
@@ -186,14 +186,14 @@ const BattleViewArea = compose(
           <span>{`${t(friendTitle)}`}</span>
           {TP.total > 0 && !isBaseDefense && (
             <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
-              <OverlayTrigger
-                placement="bottom"
-                overlay={
-                  <Tooltip id="tp-indicator">
+              <Tooltip
+                position="bottom"
+                content={
+                  <div id="tp-indicator">
                     <span>
                       {`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}
                     </span>
-                  </Tooltip>
+                  </div>
                 }
               >
                 <span>
@@ -201,7 +201,7 @@ const BattleViewArea = compose(
                   [{TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
                   <span>{TP.total}</span>]
                 </span>
-              </OverlayTrigger>
+              </Tooltip>
             </span>
           )}
           {airForce[0] ? (
