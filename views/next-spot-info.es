@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { resolve } from 'path'
-import { translate } from 'react-i18next'
+import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
@@ -51,7 +51,7 @@ SpotIcon.propTypes = {
 }
 
 const NextSpotInfo = compose(
-  translate('poi-plugin-prophet'),
+  withNamespaces('poi-plugin-prophet'),
   connect((state, props) => {
     const sortie = state.sortie || {}
     const { sortieMapId, currentNode, item } = sortie

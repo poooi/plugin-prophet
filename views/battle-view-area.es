@@ -4,7 +4,7 @@ import { createSelector } from 'reselect'
 import _ from 'lodash'
 import { connect } from 'react-redux'
 import { Tooltip, OverlayTrigger } from 'react-bootstrap'
-import { translate } from 'react-i18next'
+import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
@@ -40,7 +40,7 @@ const escapedShipIdSelector = createSelector(
 )
 
 const BattleViewArea = compose(
-  translate('poi-plugin-prophet'),
+  withNamespaces('poi-plugin-prophet'),
   connect((state, props) => {
     const sortie = state.sortie || {}
     const { sortieMapId, currentNode, combinedFlag } = sortie
