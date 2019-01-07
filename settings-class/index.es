@@ -1,16 +1,28 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { withNamespaces } from 'react-i18next'
-import { Button } from 'react-bootstrap'
+import { Button } from '@blueprintjs/core'
 import { connect } from 'react-redux'
 import { set } from 'lodash'
-import FA from '@skagami/react-fontawesome'
+import styled from 'styled-components'
+// import FA from '@skagami/react-fontawesome'
 
 import CheckboxLabelConfig from './checkbox-label-config'
 import RadioCheck from './radio-check'
 
 import { PLUGIN_KEY } from '../utils'
 import { CACHE, setLocalStorage } from '../redux'
+
+const CheckboxContainer = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+`
+
+const Gap = styled.div`
+  height: 2em;
+  width: 100%;
+`
 
 @withNamespaces(PLUGIN_KEY)
 @connect()
@@ -41,13 +53,7 @@ class SettingsClass extends Component {
     const { done } = this.state
     return (
       <>
-        <div
-          style={{
-            display: 'flex',
-            flexWrap: 'wrap',
-            justifyContent: 'space-between',
-          }}
-        >
+        <CheckboxContainer>
           <CheckboxLabelConfig
             label={t('Show scales on HP bar')}
             configName="plugin.prophet.showScale"
@@ -83,13 +89,8 @@ class SettingsClass extends Component {
             configName="plugin.prophet.showAvatar"
             defaultVal={false}
           />
-        </div>
-        <div
-          style={{
-            height: '2em',
-            width: '100%',
-          }}
-        />
+        </CheckboxContainer>
+        <Gap />
         <div>
           <RadioCheck
             label={t('Layout')}
@@ -111,17 +112,15 @@ class SettingsClass extends Component {
             ]}
           />
         </div>
-        <div
-          style={{
-            height: '2em',
-            width: '100%',
-          }}
-        />
+        <Gap />
         <div>
-          <Button onClick={this.handleClearHistory}>
+          <Button
+            rightIcon={done ? 'small-tick' : undefined}
+            intent="primary"
+            onClick={this.handleClearHistory}
+          >
             {t('Clear map history')}
-          </Button>{' '}
-          {done && <FA name="check" />}
+          </Button>
         </div>
       </>
     )

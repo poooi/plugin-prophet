@@ -1,8 +1,17 @@
 import React, { Component } from 'react'
 import propTypes from 'prop-types'
-import { div } from 'react-bootstrap'
+import { Radio } from '@blueprintjs/core'
 import { connect } from 'react-redux'
 import { get, map } from 'lodash'
+import styled from 'styled-components'
+
+const RadioContainer = styled.div`
+  display: flex;
+`
+
+const Name = styled.div`
+  padding-right: 2em;
+`
 
 // single option check
 // props:
@@ -22,41 +31,28 @@ const RadioCheck = connect((state, props) => ({
     }
 
     handleClickRadio = value => () => {
-      config.set(this.props.configName, value)
+      const { configName } = this.props
+      config.set(configName, value)
     }
 
     render() {
       const { label: displayName, options, value: current } = this.props
       return (
-        <div
-          style={{
-            display: 'flex',
-          }}
-        >
-          <div
-            style={{
-              paddingRight: '2em',
-            }}
-          >
+        <RadioContainer>
+          <Name>
             <span>{displayName}</span>
-          </div>
+          </Name>
           {map(options, ({ label, value }) => (
-            <div
+            <Radio
               key={value}
-              role="button"
-              tabIndex="0"
+              style={{ marginRight: 10 }}
               onClick={this.handleClickRadio(value)}
-              style={{
-                backgroundColor: value === current && '#4caf50',
-                border: '1px solid #fff',
-                padding: '0 1em',
-                marginRight: '-1px',
-              }}
+              checked={value === current}
             >
               {label}
-            </div>
+            </Radio>
           ))}
-        </div>
+        </RadioContainer>
       )
     }
   },

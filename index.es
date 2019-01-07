@@ -773,28 +773,3 @@ export const switchPluginPath = [
   '/kcsapi/api_req_practice/battle',
   '/kcsapi/api_req_map/next',
 ]
-
-// FIXME: Eggs for April 1st, to remove in next version
-const today = new Date()
-let chibaStyle
-export const pluginDidLoad = () => {
-  if (today.getDate() === 1 && today.getMonth() === 3) {
-    chibaStyle = document.createElement('style')
-    chibaStyle.innerHTML = `
-.progress,
-.hp-indicator {
-  transform: skewX(-15deg);
-}
-.hp-indicator {
-  height: 7px !important;
-}
-    `
-    document.head.appendChild(chibaStyle)
-  }
-}
-
-export const pluginWillUnload = () => {
-  if (chibaStyle) {
-    chibaStyle.remove()
-  }
-}

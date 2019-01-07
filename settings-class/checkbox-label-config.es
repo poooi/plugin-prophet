@@ -3,7 +3,12 @@ import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 
 import { get } from 'lodash'
-import { Checkbox } from 'react-bootstrap'
+import { Checkbox } from '@blueprintjs/core'
+import styled from 'styled-components'
+
+const CheckboxLabelConfigContainer = styled.div`
+  padding-right: 2em;
+`
 
 const CheckboxLabelConfig = connect((state, props) => ({
   value: get(state.config, props.configName, props.defaultVal),
@@ -16,21 +21,20 @@ const CheckboxLabelConfig = connect((state, props) => ({
       configName: PropTypes.string,
       value: PropTypes.bool,
     }
+
     handleChange = () => {
-      config.set(this.props.configName, !this.props.value)
+      const { configName, value } = this.props
+      config.set(configName, !value)
     }
+
     render() {
       const { value, label } = this.props
       return (
-        <div
-          style={{
-            paddingRight: '2em',
-          }}
-        >
+        <CheckboxLabelConfigContainer>
           <Checkbox checked={value} onChange={this.handleChange}>
             {label}
           </Checkbox>
-        </div>
+        </CheckboxLabelConfigContainer>
       )
     }
   },

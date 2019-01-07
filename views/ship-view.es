@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import FontAwesome from 'react-fontawesome'
-import { OverlayTrigger, Tooltip } from 'react-bootstrap'
+import { Tooltip } from '@blueprintjs/core'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import { resolve } from 'path'
@@ -161,7 +161,7 @@ const ShipView = compose(
     const param = (useFinalParam ? ship.finalParam : ship.baseParam) || []
 
     const tooltip = (
-      <Tooltip id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
+      <div id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
         <div className="prophet-tip">
           <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
             {getFullname(t, data.api_name, data.api_yomi, data.api_id)}
@@ -208,7 +208,7 @@ const ShipView = compose(
 
           <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
         </div>
-      </Tooltip>
+      </div>
     )
 
     return (
@@ -220,34 +220,36 @@ const ShipView = compose(
         })}
       >
         <div className="ship-view">
-          <OverlayTrigger placement={tooltipPos} overlay={tooltip}>
-            <div className="ship-info" style={{ flexGrow: compact && 0 }}>
-              <Fragment>
-                {enableAvatar && (
-                  <Avatar
-                    mstId={data.api_ship_id}
-                    height={30}
-                    isDamaged={ship.nowHP <= ship.maxHP / 2}
-                  />
-                )}
-                {(!enableAvatar || !compact) && (
-                  <ShipName
-                    name={data.api_name}
-                    yomi={data.api_yomi}
-                    apiId={data.api_id}
-                  />
-                )}
-              </Fragment>
-              <div
-                className={`ship-damage no-pseudo ${
-                  ship.isMvp ? getCondStyle(100) : ''
-                }`}
-              >
-                {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
-                {isEscaped ? <FontAwesome name="reply" /> : ship.damage || 0}
+          <Tooltip position={tooltipPos} content={tooltip}>
+            {
+              <div className="ship-info" style={{ flexGrow: compact && 0 }}>
+                <Fragment>
+                  {enableAvatar && (
+                    <Avatar
+                      mstId={data.api_ship_id}
+                      height={30}
+                      isDamaged={ship.nowHP <= ship.maxHP / 2}
+                    />
+                  )}
+                  {(!enableAvatar || !compact) && (
+                    <ShipName
+                      name={data.api_name}
+                      yomi={data.api_yomi}
+                      apiId={data.api_id}
+                    />
+                  )}
+                </Fragment>
+                <div
+                  className={`ship-damage no-pseudo ${
+                    ship.isMvp ? getCondStyle(100) : ''
+                  }`}
+                >
+                  {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
+                  {isEscaped ? <FontAwesome name="reply" /> : ship.damage || 0}
+                </div>
               </div>
-            </div>
-          </OverlayTrigger>
+            }
+          </Tooltip>
         </div>
         <div className="ship-hp">
           <HPBar

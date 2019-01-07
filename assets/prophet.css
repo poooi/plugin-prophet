@@ -20,24 +20,27 @@
 #plugin-prophet .alv {
   display: inline-block;
 }
-#plugin-prophet .hp-progress {
+/* #plugin-prophet .hp-progress {
   flex-direction: row;
   display: flex;
-}
-#plugin-prophet .hp-bar.progress,
-#plugin-prophet .hp-bar.progess-bar:before {
+} */
+/* #plugin-prophet .hp-bar,
+#plugin-prophet .hp-bar:before {
   background-color: transparent !important;
-}
+} */
 /* #plugin-prophet .hp-bar.progress {
   background-color: #1F1F1F;
   background-color: rgba(0, 0, 0, 0.2);
 } */
-#plugin-prophet .hp-bar.lost.progress-bar {
+/* #plugin-prophet .bp3-intent-gray.bp3-intent-gray.bp3-intent-gray {
+  background-color: #5C7080;
+} */
+/* #plugin-prophet .hp-bar.lost.progress-bar {
   background-color: rgba(255, 255, 255, 0.1);
 }
 #plugin-prophet .progress-bar-grey {
   background-color: rgba(255, 255, 255, 0.1);
-}
+} */
 #plugin-prophet .cond-indicator {
   margin-left: 0.5em;
 }
@@ -49,6 +52,11 @@
 #plugin-prophet .ship-view {
   width: 50%;
   padding-right: 7px;
+}
+#plugin-prophet .ship-view .bp3-popover-wrapper,
+#plugin-prophet .ship-view .bp3-popover-target {
+  width: 100%;
+  height: 100%;
 }
 #plugin-prophet .ship-hp {
   width: 50%;
@@ -85,12 +93,12 @@
   height: 7px;
   width: 100%;
 }
-#plugin-prophet .ship-hp .hp-indicator {
+/* #plugin-prophet .ship-hp .hp-indicator {
   position: relative;
   border-left: black 1px solid;
   height: 4px;
   z-index: 1000;
-}
+} */
 #plugin-prophet .ship-item {
   margin-bottom: 5px;
   height: 2.5em;
