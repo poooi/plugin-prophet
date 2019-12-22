@@ -74,6 +74,7 @@ export const spotInfo = {
   13: 'Aerial Recon',
   14: 'Night Battle',
   15: 'Enemy Combined Fleet',
+  16: 'Anchorage Repair',
 }
 
 export const spotIcon = {
@@ -89,6 +90,7 @@ export const spotIcon = {
   'Transport Munitions': 9,
   'Escort Success': 8,
   'Enemy Combined Fleet': '4-1',
+  'Anchorage Repair': '4-2',
 }
 
 // give spot kind according to api_event_id and api_event_kind
@@ -118,6 +120,8 @@ export const getSpotKind = (api_event_id, api_event_kind) => {
       // 4=航空戦
       return 13
     }
+  } else if (api_event_id === 10 && api_event_kind === 0) {
+    return 16 // 泊地修理
   }
   return api_event_id + 1
 }
