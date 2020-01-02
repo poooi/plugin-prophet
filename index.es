@@ -533,6 +533,10 @@ class Prophet extends Component {
             api_f_maxhps,
             api_f_nowhps,
           } = api_destruction_battle
+          const parsed_api_air_base_attack =
+            typeof api_air_base_attack === 'string'
+              ? JSON.parse(api_air_base_attack)
+              : api_air_base_attack
           landBase = _(airbase)
             .filter(squad => squad.api_area_id === api_maparea_id)
             .map(
@@ -570,7 +574,11 @@ class Prophet extends Component {
           battleForm = EngagementMap[(api_formation || {})[2]] || ''
           eFormation = FormationMap[(api_formation || {})[1]] || ''
 
-          const { api_stage1, api_stage2, api_stage3 } = api_air_base_attack
+          const {
+            api_stage1,
+            api_stage2,
+            api_stage3,
+          } = parsed_api_air_base_attack
           airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
           airControl = AirControlMap[(api_stage1 || {}).api_disp_seiku] || ''
           if (!isNil(api_stage3)) {
