@@ -33,6 +33,9 @@ class FleetView extends PureComponent {
       setTimeout(() => this.handleResize([entry]), 500)
       return
     }
+    if (!root.offsetParent) {
+      return
+    }
     const {
       top,
       left,
