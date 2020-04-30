@@ -2,5 +2,8 @@
   "eslint.autoFixOnSave": true,
   "files.associations": {
       "*.es": "javascriptreact"
+  },
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
   }
 }
