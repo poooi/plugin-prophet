@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import PropTypes from 'prop-types'
 import FontAwesome from 'react-fontawesome'
-import { Tooltip } from '@blueprintjs/core'
+import { Tooltip } from 'views/components/etc/overlay'
 import { connect } from 'react-redux'
 import _ from 'lodash'
 import { resolve } from 'path'
