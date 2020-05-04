@@ -3,7 +3,7 @@ import React from 'react'
 import { createSelector } from 'reselect'
 import _ from 'lodash'
 import { connect } from 'react-redux'
-import { Tooltip } from '@blueprintjs/core'
+import { Tooltip } from 'views/components/etc/overlay'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 
