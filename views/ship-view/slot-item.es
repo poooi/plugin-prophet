@@ -5,7 +5,6 @@ import { get } from 'lodash'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 import { SlotitemIcon } from 'views/components/etc/icon'
-import { equipIsAircraft } from 'views/utils/game-utils'
 import styled from 'styled-components'
 
 const { ROOT } = window
@@ -17,12 +16,22 @@ const Container = styled.div`
   width: 100%;
 `
 
+const IconContainer = styled.span`
+  position: relative;
+`
+
 const ItemIcon = styled(SlotitemIcon)`
   &&&&& {
     width: 24px;
     height: 24px;
     border: none;
   }
+`
+
+const IconLabel = styled.div`
+  position: absolute;
+  right: 0;
+  bottom: 0;
 `
 
 const ItemName = styled.span`
@@ -49,7 +58,7 @@ export const SlotItem = compose(
   connect((state, props) => ({
     $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
   })),
-)(({ item, extra, label, warn, $item, t }) => {
+)(({ item, label, $item, warn, t }) => {
   if (!item) {
     return <div />
   }
@@ -59,16 +68,11 @@ export const SlotItem = compose(
   }
   return (
     <Container>
-      <span>
+      <IconContainer>
         <ItemIcon slotitemId={(data.api_type || [])[3]} />
-        {label != null &&
-          (extra || equipIsAircraft((data.api_type || [])[3])) && (
-            <span className={`number ${warn ? 'text-warning' : ''}`}>
-              {label}
-            </span>
-          )}
-      </span>
-      <ItemName>
+        {label && <IconLabel>{label}</IconLabel>}
+      </IconContainer>
+      <ItemName warn={warn}>
         {/* use key separator because some item name contains `.` */}
         {t(data.api_name, {
           context: data.api_id && data.api_id.toString(),

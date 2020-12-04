@@ -11,6 +11,7 @@ import _, {
   get,
   filter,
   first,
+  find,
 } from 'lodash'
 import { join } from 'path'
 import { connect } from 'react-redux'
@@ -108,10 +109,14 @@ const transformToLibBattleClass = (fleets, equips) =>
               raw: {
                 ...$ship,
                 ..._ship,
-                poi_slot: equips[fleetPos][shipPos].map((e) =>
-                  e ? e[0] : null,
+                poi_slot: equips[fleetPos][shipPos].map(([equip] = []) =>
+                  equip && equip.api_id !== _ship.api_slot_ex ? equip : null,
                 ),
-                poi_slot_ex: null,
+                poi_slot_ex:
+                  find(
+                    equips[fleetPos][shipPos],
+                    ([equip] = []) => equip?.api_id === _ship.api_slot_ex,
+                  )?.[0] || null,
               },
             }),
       ),

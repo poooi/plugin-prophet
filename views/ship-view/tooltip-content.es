@@ -69,11 +69,10 @@ export const TooltipContent = ({ data, ship, useFinalParam }) => {
                 key={i}
                 item={item}
                 extra={false}
-                warn={data.api_onslot[i] !== data.api_maxeq[i]}
               />
             ),
         )}
-        <SlotItem item={data.poi_slot_ex} extra label="+" warn={false} />
+        <SlotItem item={data.poi_slot_ex} extra label="+" />
       </SlotItems>
     </TooltipContainer>
   )
