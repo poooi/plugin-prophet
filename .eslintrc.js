@@ -25,5 +25,6 @@ module.exports = {
     'prettier/prettier': 'error',
     'react/static-property-placement': 'off',
     'react/state-in-constructor': 'off',
+    'import/prefer-default-export': 'off',
   },
 }
