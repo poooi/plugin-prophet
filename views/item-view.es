@@ -10,6 +10,18 @@ import styled from 'styled-components'
 
 const { ROOT } = window
 
+const Container = styled.div`
+  white-space: nowrap;
+`
+
+const ItemIcon = styled(SlotitemIcon)`
+  &&&&& {
+    width: 25px;
+    height: 25px;
+    border: none;
+  }
+`
+
 const ALv = styled.span`
   display: inline-block;
 `
@@ -30,18 +42,15 @@ const ItemView = compose(
     ...item,
   }
   return (
-    <div className="item-info">
+    <Container className="item-info">
       <span className="item-icon">
-        <SlotitemIcon
-          slotitemId={(data.api_type || [])[3]}
-          className="prophet-icon"
-        />
+        <ItemIcon slotitemId={(data.api_type || [])[3]} />
         {label != null &&
-        (extra || equipIsAircraft((data.api_type || [])[3])) ? (
-          <span className={`number ${warn ? 'text-warning' : ''}`}>
-            {label}
-          </span>
-        ) : null}
+          (extra || equipIsAircraft((data.api_type || [])[3])) && (
+            <span className={`number ${warn ? 'text-warning' : ''}`}>
+              {label}
+            </span>
+          )}
       </span>
       <span className="item-name">
         {/* use key separator because some item name contains `.` */}
@@ -68,7 +77,7 @@ const ItemView = compose(
         </ALv>
         <span>{data.api_level > 0 ? `★${data.api_level}` : ''}</span>
       </span>
-    </div>
+    </Container>
   )
 })
 

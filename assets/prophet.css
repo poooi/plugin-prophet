@@ -83,51 +83,29 @@
   z-index: 1000;
 } */
 #plugin-prophet .ship-item {
-  margin-bottom: 5px;
-  height: 2.5em;
-  max-height: 2.5em;
+
 }
 #plugin-prophet .ship-info {
-  flex: 1;
-  margin-right: auto;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
-  min-width: 0;
-  position: relative;
+
 }
 #plugin-prophet .ship-info .ship-avatar-container {
-  position: relative;
-  top: 0;
-  left: 0;
+
 }
 #plugin-prophet .ship-info .ship-damage {
-  white-space: nowrap;
-  vertical-align: bottom;
-  padding-top: 3px;
-  opacity: 0.8;
-  text-align: right;
+
 }
 #plugin-prophet .ship-info .ship-damage.no-pseudo {
-  margin-right: 0;
 }
 #plugin-prophet .ship-info .ship-damage.no-pseudo::after {
-  display: none;
+
 }
 #plugin-prophet .ship-item.compact.avatar .ship-damage {
-  flex: 1;
 }
 #plugin-prophet .ship-info .ship-name {
-  flex: 1;
-  padding-top: 3px;
-  font-size: 1.25em;
-  overflow-x: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+
 }
 #plugin-prophet .ship-info .ship-name.half {
-  font-size: 0.9em;
-  margin-top: -0.5em;
+
 }
 #plugin-prophet .status-cond {
   margin-left: auto;
@@ -137,7 +115,7 @@
   align-self: flex-end;
   text-align: right;
 }
-.prophet-tip {
+/* .prophet-tip {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -160,7 +138,7 @@
   margin-bottom: 0.5em;
 }
 .prophet-tip .item-info {
-  white-space: nowrap;
+
 }
 .prophet-pop .tooltip-inner{
   max-width: initial;
@@ -173,7 +151,7 @@
 }
 .alert.prophet-info {
   color: inherit;
-}
+} */
 #plugin-prophet .combat-title {
   flex: 1;
   margin-left: 0.5em;

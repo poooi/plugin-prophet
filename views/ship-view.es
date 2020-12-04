@@ -10,13 +10,63 @@ import { Avatar } from 'views/components/etc/avatar'
 import cls from 'classnames'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
 import ItemView from './item-view'
 import { FABar, HPBar } from './bar'
 
 const ShipItem = styled.div`
   opacity: ${(props) => props.escaped && 0.4};
+  margin-bottom: 5px;
+  height: 2.5em;
+  max-height: 2.5em;
+  display: flex;
+`
+
+const ShipInfo = styled.div`
+  flex: 1;
+  flex-grow: ${({ compact }) => compact && 0};
+  margin-right: auto;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  min-width: 0;
+  position: relative;
+
+  .ship-avatar-container {
+    position: relative;
+    top: 0;
+    left: 0;
+  }
+`
+
+const ShipDamage = styled.div`
+  white-space: nowrap;
+  vertical-align: bottom;
+  padding-top: 4px;
+  opacity: 0.8;
+  text-align: right;
+  margin-right: 0;
+  flex: ${({ compact }) => compact && 1};
+
+  ::after {
+    display: none;
+  }
+`
+
+const ShipNameContainer = styled.div`
+  flex: 1;
+  padding-top: 3px;
+  font-size: 1.25em;
+  overflow-x: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  ${({ half }) =>
+    half &&
+    css`
+      font-size: 0.9em;
+      margin-top: -0.5em;
+    `}
 `
 
 const ShipContainer = styled.div`
@@ -28,6 +78,10 @@ const ShipHp = styled.div`
   width: 50%;
   white-space: nowrap;
   flex: 1;
+`
+
+const TooltipContainer = styled.div`
+  min-width: 300px;
 `
 
 const ParamIcon = ({ name = '' }) => {
@@ -91,7 +145,7 @@ const ShipName = withNamespaces('resources')(
     const fullname = getFullname(t, name, yomi, apiId)
     const length = getTextWidth(fullname)
     if (translated === name || !enemy || length < 120) {
-      return <div className="ship-name">{fullname}</div>
+      return <ShipNameContainer>{fullname}</ShipNameContainer>
     }
 
     const parts = fullname.split(' ')
@@ -114,11 +168,11 @@ const ShipName = withNamespaces('resources')(
     }
 
     return (
-      <div className={cls('ship-name', 'half')}>
+      <ShipNameContainer half>
         <span>{up.join(' ')}</span>
         <br />
         <span>{down.join(' ')}</span>
-      </div>
+      </ShipNameContainer>
     )
   },
 )
@@ -177,56 +231,54 @@ const ShipView = compose(
     const param = (useFinalParam ? ship.finalParam : ship.baseParam) || []
 
     const tooltip = (
-      <div id={`slotinfo-${data.api_id}`} className="ship-pop prophet-pop">
-        <div className="prophet-tip">
-          <div className="ship-name" style={{ borderBottom: '1px solid #666' }}>
-            {getFullname(t, data.api_name, data.api_yomi, data.api_id)}
-          </div>
-          <div className="ship-essential">
-            <span className="position-indicator">
-              {ship.owner === 'Ours' ? '' : `ID ${ship.id}`}
-            </span>
-            <span>Lv. {data.api_lv || '-'}</span>
-
-            <span>
-              <FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} />
-            </span>
-            <span>
-              <FABar icon={2} max={data.api_bull_max} now={data.api_bull} />
-            </span>
-          </div>
-          <div className="ship-parameter">
-            {paramNames.map(
-              (name, idx) =>
-                typeof param[idx] !== 'undefined' && (
-                  <span key={name}>
-                    <ParamIcon name={name} />
-                    {param[idx]}
-                  </span>
-                ),
-            )}
-          </div>
-
-          {
-            // the key in ItemView uses index as a special case since it won't be reordered,
-            // ignore this eslint warning
-            (data.poi_slot || []).map(
-              (item, i) =>
-                item && (
-                  <ItemView
-                    // eslint-disable-next-line
-              key={i}
-                    item={item}
-                    extra={false}
-                    warn={data.api_onslot[i] !== data.api_maxeq[i]}
-                  />
-                ),
-            )
-          }
-
-          <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
+      <TooltipContainer>
+        <div className="ship-name">
+          {getFullname(t, data.api_name, data.api_yomi, data.api_id)}
         </div>
-      </div>
+        <div className="ship-essential">
+          <span className="position-indicator">
+            {ship.owner === 'Ours' ? '' : `ID ${ship.id}`}
+          </span>
+          <span>Lv. {data.api_lv || '-'}</span>
+
+          <span>
+            <FABar icon={1} max={data.api_fuel_max} now={data.api_fuel} />
+          </span>
+          <span>
+            <FABar icon={2} max={data.api_bull_max} now={data.api_bull} />
+          </span>
+        </div>
+        <div className="ship-parameter">
+          {paramNames.map(
+            (name, idx) =>
+              typeof param[idx] !== 'undefined' && (
+                <span key={name}>
+                  <ParamIcon name={name} />
+                  {param[idx]}
+                </span>
+              ),
+          )}
+        </div>
+
+        {
+          // the key in ItemView uses index as a special case since it won't be reordered,
+          // ignore this eslint warning
+          (data.poi_slot || []).map(
+            (item, i) =>
+              item && (
+                <ItemView
+                  // eslint-disable-next-line
+              key={i}
+                  item={item}
+                  extra={false}
+                  warn={data.api_onslot[i] !== data.api_maxeq[i]}
+                />
+              ),
+          )
+        }
+
+        <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
+      </TooltipContainer>
     )
 
     return (
@@ -245,7 +297,7 @@ const ShipView = compose(
             position={tooltipPos}
             content={tooltip}
           >
-            <div className="ship-info" style={{ flexGrow: compact && 0 }}>
+            <ShipInfo compact={compact}>
               <>
                 {enableAvatar && (
                   <Avatar
@@ -262,15 +314,14 @@ const ShipView = compose(
                   />
                 )}
               </>
-              <div
-                className={`ship-damage no-pseudo ${
-                  ship.isMvp ? getCondStyle(100) : ''
-                }`}
+              <ShipDamage
+                compact={compact}
+                className={ship.isMvp ? getCondStyle(100) : ''}
               >
                 {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
                 {isEscaped ? <FontAwesome name="reply" /> : ship.damage || 0}
-              </div>
-            </div>
+              </ShipDamage>
+            </ShipInfo>
           </Tooltip>
         </ShipContainer>
         <ShipHp>
