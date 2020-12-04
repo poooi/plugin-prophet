@@ -16,10 +16,16 @@ export const FABar = ({ max, now, icon }) => {
 
   return (
     <span className="fa-bar">
-      <MaterialIcon materialId={icon} className="prophet-icon" />
+      <MaterialIcon materialId={icon} />
       {`${pcnt}%`}
     </span>
   )
+}
+
+FABar.propTypes = {
+  max: PropTypes.number,
+  now: PropTypes.number,
+  icon: PropTypes.number,
 }
 
 const HpIndicator = styled.div`
@@ -54,12 +60,27 @@ const Progress = styled.div`
   width: ${({ value }) => `${value}%`};
   transition: width 0.5s cubic-bezier(0.445, 0.05, 0.55, 0.95);
 `
+const ShipData = styled.div`
+  display: flex;
+`
 
-FABar.propTypes = {
-  max: PropTypes.number,
-  now: PropTypes.number,
-  icon: PropTypes.number,
-}
+const Loss = styled.span`
+  margin-left: 1ex;
+
+  ::before {
+    content: '(';
+  }
+
+  ::after {
+    content: ')';
+  }
+`
+
+const Condition = styled.span`
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+`
 
 export const HPBar = connect((state, props) => ({
   showScale: get(state, 'config.plugin.prophet.showScale', true),
@@ -77,44 +98,31 @@ export const HPBar = connect((state, props) => ({
 
     return (
       <div>
-        <div className="ship-stat">
-          <div className="div-row">
-            <span className="ship-hp">
-              {_to} / {max}
-              {_stage !== 0 && loss !== 0 && (
-                <span className="loss">{loss}</span>
-              )}
-              {!!item && $equip && (
-                <span className="item-icon">
-                  <SlotitemIcon
-                    slotitemId={$equip.api_type[3]}
-                    className="prophet-icon"
-                  />
-                </span>
-              )}
-            </span>
-            {typeof cond !== 'undefined' ? (
-              <div className="status-cond">
-                <span className={`ship-cond ${getCondStyle(cond)}`}>
-                  ★{cond}
-                </span>
-              </div>
-            ) : (
-              <noscript />
+        <ShipData>
+          <span className="ship-hp">
+            {_to} / {max}
+            {_stage !== 0 && loss !== 0 && <Loss>{loss}</Loss>}
+            {!!item && $equip && (
+              <span className="item-icon">
+                <SlotitemIcon slotitemId={$equip.api_type[3]} />
+              </span>
             )}
-          </div>
-          <ProgressBar>
-            <Progress intent={getHpStyle(now)} value={now} />
-            <Progress intent="gray" value={lost} theme={theme} />
-            {[1, 2, 3].map((i) => (
-              <HpIndicator
-                key={i}
-                idx={i}
-                opacity={now + lost > 25 * i && showScale ? 0.75 : 0}
-              />
-            ))}
-          </ProgressBar>
-        </div>
+          </span>
+          {typeof cond !== 'undefined' && (
+            <Condition className={getCondStyle(cond)}>★{cond}</Condition>
+          )}
+        </ShipData>
+        <ProgressBar>
+          <Progress intent={getHpStyle(now)} value={now} />
+          <Progress intent="gray" value={lost} theme={theme} />
+          {[1, 2, 3].map((i) => (
+            <HpIndicator
+              key={i}
+              idx={i}
+              opacity={now + lost > 25 * i && showScale ? 0.75 : 0}
+            />
+          ))}
+        </ProgressBar>
       </div>
     )
   },

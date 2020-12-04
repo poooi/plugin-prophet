@@ -65,7 +65,6 @@ export const SlotItem = compose(
         <ALv className="alv">
           {data.api_alv && data.api_alv >= 1 && data.api_alv <= 7 && (
             <img
-              className="alv-img prophet-icon"
               src={join(
                 ROOT,
                 'assets',

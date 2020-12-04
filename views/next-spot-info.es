@@ -5,6 +5,7 @@ import { get } from 'lodash'
 import { resolve } from 'path'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
+import styled from 'styled-components'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 import { MaterialIcon } from 'views/components/etc/icon'
@@ -17,6 +18,43 @@ import {
   getSpotKind,
   getSpotMessage,
 } from '../utils'
+
+const Container = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+`
+
+const CurrentInfo = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+
+  div + div::before {
+    content: '|';
+    margin-left: 1ex;
+    margin-right: 1ex;
+  }
+
+  > span {
+    margin: 0 0.2ex;
+  }
+`
+
+const CompassIcon = styled.img`
+  width: 18px;
+`
+
+const SpotMessage = styled.div`
+  white-space: normal;
+`
+
+const SpotImage = styled.div`
+  width: 20px;
+  margin-right: 0.5ex;
+`
 
 const getCompassAngle = (mapspots, maproutes, currentNode) => {
   if (currentNode === -1) return NaN
@@ -41,7 +79,7 @@ const SpotIcon = ({ spotKind }) => {
   )
   return (
     <span className="param-icon">
-      <img src={iconPath} className="svg prophet-icon spot-icon" alt="spot" />
+      <SpotImage src={iconPath} alt="spot" />
     </span>
   )
 }
@@ -109,7 +147,7 @@ const NextSpotInfo = compose(
           <span key={`${itemKey}-icon`}>
             <MaterialIcon
               materialId={parseInt(itemKey, 10)}
-              className="material-icon svg prophet-icon"
+              className="material-icon svg"
             />
           </span>,
         )
@@ -126,15 +164,15 @@ const NextSpotInfo = compose(
     const spotMessage = getSpotMessage(eventId, eventKind)
 
     return (
-      <div className="next-spot-info">
-        <div className="current-info">
+      <Container>
+        <CurrentInfo>
           <div>
             <span>{`${t('Compass Point')}: `}</span>
             {Number.isNaN(compassAngle) ? (
               '?'
             ) : (
               <span className="svg" id="prophet-compass">
-                <img
+                <CompassIcon
                   src={resolve(
                     __dirname,
                     `../assets/icons/compass-arrow-${
@@ -142,7 +180,6 @@ const NextSpotInfo = compose(
                     }.svg`,
                   )}
                   style={{ transform: `rotate(${compassAngle - 135}deg)` }}
-                  className="svg prophet-icon compass-icon"
                   alt="compass"
                 />
               </span>
@@ -156,10 +193,10 @@ const NextSpotInfo = compose(
             <span>{t(spotKind)}</span>
             {resources}
           </div>
-        </div>
-        {spotMessage && <div className="spot-message">{t(spotMessage)}</div>}
+        </CurrentInfo>
+        {spotMessage && <SpotMessage>{t(spotMessage)}</SpotMessage>}
         <div>{lastFormation && `${t('last_chosen')} ${_t(lastFormation)}`}</div>
-      </div>
+      </Container>
     )
   },
 )

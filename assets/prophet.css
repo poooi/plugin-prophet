@@ -53,26 +53,23 @@
 
 }
 .prophet-icon {
-  width: 15px;
+
 }
 .result-icon {
-  width: 20px;
-  margin-right: 0.5ex;
+
 }
 .spot-icon {
-  width: 20px;
-  margin-right: 0.5ex;
+
 }
 .item-icon .prophet-icon.png {
 }
 #plugin-prophet .div-row {
-  display: flex;
-  flex-flow: row;
+
 }
 #plugin-prophet .progress {
-  margin-bottom: 5px;
+  /* margin-bottom: 5px;
   height: 7px;
-  width: 100%;
+  width: 100%; */
 }
 /* #plugin-prophet .ship-hp .hp-indicator {
   position: relative;
@@ -106,12 +103,10 @@
 
 }
 #plugin-prophet .status-cond {
-  margin-left: auto;
+
 }
 #plugin-prophet .status-cond .ship-cond {
-  display: table;
-  align-self: flex-end;
-  text-align: right;
+
 }
 /* .prophet-tip {
   display: flex;
@@ -151,61 +146,41 @@
   color: inherit;
 } */
 #plugin-prophet .combat-title {
-  flex: 1;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  cursor: default;
+
 }
 
 #plugin-prophet .combat-vs {
-  flex: 0;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-  cursor: default;
+
 }
 #plugin-prophet .next-spot-info {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+
 }
 #plugin-prophet .result-icon.light {
-  background-color: #ccc;
-  border-radius: 5px;
+
 }
 #plugin-prophet .current-info {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
+
 }
 #plugin-prophet .current-info div + div::before{
-  content: '|';
-  margin-left: 1ex;
-  margin-right: 1ex;
+
 }
 #plugin-prophet .compass-icon {
-  width: 18px;
+
 }
 #plugin-prophet .current-info > span {
-  margin: 0 .2ex;
 }
 
 #plugin-prophet .next-spot-info .spot-message {
-  white-space: normal;
+
 }
 
 #plugin-prophet .loss {
-  margin-left: 1ex;
 }
 
 #plugin-prophet .loss::before {
-  content: '(';
+
 }
 
 #plugin-prophet .loss::after {
-  content: ')';
+
 }

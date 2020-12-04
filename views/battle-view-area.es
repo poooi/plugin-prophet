@@ -25,9 +25,32 @@ const FleetContainer = styled.div`
 
 const ProphetInfo = styled.div`
   display: flex;
-  flex-direction: column;
   flex-wrap: wrap;
   justify-content: center;
+`
+
+const Fleets = styled.div`
+  display: flex;
+`
+
+const CombatTitle = styled.div`
+  flex: 1;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+`
+
+const CombatVS = styled.div`
+  flex: 0;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  cursor: default;
+  opacity: ${({ visible }) => (visible ? 1 : 0)};
 `
 
 const inEventSelector = createSelector(
@@ -154,7 +177,7 @@ const BattleViewArea = compose(
     const enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
     const { getShip, getItem } = _.pick(result, ['getShip', 'getItem'])
     const alliedForce = (
-      <div className="div-row">
+      <Fleets>
         <FleetView
           fleet={isBaseDefense ? landBase : mainFleet}
           title={t('Main Fleet')}
@@ -169,14 +192,11 @@ const BattleViewArea = compose(
           View={View}
           root={root}
         />
-      </div>
+      </Fleets>
     )
     const enemyForce =
       sortieState > 1 || isBaseDefense ? (
-        <div
-          className="div-row"
-          style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}
-        >
+        <Fleets style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
           <FleetView
             fleet={enemyFleet}
             title={t('Enemy Fleet')}
@@ -189,13 +209,13 @@ const BattleViewArea = compose(
             count={times * enemyCount}
             root={root}
           />
-        </div>
+        </Fleets>
       ) : (
         <noscript />
       )
     const combatInfo = (
-      <ProphetInfo className="alert div-row prophet-info">
-        <div className="combat-title" title={t(friendTitle)}>
+      <ProphetInfo>
+        <CombatTitle title={t(friendTitle)}>
           <span>{`${t(friendTitle)}`}</span>
           {TP.total > 0 && !isBaseDefense && (
             <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
@@ -225,15 +245,10 @@ const BattleViewArea = compose(
           ) : (
             ''
           )}
-        </div>
-        <div
-          className="combat-vs"
-          style={{ opacity: sortieState > 1 || isBaseDefense ? 1 : 0 }}
-        >
-          vs
-        </div>
+        </CombatTitle>
+        <CombatVS visible={sortieState > 1 || isBaseDefense}>vs</CombatVS>
         {sortieState > 1 || isBaseDefense ? (
-          <div className="combat-title" title={t(enemyTitle)}>
+          <CombatTitle title={t(enemyTitle)}>
             {airForce[2] ? (
               <span>
                 <FontAwesome name="plane" />
@@ -243,9 +258,9 @@ const BattleViewArea = compose(
               ''
             )}
             {` ${t(enemyTitle)}`}
-          </div>
+          </CombatTitle>
         ) : (
-          <div className="combat-title" />
+          <CombatTitle />
         )}
       </ProphetInfo>
     )
