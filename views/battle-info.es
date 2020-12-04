@@ -17,8 +17,9 @@ const BattleInfo = withNamespaces('poi-plugin-prophet')(
               __dirname,
               `../assets/icons/result-${result}.svg`,
             )}
-            className={`svg prophet-icon result-icon ${!window.isDarkTheme &&
-              'light'}`}
+            className={`svg prophet-icon result-icon ${
+              !window.isDarkTheme && 'light'
+            }`}
             alt="result"
           />
         ) : (
@@ -27,7 +28,7 @@ const BattleInfo = withNamespaces('poi-plugin-prophet')(
       </span>
       {'| '}
       {[_t(eFormation), _t(battleForm), _t(airControl)]
-        .filter(str => !!str)
+        .filter((str) => !!str)
         .join(' | ')}
     </span>
   ),

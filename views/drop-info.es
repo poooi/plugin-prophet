@@ -35,9 +35,11 @@ class DropInfo extends PureComponent {
   static propTypes = {
     ship: PropTypes.shape({
       api_id: PropTypes.number,
+      api_name: PropTypes.string,
     }),
     item: PropTypes.shape({
       api_id: PropTypes.number,
+      api_name: PropTypes.string,
     }),
     shipType: PropTypes.objectOf(PropTypes.object),
     navyAlbumShowShipAvailable: PropTypes.bool.isRequired,

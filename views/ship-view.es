@@ -50,7 +50,7 @@ let computedFont = ''
  * mesure given text's rendered width
  * @param text {string} text to measure
  */
-const getTextWidth = text => {
+const getTextWidth = (text) => {
   const context = textCanvas.getContext('2d')
   computedFont = computedFont || getFont()
   context.font = computedFont
@@ -191,20 +191,22 @@ const ShipView = compose(
             )}
           </div>
 
-          {// the key in ItemView uses index as a special case since it won't be reordered,
-          // ignore this eslint warning
-          (data.poi_slot || []).map(
-            (item, i) =>
-              item && (
-                <ItemView
-                  // eslint-disable-next-line
+          {
+            // the key in ItemView uses index as a special case since it won't be reordered,
+            // ignore this eslint warning
+            (data.poi_slot || []).map(
+              (item, i) =>
+                item && (
+                  <ItemView
+                    // eslint-disable-next-line
               key={i}
-                  item={item}
-                  extra={false}
-                  warn={data.api_onslot[i] !== data.api_maxeq[i]}
-                />
-              ),
-          )}
+                    item={item}
+                    extra={false}
+                    warn={data.api_onslot[i] !== data.api_maxeq[i]}
+                  />
+                ),
+            )
+          }
 
           <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
         </div>
@@ -221,34 +223,32 @@ const ShipView = compose(
       >
         <div className="ship-view">
           <Tooltip position={tooltipPos} content={tooltip}>
-            {
-              <div className="ship-info" style={{ flexGrow: compact && 0 }}>
-                <Fragment>
-                  {enableAvatar && (
-                    <Avatar
-                      mstId={data.api_ship_id}
-                      height={30}
-                      isDamaged={ship.nowHP <= ship.maxHP / 2}
-                    />
-                  )}
-                  {(!enableAvatar || !compact) && (
-                    <ShipName
-                      name={data.api_name}
-                      yomi={data.api_yomi}
-                      apiId={data.api_id}
-                    />
-                  )}
-                </Fragment>
-                <div
-                  className={`ship-damage no-pseudo ${
-                    ship.isMvp ? getCondStyle(100) : ''
-                  }`}
-                >
-                  {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
-                  {isEscaped ? <FontAwesome name="reply" /> : ship.damage || 0}
-                </div>
+            <div className="ship-info" style={{ flexGrow: compact && 0 }}>
+              <>
+                {enableAvatar && (
+                  <Avatar
+                    mstId={data.api_ship_id}
+                    height={30}
+                    isDamaged={ship.nowHP <= ship.maxHP / 2}
+                  />
+                )}
+                {(!enableAvatar || !compact) && (
+                  <ShipName
+                    name={data.api_name}
+                    yomi={data.api_yomi}
+                    apiId={data.api_id}
+                  />
+                )}
+              </>
+              <div
+                className={`ship-damage no-pseudo ${
+                  ship.isMvp ? getCondStyle(100) : ''
+                }`}
+              >
+                {ship.isMvp ? <FontAwesome name="trophy" /> : ''}
+                {isEscaped ? <FontAwesome name="reply" /> : ship.damage || 0}
               </div>
-            }
+            </div>
           </Tooltip>
         </div>
         <div className="ship-hp">

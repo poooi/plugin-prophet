@@ -68,14 +68,14 @@ class FleetView extends PureComponent {
     return (
       <div
         className={cls({ 'fleet-view': Boolean(get(fleet, 'length')) })}
-        ref={ref => {
+        ref={(ref) => {
           this.container = ref
         }}
       >
         <div>
           {map(
             fleet,
-            ship =>
+            (ship) =>
               ship && (
                 <View
                   ship={ship}

@@ -29,7 +29,7 @@ export const initEnemy = (
 ) => {
   if (!(api_ship_ke != null)) return []
   const fleet = []
-  _.range(api_ship_ke.length).forEach(i => {
+  _.range(api_ship_ke.length).forEach((i) => {
     const id = api_ship_ke[i]
     const slots = api_eSlot[i] || []
     let ship
@@ -38,7 +38,7 @@ export const initEnemy = (
       raw = {
         api_ship_id: id,
         api_lv: api_ship_lv[i],
-        poi_slot: slots.map(slotId =>
+        poi_slot: slots.map((slotId) =>
           window.getStore(`const.$equips.${slotId}`),
         ),
       }
@@ -145,7 +145,7 @@ export const AttackType = {
   Torpedo_Torpedo_CI: 'TTCI', // カットイン(魚雷/魚雷)
 }
 
-export const getAttackTypeName = type => {
+export const getAttackTypeName = (type) => {
   switch (type) {
     case AttackType.Normal:
       return __('AT.Normal')
@@ -218,7 +218,7 @@ const translation = {
   ...AirControlName,
 }
 
-export const _t = str => translation[str] || str
+export const _t = (str) => translation[str] || str
 
 const TPByItem = {
   75: 5, // ドラム缶(輸送用)
@@ -260,18 +260,18 @@ export const getTransportPoint = (
 ) => {
   const ignores = _.map(
     shipsData,
-    ship =>
+    (ship) =>
       escapedShipIds.includes(ship.api_id) ||
       ship.api_nowhp * 4 <= ship.api_maxhp,
   )
 
   const shipTPs = _.map(
     shipsData,
-    ship =>
+    (ship) =>
       (TPByShipType[ship.api_stype] || 0) + (TPByShip[ship.api_ship_id] || 0),
   )
 
-  const equipTPs = _.map(equipsData, equipData =>
+  const equipTPs = _.map(equipsData, (equipData) =>
     _.sum(
       _.map(equipData, ([equip] = []) => TPByItem[equip.api_slotitem_id] || 0),
     ),
@@ -318,7 +318,7 @@ export const getTPDazzyDing = (ships, escapedShipIds = []) => {
       _.sum(
         _.map(
           poi_slot.concat(poi_slot_ex),
-          equip => TPByItem[(equip || {}).api_slotitem_id] || 0,
+          (equip) => TPByItem[(equip || {}).api_slotitem_id] || 0,
         ),
       ),
     )

@@ -34,5 +34,7 @@ module.exports = {
     'react/forbid-prop-types': 'off',
     'no-underscore-dangle': 'off',
     'prettier/prettier': 'error',
+    'react/static-property-placement': 'off',
+    'react/state-in-constructor': 'off',
   },
 }
