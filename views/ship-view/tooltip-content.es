@@ -8,12 +8,18 @@ import { FABar } from '../bar'
 import { ParameterIcon } from './parameter-icon'
 import { getFullname } from './utils'
 
-const TooltipContainer = styled.div`
-  min-width: 300px;
-`
+const TooltipContainer = styled.div``
 
 const ShipName = styled.div`
   font-size: 1.5rem;
+`
+const ShipEssential = styled.div`
+  display: flex;
+  align-items: center;
+
+  > span + span {
+    margin-left: 1rem;
+  }
 `
 
 const SlotItems = styled.div`
@@ -32,10 +38,8 @@ export const TooltipContent = ({ data, ship, useFinalParam }) => {
       <ShipName>
         {getFullname(t, data.api_name, data.api_yomi, data.api_id)}
       </ShipName>
-      <div className="ship-essential">
-        <span className="position-indicator">
-          {ship.owner === 'Ours' ? '' : `ID ${ship.id}`}
-        </span>
+      <ShipEssential>
+        {ship.owner !== 'Ours' && <span>ID ${ship.id}</span>}
         <span>Lv. {data.api_lv || '-'}</span>
 
         <span>
@@ -44,8 +48,8 @@ export const TooltipContent = ({ data, ship, useFinalParam }) => {
         <span>
           <FABar icon={2} max={data.api_bull_max} now={data.api_bull} />
         </span>
-      </div>
-      <div className="ship-parameter">
+      </ShipEssential>
+      <ShipEssential>
         {paramNames.map(
           (name, idx) =>
             typeof param[idx] !== 'undefined' && (
@@ -55,7 +59,7 @@ export const TooltipContent = ({ data, ship, useFinalParam }) => {
               </span>
             ),
         )}
-      </div>
+      </ShipEssential>
       <SlotItems>
         {(data.poi_slot || []).map(
           (item, i) =>

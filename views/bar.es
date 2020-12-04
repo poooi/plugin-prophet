@@ -1,10 +1,22 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { getCondStyle, getHpStyle } from 'views/utils/game-utils'
-import { MaterialIcon, SlotitemIcon } from 'views/components/etc/icon'
+import {
+  MaterialIcon as MatrialIconBase,
+  SlotitemIcon,
+} from 'views/components/etc/icon'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import styled from 'styled-components'
+
+const MaterialIcon = styled(MatrialIconBase)`
+  height: 16px;
+  width: 16px;
+`
+
+const BarContainer = styled.span`
+  display: flex;
+`
 
 export const FABar = ({ max, now, icon }) => {
   let pcnt
@@ -15,10 +27,10 @@ export const FABar = ({ max, now, icon }) => {
   }
 
   return (
-    <span className="fa-bar">
+    <BarContainer>
       <MaterialIcon materialId={icon} />
       {`${pcnt}%`}
-    </span>
+    </BarContainer>
   )
 }
 

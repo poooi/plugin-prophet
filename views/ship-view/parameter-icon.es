@@ -11,7 +11,7 @@ const ParameterImage = styled.img`
 export const ParameterIcon = ({ name = '' }) => {
   const iconPath = resolve(__dirname, `../../assets/icons/${name}.svg`)
   return (
-    <span className="param-icon">
+    <span>
       <ParameterImage src={iconPath} alt={name} />
     </span>
   )

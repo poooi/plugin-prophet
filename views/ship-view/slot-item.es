@@ -14,6 +14,7 @@ const Container = styled.div`
   white-space: nowrap;
   display: flex;
   align-items: center;
+  width: 100%;
 `
 
 const ItemIcon = styled(SlotitemIcon)`
@@ -24,8 +25,21 @@ const ItemIcon = styled(SlotitemIcon)`
   }
 `
 
+const ItemName = styled.span`
+  margin-left: 1rem;
+  margin-right: 0.5rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
+`
+
 const ALv = styled.span`
   display: inline-block;
+`
+
+const ALvImage = styled.img`
+  width: 16px;
+  height: 16px;
 `
 
 // friend item is from _slotitems, while enemy item is from $slotitems
@@ -45,7 +59,7 @@ export const SlotItem = compose(
   }
   return (
     <Container>
-      <span className="item-icon">
+      <span>
         <ItemIcon slotitemId={(data.api_type || [])[3]} />
         {label != null &&
           (extra || equipIsAircraft((data.api_type || [])[3])) && (
@@ -54,17 +68,17 @@ export const SlotItem = compose(
             </span>
           )}
       </span>
-      <span className="item-name">
+      <ItemName>
         {/* use key separator because some item name contains `.` */}
         {t(data.api_name, {
           context: data.api_id && data.api_id.toString(),
           keySeparator: 'chiba',
         })}
-      </span>
-      <span className="item-attr">
+      </ItemName>
+      <span>
         <ALv className="alv">
-          {data.api_alv && data.api_alv >= 1 && data.api_alv <= 7 && (
-            <img
+          {data.api_alv >= 1 && data.api_alv <= 7 && (
+            <ALvImage
               src={join(
                 ROOT,
                 'assets',
