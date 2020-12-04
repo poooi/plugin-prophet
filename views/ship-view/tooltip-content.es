@@ -3,13 +3,22 @@ import styled from 'styled-components'
 import { useTranslation } from 'react-i18next'
 import PropTypes from 'prop-types'
 
-import ItemView from '../item-view'
+import { SlotItem } from './slot-item'
 import { FABar } from '../bar'
 import { ParameterIcon } from './parameter-icon'
 import { getFullname } from './utils'
 
 const TooltipContainer = styled.div`
   min-width: 300px;
+`
+
+const ShipName = styled.div`
+  font-size: 1.5rem;
+`
+
+const SlotItems = styled.div`
+  margin-left: -4px;
+  margin-top: 1rem;
 `
 
 // fParam: [0]=火力, [1]=雷装, [2]=対空, [3]=装甲
@@ -20,9 +29,9 @@ export const TooltipContent = ({ data, ship, useFinalParam }) => {
   const { t } = useTranslation(['resources'])
   return (
     <TooltipContainer>
-      <div className="ship-name">
+      <ShipName>
         {getFullname(t, data.api_name, data.api_yomi, data.api_id)}
-      </div>
+      </ShipName>
       <div className="ship-essential">
         <span className="position-indicator">
           {ship.owner === 'Ours' ? '' : `ID ${ship.id}`}
@@ -47,20 +56,21 @@ export const TooltipContent = ({ data, ship, useFinalParam }) => {
             ),
         )}
       </div>
-
-      {(data.poi_slot || []).map(
-        (item, i) =>
-          item && (
-            <ItemView
-              key={item.api_id}
-              item={item}
-              extra={false}
-              warn={data.api_onslot[i] !== data.api_maxeq[i]}
-            />
-          ),
-      )}
-
-      <ItemView item={data.poi_slot_ex} extra label="+" warn={false} />
+      <SlotItems>
+        {(data.poi_slot || []).map(
+          (item, i) =>
+            item && (
+              <SlotItem
+                // eslint-disable-next-line react/no-array-index-key
+                key={i}
+                item={item}
+                extra={false}
+                warn={data.api_onslot[i] !== data.api_maxeq[i]}
+              />
+            ),
+        )}
+        <SlotItem item={data.poi_slot_ex} extra label="+" warn={false} />
+      </SlotItems>
     </TooltipContainer>
   )
 }

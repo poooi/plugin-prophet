@@ -12,12 +12,14 @@ const { ROOT } = window
 
 const Container = styled.div`
   white-space: nowrap;
+  display: flex;
+  align-items: center;
 `
 
 const ItemIcon = styled(SlotitemIcon)`
   &&&&& {
-    width: 25px;
-    height: 25px;
+    width: 24px;
+    height: 24px;
     border: none;
   }
 `
@@ -28,7 +30,7 @@ const ALv = styled.span`
 
 // friend item is from _slotitems, while enemy item is from $slotitems
 // so for enemy item, its $item will always be undefined
-const ItemView = compose(
+export const SlotItem = compose(
   withNamespaces('resources'),
   connect((state, props) => ({
     $item: get(state, `const.$equips.${(props.item || {}).api_slotitem_id}`),
@@ -42,7 +44,7 @@ const ItemView = compose(
     ...item,
   }
   return (
-    <Container className="item-info">
+    <Container>
       <span className="item-icon">
         <ItemIcon slotitemId={(data.api_type || [])[3]} />
         {label != null &&
@@ -80,5 +82,3 @@ const ItemView = compose(
     </Container>
   )
 })
-
-export default ItemView
