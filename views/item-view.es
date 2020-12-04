@@ -6,8 +6,13 @@ import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 import { SlotitemIcon } from 'views/components/etc/icon'
 import { equipIsAircraft } from 'views/utils/game-utils'
+import styled from 'styled-components'
 
 const { ROOT } = window
+
+const ALv = styled.span`
+  display: inline-block;
+`
 
 // friend item is from _slotitems, while enemy item is from $slotitems
 // so for enemy item, its $item will always be undefined
@@ -46,7 +51,7 @@ const ItemView = compose(
         })}
       </span>
       <span className="item-attr">
-        <span className="alv">
+        <ALv className="alv">
           {data.api_alv && data.api_alv >= 1 && data.api_alv <= 7 && (
             <img
               className="alv-img prophet-icon"
@@ -60,10 +65,8 @@ const ItemView = compose(
               alt="alv"
             />
           )}
-        </span>
-        <span className="level">
-          {data.api_level > 0 ? `★${data.api_level}` : ''}
-        </span>
+        </ALv>
+        <span>{data.api_level > 0 ? `★${data.api_level}` : ''}</span>
       </span>
     </div>
   )

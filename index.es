@@ -18,6 +18,7 @@ import { observe } from 'redux-observers'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
 import { withNamespaces } from 'react-i18next'
+import styled from 'styled-components'
 
 import {
   fleetShipsDataSelectorFactory,
@@ -52,6 +53,12 @@ const { ROOT, getStore, dispatch } = window
 // const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
 // const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
+
+const Container = styled.div`
+  padding: 5px 10px;
+  height: 100%;
+  overflow: scroll;
+`
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) {
@@ -744,7 +751,7 @@ class Prophet extends Component {
       layout === 'auto' ? getAutoLayout(width, height) : layout
 
     return (
-      <div id="plugin-prophet" ref={this.root}>
+      <Container id="plugin-prophet" ref={this.root}>
         <link
           rel="stylesheet"
           href={join(__dirname, 'assets', 'prophet.css')}
@@ -768,7 +775,7 @@ class Prophet extends Component {
           horizontalLayout={finalLayout === 'horizontal'}
           root={this.root.current}
         />
-      </div>
+      </Container>
     )
   }
 }

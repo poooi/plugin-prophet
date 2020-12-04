@@ -1,24 +1,15 @@
 #plugin-prophet {
-  padding: 5px 10px;
-  height: 100%;
-  overflow: scroll;
+
 }
 #plugin-prophet .fleet-container {
-  display: flex;
-  overflow: hidden;
+
 }
 #plugin-prophet .prophet-info {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  justify-content: center;
+
 }
-#plugin-prophet .compass-arrow {
-  border-radius: 50%;
-  border: 1px solid;
-}
+
 #plugin-prophet .alv {
-  display: inline-block;
+
 }
 /* #plugin-prophet .hp-progress {
   flex-direction: row;
@@ -41,33 +32,25 @@
 #plugin-prophet .progress-bar-grey {
   background-color: rgba(255, 255, 255, 0.1);
 } */
-#plugin-prophet .cond-indicator {
-  margin-left: 0.5em;
-}
+
 #plugin-prophet .fleet-view {
-  flex: 1;
-  padding: 0 5px;
-  width: 50%;
+
 }
 #plugin-prophet .ship-view {
-  width: 50%;
-  padding-right: 7px;
+
 }
 #plugin-prophet .ship-view .bp3-popover-wrapper,
 #plugin-prophet .ship-view .bp3-popover-target {
-  width: 100%;
-  height: 100%;
+
 }
 #plugin-prophet .ship-hp {
-  width: 50%;
-  white-space: nowrap;
-  flex: 1;
+
 }
 #plugin-prophet .ship-item.escaped {
-  opacity: 0.4;
+
 }
 #plugin-prophet .ship-item.compact .ship-avatar-container {
-  position: relative;
+
 }
 .prophet-icon {
   width: 15px;

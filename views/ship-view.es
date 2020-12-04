@@ -10,9 +10,25 @@ import { Avatar } from 'views/components/etc/avatar'
 import cls from 'classnames'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
+import styled from 'styled-components'
 
 import ItemView from './item-view'
 import { FABar, HPBar } from './bar'
+
+const ShipItem = styled.div`
+  opacity: ${(props) => props.escaped && 0.4};
+`
+
+const ShipContainer = styled.div`
+  width: 50%;
+  padding-right: 8px;
+`
+
+const ShipHp = styled.div`
+  width: 50%;
+  white-space: nowrap;
+  flex: 1;
+`
 
 const ParamIcon = ({ name = '' }) => {
   const iconPath = resolve(__dirname, `../assets/icons/${name}.svg`)
@@ -214,15 +230,21 @@ const ShipView = compose(
     )
 
     return (
-      <div
-        className={cls('div-row ship-item', {
+      <ShipItem
+        escaped={isEscaped}
+        className={cls('ship-item', {
           escaped: isEscaped,
           compact,
           avatar: enableAvatar,
         })}
       >
-        <div className="ship-view">
-          <Tooltip position={tooltipPos} content={tooltip}>
+        <ShipContainer>
+          <Tooltip
+            wrapperTagName="div"
+            targetTagName="div"
+            position={tooltipPos}
+            content={tooltip}
+          >
             <div className="ship-info" style={{ flexGrow: compact && 0 }}>
               <>
                 {enableAvatar && (
@@ -250,8 +272,8 @@ const ShipView = compose(
               </div>
             </div>
           </Tooltip>
-        </div>
-        <div className="ship-hp">
+        </ShipContainer>
+        <ShipHp>
           <HPBar
             max={ship.maxHP}
             from={ship.initHP}
@@ -261,8 +283,8 @@ const ShipView = compose(
             item={ship.useItem}
             cond={data.api_cond}
           />
-        </div>
-      </div>
+        </ShipHp>
+      </ShipItem>
     )
   },
 )

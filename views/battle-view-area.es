@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import { Tooltip } from 'views/components/etc/overlay'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
+import styled from 'styled-components'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
@@ -16,6 +17,18 @@ import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY, combinedFleetType, getTPDazzyDing } from '../utils'
+
+const FleetContainer = styled.div`
+  display: flex;
+  overflow: hidden;
+`
+
+const ProphetInfo = styled.div`
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  justify-content: center;
+`
 
 const inEventSelector = createSelector(
   [(state) => state.const.$maps],
@@ -181,7 +194,7 @@ const BattleViewArea = compose(
         <noscript />
       )
     const combatInfo = (
-      <div className="alert div-row prophet-info">
+      <ProphetInfo className="alert div-row prophet-info">
         <div className="combat-title" title={t(friendTitle)}>
           <span>{`${t(friendTitle)}`}</span>
           {TP.total > 0 && !isBaseDefense && (
@@ -234,7 +247,7 @@ const BattleViewArea = compose(
         ) : (
           <div className="combat-title" />
         )}
-      </div>
+      </ProphetInfo>
     )
     const battleInfo = (
       <BattleInfo
@@ -245,7 +258,7 @@ const BattleViewArea = compose(
       />
     )
     const mapInfo = (
-      <div className="alert prophet-info">
+      <ProphetInfo className="alert prophet-info">
         {
           /* eslint-disable no-nested-ternary */
           sortieState === 1 && !isBaseDefense ? (
@@ -264,13 +277,13 @@ const BattleViewArea = compose(
           )
           /* eslint-enable no-nested-ternary */
         }
-      </div>
+      </ProphetInfo>
     )
     return (
       <div id="overview-area">
         {horizontalLayout ? combatInfo : null}
         <div className={horizontalLayout ? 'div-row' : ''}>
-          <div
+          <FleetContainer
             className="fleet-container"
             style={{
               flex: horizontalLayout ? fleetWidth : 1,
@@ -282,8 +295,8 @@ const BattleViewArea = compose(
           >
             {alliedForce}
             {!horizontalLayout ? combatInfo : null}
-          </div>
-          <div
+          </FleetContainer>
+          <FleetContainer
             className="fleet-container"
             style={{
               flex: horizontalLayout ? enemyWidth : 1,
@@ -295,7 +308,7 @@ const BattleViewArea = compose(
           >
             {enemyForce}
             {!horizontalLayout ? mapInfo : null}
-          </div>
+          </FleetContainer>
         </div>
         {horizontalLayout ? mapInfo : null}
       </div>
