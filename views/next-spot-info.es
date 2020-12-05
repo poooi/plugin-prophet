@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { get } from 'lodash'
+import { get, size } from 'lodash'
 import { resolve } from 'path'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
@@ -32,28 +32,30 @@ const CurrentInfo = styled.div`
   justify-content: center;
   flex-wrap: wrap;
 
-  div + div::before {
-    content: '|';
-    margin-left: 1ex;
-    margin-right: 1ex;
+  > div {
+    display: flex;
+    align-items: center;
   }
 
-  > span {
-    margin: 0 0.2ex;
+  div + div {
+    margin-left: 2rem;
   }
 `
 
 const CompassIcon = styled.img`
-  width: 18px;
+  width: 16px;
+  height: 16px;
+  margin-right: 1ex;
 `
 
 const SpotMessage = styled.div`
   white-space: normal;
 `
 
-const SpotImage = styled.div`
-  width: 20px;
-  margin-right: 0.5ex;
+const SpotImage = styled.img`
+  width: 16px;
+  height: 16px;
+  margin-right: 1ex;
 `
 
 const getCompassAngle = (mapspots, maproutes, currentNode) => {
@@ -71,17 +73,13 @@ const getCompassAngle = (mapspots, maproutes, currentNode) => {
 
 const SpotIcon = ({ spotKind }) => {
   if (typeof spotIcon[spotKind] === 'undefined') {
-    return <span>{/* empty */}</span>
+    return null
   }
   const iconPath = resolve(
     __dirname,
     `../assets/icons/spot/${spotIcon[spotKind]}.svg`,
   )
-  return (
-    <span className="param-icon">
-      <SpotImage src={iconPath} alt="spot" />
-    </span>
-  )
+  return <SpotImage src={iconPath} alt="spot" />
 }
 
 SpotIcon.propTypes = {
@@ -141,7 +139,7 @@ const NextSpotInfo = compose(
     // svg arrow's default angle is 135 deg
 
     const resources = []
-    if (item && Object.keys(item).length > 0) {
+    if (size(item) > 0) {
       Object.keys(item).forEach((itemKey) => {
         resources.push(
           <span key={`${itemKey}-icon`}>
@@ -167,28 +165,21 @@ const NextSpotInfo = compose(
       <Container>
         <CurrentInfo>
           <div>
-            <span>{`${t('Compass Point')}: `}</span>
-            {Number.isNaN(compassAngle) ? (
-              '?'
-            ) : (
-              <span className="svg" id="prophet-compass">
-                <CompassIcon
-                  src={resolve(
-                    __dirname,
-                    `../assets/icons/compass-arrow-${
-                      window.isDarkTheme ? 'dark' : 'light'
-                    }.svg`,
-                  )}
-                  style={{ transform: `rotate(${compassAngle - 135}deg)` }}
-                  alt="compass"
-                />
-              </span>
+            {Number.isFinite(compassAngle) && (
+              <CompassIcon
+                src={resolve(
+                  __dirname,
+                  `../assets/icons/compass-arrow-${
+                    window.isDarkTheme ? 'dark' : 'light'
+                  }.svg`,
+                )}
+                style={{ transform: `rotate(${compassAngle - 135}deg)` }}
+                alt="compass"
+              />
             )}
+            {nextSpot} ({currentNode})
           </div>
           <div>
-            <span>
-              {nextSpot} ({currentNode})
-            </span>
             <SpotIcon spotKind={spotKind} />
             <span>{t(spotKind)}</span>
             {resources}
