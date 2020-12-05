@@ -39,7 +39,7 @@ export const TooltipContent = ({ data, ship, useFinalParam }) => {
         {getFullname(t, data.api_name, data.api_yomi, data.api_id)}
       </ShipName>
       <ShipEssential>
-        {ship.owner !== 'Ours' && <span>ID ${ship.id}</span>}
+        {ship.owner !== 'Ours' && <span>ID {ship.id}</span>}
         <span>Lv. {data.api_lv || '-'}</span>
 
         <span>
