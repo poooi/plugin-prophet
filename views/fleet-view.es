@@ -1,9 +1,16 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent, createRef } from 'react'
 import PropTypes from 'prop-types'
-import { map, get } from 'lodash'
+import { map, size } from 'lodash'
 import cls from 'classnames'
+import styled from 'styled-components'
 
 import ShipView from './ship-view'
+
+const Container = styled.div`
+  flex: ${(props) => (props.visible ? 1 : 0)};
+  padding: 0 ${(props) => (props.visible ? 5 : 0)}px;
+  width: 50%;
+`
 
 class FleetView extends PureComponent {
   static propTypes = {
@@ -17,13 +24,15 @@ class FleetView extends PureComponent {
     tooltipPos: 'left',
   }
 
+  container = createRef()
+
   componentDidMount = () => {
     this.observer = new window.ResizeObserver(this.handleResize)
-    this.observer.observe(this.container)
+    this.observer.observe(this.container.current)
   }
 
   componentWillUnmount = () => {
-    this.observer.unobserve(this.container)
+    this.observer.unobserve(this.container.current)
   }
 
   handleResize = ([entry]) => {
@@ -66,11 +75,12 @@ class FleetView extends PureComponent {
     const { compact, tooltipPos } = this.state
 
     return (
-      <div
-        className={cls({ 'fleet-view': Boolean(get(fleet, 'length')) })}
-        ref={(ref) => {
-          this.container = ref
-        }}
+      <Container
+        visible={Boolean(size(fleet))}
+        ref={this.container}
+        className={cls('fleet-view', {
+          visible: size(fleet),
+        })}
       >
         <div>
           {map(
@@ -86,7 +96,7 @@ class FleetView extends PureComponent {
               ),
           )}
         </div>
-      </div>
+      </Container>
     )
   }
 }

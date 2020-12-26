@@ -11,6 +11,7 @@ import _, {
   get,
   filter,
   first,
+  find,
 } from 'lodash'
 import { join } from 'path'
 import { connect } from 'react-redux'
@@ -18,6 +19,7 @@ import { observe } from 'redux-observers'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
 import { withNamespaces } from 'react-i18next'
+import styled from 'styled-components'
 
 import {
   fleetShipsDataSelectorFactory,
@@ -52,6 +54,12 @@ const { ROOT, getStore, dispatch } = window
 // const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
 // const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
+
+const Container = styled.div`
+  padding: 4px 8px;
+  height: 100%;
+  overflow: scroll;
+`
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) {
@@ -101,10 +109,14 @@ const transformToLibBattleClass = (fleets, equips) =>
               raw: {
                 ...$ship,
                 ..._ship,
-                poi_slot: equips[fleetPos][shipPos].map((e) =>
-                  e ? e[0] : null,
+                poi_slot: equips[fleetPos][shipPos].map(([equip] = []) =>
+                  equip && equip.api_id !== _ship.api_slot_ex ? equip : null,
                 ),
-                poi_slot_ex: null,
+                poi_slot_ex:
+                  find(
+                    equips[fleetPos][shipPos],
+                    ([equip] = []) => equip?.api_id === _ship.api_slot_ex,
+                  )?.[0] || null,
               },
             }),
       ),
@@ -744,11 +756,7 @@ class Prophet extends Component {
       layout === 'auto' ? getAutoLayout(width, height) : layout
 
     return (
-      <div id="plugin-prophet" ref={this.root}>
-        <link
-          rel="stylesheet"
-          href={join(__dirname, 'assets', 'prophet.css')}
-        />
+      <Container id="plugin-prophet" ref={this.root}>
         <BattleViewArea
           mainFleet={mainFleet}
           escortFleet={escortFleet}
@@ -768,7 +776,7 @@ class Prophet extends Component {
           horizontalLayout={finalLayout === 'horizontal'}
           root={this.root.current}
         />
-      </div>
+      </Container>
     )
   }
 }

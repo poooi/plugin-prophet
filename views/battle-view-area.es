@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import { Tooltip } from 'views/components/etc/overlay'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
+import styled from 'styled-components'
 
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
@@ -16,6 +17,48 @@ import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY, combinedFleetType, getTPDazzyDing } from '../utils'
+
+const FleetsContainer = styled.div`
+  display: flex;
+  flex-direction: ${({ horizontalLayout }) =>
+    horizontalLayout ? 'row' : 'column'};
+`
+
+const FleetContainer = styled.div`
+  display: flex;
+  overflow: hidden;
+`
+
+const ProphetInfo = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 4px;
+`
+
+const Fleets = styled.div`
+  display: flex;
+`
+
+const CombatTitle = styled.div`
+  flex: 1;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  cursor: default;
+  display: flex;
+  justify-content: center;
+`
+
+const CombatVS = styled.div`
+  flex: 0;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+  cursor: default;
+  opacity: ${({ visible }) => (visible ? 1 : 0)};
+`
 
 const inEventSelector = createSelector(
   [(state) => state.const.$maps],
@@ -141,7 +184,7 @@ const BattleViewArea = compose(
     const enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
     const { getShip, getItem } = _.pick(result, ['getShip', 'getItem'])
     const alliedForce = (
-      <div className="div-row">
+      <Fleets>
         <FleetView
           fleet={isBaseDefense ? landBase : mainFleet}
           title={t('Main Fleet')}
@@ -156,14 +199,11 @@ const BattleViewArea = compose(
           View={View}
           root={root}
         />
-      </div>
+      </Fleets>
     )
     const enemyForce =
       sortieState > 1 || isBaseDefense ? (
-        <div
-          className="div-row"
-          style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}
-        >
+        <Fleets style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
           <FleetView
             fleet={enemyFleet}
             title={t('Enemy Fleet')}
@@ -176,13 +216,13 @@ const BattleViewArea = compose(
             count={times * enemyCount}
             root={root}
           />
-        </div>
+        </Fleets>
       ) : (
         <noscript />
       )
     const combatInfo = (
-      <div className="alert div-row prophet-info">
-        <div className="combat-title" title={t(friendTitle)}>
+      <ProphetInfo>
+        <CombatTitle title={t(friendTitle)}>
           <span>{`${t(friendTitle)}`}</span>
           {TP.total > 0 && !isBaseDefense && (
             <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
@@ -212,15 +252,10 @@ const BattleViewArea = compose(
           ) : (
             ''
           )}
-        </div>
-        <div
-          className="combat-vs"
-          style={{ opacity: sortieState > 1 || isBaseDefense ? 1 : 0 }}
-        >
-          vs
-        </div>
+        </CombatTitle>
+        <CombatVS visible={sortieState > 1 || isBaseDefense}>vs</CombatVS>
         {sortieState > 1 || isBaseDefense ? (
-          <div className="combat-title" title={t(enemyTitle)}>
+          <CombatTitle title={t(enemyTitle)}>
             {airForce[2] ? (
               <span>
                 <FontAwesome name="plane" />
@@ -230,11 +265,11 @@ const BattleViewArea = compose(
               ''
             )}
             {` ${t(enemyTitle)}`}
-          </div>
+          </CombatTitle>
         ) : (
-          <div className="combat-title" />
+          <CombatTitle />
         )}
-      </div>
+      </ProphetInfo>
     )
     const battleInfo = (
       <BattleInfo
@@ -245,7 +280,7 @@ const BattleViewArea = compose(
       />
     )
     const mapInfo = (
-      <div className="alert prophet-info">
+      <ProphetInfo className="alert prophet-info">
         {
           /* eslint-disable no-nested-ternary */
           sortieState === 1 && !isBaseDefense ? (
@@ -264,13 +299,13 @@ const BattleViewArea = compose(
           )
           /* eslint-enable no-nested-ternary */
         }
-      </div>
+      </ProphetInfo>
     )
     return (
       <div id="overview-area">
         {horizontalLayout ? combatInfo : null}
-        <div className={horizontalLayout ? 'div-row' : ''}>
-          <div
+        <FleetsContainer horizontalLayout={horizontalLayout}>
+          <FleetContainer
             className="fleet-container"
             style={{
               flex: horizontalLayout ? fleetWidth : 1,
@@ -282,8 +317,8 @@ const BattleViewArea = compose(
           >
             {alliedForce}
             {!horizontalLayout ? combatInfo : null}
-          </div>
-          <div
+          </FleetContainer>
+          <FleetContainer
             className="fleet-container"
             style={{
               flex: horizontalLayout ? enemyWidth : 1,
@@ -295,8 +330,8 @@ const BattleViewArea = compose(
           >
             {enemyForce}
             {!horizontalLayout ? mapInfo : null}
-          </div>
-        </div>
+          </FleetContainer>
+        </FleetsContainer>
         {horizontalLayout ? mapInfo : null}
       </div>
     )
