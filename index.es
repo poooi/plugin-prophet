@@ -56,7 +56,7 @@ const { ROOT, getStore, dispatch } = window
 // const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
 
 const Container = styled.div`
-  padding: 5px 10px;
+  padding: 4px 8px;
   height: 100%;
   overflow: scroll;
 `

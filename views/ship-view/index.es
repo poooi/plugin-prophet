@@ -16,7 +16,7 @@ import { TooltipContent } from './tooltip-content'
 
 const ShipItem = styled.div`
   opacity: ${(props) => props.escaped && 0.4};
-  margin-bottom: 5px;
+  margin-bottom: 4px;
   height: 2.5em;
   max-height: 2.5em;
   display: flex;

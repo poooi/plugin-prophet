@@ -15,7 +15,7 @@ const ResultIcon = styled.img`
     isLight &&
     css`
       background-color: #ccc;
-      border-radius: 5px;
+      border-radius: 4px;
     `}
 `
 
