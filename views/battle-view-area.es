@@ -18,6 +18,12 @@ import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY, combinedFleetType, getTPDazzyDing } from '../utils'
 
+const FleetsContainer = styled.div`
+  display: flex;
+  flex-direction: ${({ horizontalLayout }) =>
+    horizontalLayout ? 'row' : 'column'};
+`
+
 const FleetContainer = styled.div`
   display: flex;
   overflow: hidden;
@@ -297,7 +303,7 @@ const BattleViewArea = compose(
     return (
       <div id="overview-area">
         {horizontalLayout ? combatInfo : null}
-        <div className={horizontalLayout ? 'div-row' : ''}>
+        <FleetsContainer horizontalLayout={horizontalLayout}>
           <FleetContainer
             className="fleet-container"
             style={{
@@ -324,7 +330,7 @@ const BattleViewArea = compose(
             {enemyForce}
             {!horizontalLayout ? mapInfo : null}
           </FleetContainer>
-        </div>
+        </FleetsContainer>
         {horizontalLayout ? mapInfo : null}
       </div>
     )
