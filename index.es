@@ -757,10 +757,6 @@ class Prophet extends Component {
 
     return (
       <Container id="plugin-prophet" ref={this.root}>
-        <link
-          rel="stylesheet"
-          href={join(__dirname, 'assets', 'prophet.css')}
-        />
         <BattleViewArea
           mainFleet={mainFleet}
           escortFleet={escortFleet}
