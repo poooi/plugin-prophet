@@ -34,6 +34,7 @@ const ProphetInfo = styled.div`
   flex-wrap: wrap;
   justify-content: center;
   margin-bottom: 4px;
+  flex-direction: column;
 `
 
 const Fleets = styled.div`
@@ -41,15 +42,43 @@ const Fleets = styled.div`
 `
 
 const CombatTitle = styled.div`
+  display: flex;
+  line-height: 32px;
+  width: 100%;
+`
+
+const StatGroup = styled.span`
+  margin-left: 1ex;
+  margin-right: 1ex;
+
+  .svg-inline--fa {
+    margin-right: 1ex;
+  }
+`
+
+const FleetTitle = styled.div`
   flex: 1;
   margin-left: 0.5em;
   margin-right: 0.5em;
-  text-overflow: ellipsis;
   white-space: nowrap;
-  overflow: hidden;
   cursor: default;
   display: flex;
-  justify-content: center;
+  overflow: hidden;
+  justify-content: ${({ isFriend }) => isFriend && 'flex-end'};
+
+  ${StatGroup}:last-child {
+    margin-right: ${({ isFriend }) => isFriend && 0};
+  }
+
+  ${StatGroup}:first-child {
+    margin-left: ${({ isFriend }) => !isFriend && 0};
+  }
+`
+
+const FleetName = styled.div`
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 1;
 `
 
 const CombatVS = styled.div`
@@ -222,53 +251,51 @@ const BattleViewArea = compose(
       )
     const combatInfo = (
       <ProphetInfo>
-        <CombatTitle title={t(friendTitle)}>
-          <span>{`${t(friendTitle)}`}</span>
-          {TP.total > 0 && !isBaseDefense && (
-            <span style={{ marginLeft: '1ex', marginRight: '1ex' }}>
-              <Tooltip
-                position="bottom"
-                content={
-                  <div id="tp-indicator">
-                    <span>
-                      {`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}
-                    </span>
-                  </div>
-                }
-              >
-                <span>
-                  <FontAwesome name="database" style={{ marginRight: '1ex' }} />
-                  [{TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
-                  <span>{TP.total}</span>]
-                </span>
-              </Tooltip>
-            </span>
-          )}
-          {airForce[0] ? (
-            <span>
-              <FontAwesome name="plane" style={{ marginRight: '1ex' }} />
-              {`[${airForce[0] - airForce[1]} / ${airForce[0]}]`}
-            </span>
+        <CombatTitle>
+          <FleetTitle isFriend title={t(friendTitle)}>
+            <FleetName>{`${t(friendTitle)}`}</FleetName>
+            {TP.total > 0 && !isBaseDefense && (
+              <StatGroup>
+                <Tooltip
+                  position="bottom"
+                  content={
+                    <div id="tp-indicator">
+                      <span>
+                        {`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}
+                      </span>
+                    </div>
+                  }
+                >
+                  <span>
+                    <FontAwesome name="database" />[
+                    {TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
+                    <span>{TP.total}</span>]
+                  </span>
+                </Tooltip>
+              </StatGroup>
+            )}
+            {airForce[0] > 0 && (
+              <StatGroup>
+                <FontAwesome name="plane" />
+                {`[${airForce[0] - airForce[1]} / ${airForce[0]}]`}
+              </StatGroup>
+            )}
+          </FleetTitle>
+          <CombatVS visible={sortieState > 1 || isBaseDefense}>vs</CombatVS>
+          {sortieState > 1 || isBaseDefense ? (
+            <FleetTitle title={t(enemyTitle)}>
+              {airForce[2] > 0 && (
+                <StatGroup>
+                  <FontAwesome name="plane" />
+                  {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
+                </StatGroup>
+              )}
+              <FleetName>{t(enemyTitle)}</FleetName>
+            </FleetTitle>
           ) : (
-            ''
+            <FleetTitle />
           )}
         </CombatTitle>
-        <CombatVS visible={sortieState > 1 || isBaseDefense}>vs</CombatVS>
-        {sortieState > 1 || isBaseDefense ? (
-          <CombatTitle title={t(enemyTitle)}>
-            {airForce[2] ? (
-              <span>
-                <FontAwesome name="plane" />
-                {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
-              </span>
-            ) : (
-              ''
-            )}
-            {` ${t(enemyTitle)}`}
-          </CombatTitle>
-        ) : (
-          <CombatTitle />
-        )}
       </ProphetInfo>
     )
     const battleInfo = (

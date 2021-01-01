@@ -23,6 +23,7 @@ const Container = styled.div`
   display: flex;
   align-items: center;
   flex-wrap: wrap;
+  justify-content: center;
 
   div + div {
     margin-left: 2rem;
