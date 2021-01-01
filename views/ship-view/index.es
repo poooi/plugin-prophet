@@ -10,34 +10,10 @@ import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 import styled from 'styled-components'
 
+import { ShipItem, ShipContainer, ShipHp, ShipInfo } from '../common-styled'
 import { HPBar } from '../bar'
 import { ShipName } from './ship-name'
 import { TooltipContent } from './tooltip-content'
-
-const ShipItem = styled.div`
-  opacity: ${(props) => props.escaped && 0.4};
-  margin-bottom: 4px;
-  height: 2.5em;
-  max-height: 2.5em;
-  display: flex;
-`
-
-const ShipInfo = styled.div`
-  flex: 1;
-  flex-grow: ${({ compact }) => compact && 0};
-  margin-right: auto;
-  display: flex;
-  flex-flow: row nowrap;
-  justify-content: space-between;
-  min-width: 0;
-  position: relative;
-
-  .ship-avatar-container {
-    position: relative;
-    top: 0;
-    left: 0;
-  }
-`
 
 const ShipDamage = styled.div`
   white-space: nowrap;
@@ -51,17 +27,6 @@ const ShipDamage = styled.div`
   ::after {
     display: none;
   }
-`
-
-const ShipContainer = styled.div`
-  width: 50%;
-  padding-right: 8px;
-`
-
-const ShipHp = styled.div`
-  width: 50%;
-  white-space: nowrap;
-  flex: 1;
 `
 
 const ShipView = compose(

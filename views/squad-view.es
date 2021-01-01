@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { withNamespaces } from 'react-i18next'
 
 import { HPBar } from './bar'
+import { ShipItem, ShipHp, ShipContainer, ShipInfo } from './common-styled'
 
 // maybe can use compose for co-exist with redux connect
 
@@ -32,23 +33,23 @@ const SquadView = withNamespaces('poi-plugin-prophet')(
     const action_kind = ship.raw.api_action_kind
 
     return (
-      <div className="div-row ship-item">
-        <div className={`ship-view ${compact ? 'compact' : ''}`}>
-          <div className="ship-info">
+      <ShipItem className="ship-item">
+        <ShipContainer>
+          <ShipInfo compact={compact}>
             <div className="ship-name">
               <span>{`${name} [${t(actionKind[action_kind] || '')}]`}</span>
             </div>
-          </div>
-        </div>
-        <div className="ship-hp">
+          </ShipInfo>
+        </ShipContainer>
+        <ShipHp>
           <HPBar
             max={ship.maxHP}
             from={ship.initHP}
             to={ship.nowHP}
             damage={ship.lostHP}
           />
-        </div>
-      </div>
+        </ShipHp>
+      </ShipItem>
     )
   },
 )

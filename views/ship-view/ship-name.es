@@ -4,8 +4,9 @@ import { withNamespaces } from 'react-i18next'
 import styled, { css } from 'styled-components'
 
 import { getTextWidth, getFullname } from './utils'
+import { ShipNameContainer as BaseShipNameContainer } from '../common-styled'
 
-const ShipNameContainer = styled.div`
+const ShipNameContainer = styled(BaseShipNameContainer)`
   flex: 1;
   padding-top: 3px;
   font-size: 1.25em;
