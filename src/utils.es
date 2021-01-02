@@ -2,7 +2,7 @@ import path from 'path'
 import _ from 'lodash'
 import i18next from 'views/env-parts/i18next'
 
-import { Models } from './lib/battle'
+import { Models } from '../lib/battle'
 
 const { APPDATA_PATH } = window
 const { Ship, ShipOwner, Formation, Engagement, AirControl } = Models

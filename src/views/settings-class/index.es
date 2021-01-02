@@ -10,8 +10,8 @@ import styled from 'styled-components'
 import CheckboxLabelConfig from './checkbox-label-config'
 import RadioCheck from './radio-check'
 
-import { PLUGIN_KEY } from '../utils'
-import { CACHE, setLocalStorage } from '../redux'
+import { PLUGIN_KEY } from '../../utils'
+import { CACHE, setLocalStorage } from '../../redux'
 
 const CheckboxContainer = styled.div`
   display: flex;

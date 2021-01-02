@@ -45,7 +45,7 @@ const BattleInfo = withNamespaces('poi-plugin-prophet')(
           <ResultIcon
             src={path.resolve(
               __dirname,
-              `../assets/icons/result-${result}.svg`,
+              `../../assets/icons/result-${result}.svg`,
             )}
             isLight={!window.isDarkTheme}
             alt="result"

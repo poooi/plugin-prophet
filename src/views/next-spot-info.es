@@ -77,7 +77,7 @@ const SpotIcon = ({ spotKind }) => {
   }
   const iconPath = resolve(
     __dirname,
-    `../assets/icons/spot/${spotIcon[spotKind]}.svg`,
+    `../../assets/icons/spot/${spotIcon[spotKind]}.svg`,
   )
   return <SpotImage src={iconPath} alt="spot" />
 }
@@ -169,7 +169,7 @@ const NextSpotInfo = compose(
               <CompassIcon
                 src={resolve(
                   __dirname,
-                  `../assets/icons/compass-arrow-${
+                  `../../assets/icons/compass-arrow-${
                     window.isDarkTheme ? 'dark' : 'light'
                   }.svg`,
                 )}
