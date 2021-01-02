@@ -18,3 +18,15 @@ export const lostKind = {
   3: 'Land-based air squadrons sustained losses',
   4: 'No damage was inflicted',
 }
+
+// sortieState
+// 0: port, switch on when /kcsapi/api_port/port
+// 1: before battle, switch on when /kcsapi/api_req_map/start or /kcsapi/api_req_map/next
+// 2: battle, switch on with PM emit type
+// 3: practice, switch on with PM emit type
+export const SortieState = {
+  InPort: 0,
+  Navigation: 1,
+  Battle: 2,
+  Practice: 3,
+}

@@ -16,7 +16,12 @@ import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
-import { PLUGIN_KEY, combinedFleetType, getTPDazzyDing } from '../utils'
+import {
+  PLUGIN_KEY,
+  combinedFleetType,
+  getTPDazzyDing,
+  SortieState,
+} from '../utils'
 
 const FleetsContainer = styled.div`
   display: flex;
@@ -122,8 +127,11 @@ const BattleViewArea = compose(
       true,
     )
     const spot =
-      props.sortieState === 3 ? 'practice' : `${sortieMapId}-${currentNode}`
-    let enemyTitle = props.sortieState === 3 ? 'PvP' : 'Enemy Vessel'
+      props.sortieState === SortieState.Practice
+        ? 'practice'
+        : `${sortieMapId}-${currentNode}`
+    let enemyTitle =
+      props.sortieState === SortieState.Practice ? 'PvP' : 'Enemy Vessel'
     enemyTitle = showEnemyTitle
       ? _.get(
           extensionSelectorFactory(PLUGIN_KEY)(state),
@@ -188,7 +196,7 @@ const BattleViewArea = compose(
     airForce = [], // [count, lostCount, enemyCount, enemyLostCount]
     airControl = 0,
     isBaseDefense,
-    sortieState = 0,
+    sortieState = SortieState.InPort,
     eventId = 0,
     eventKind = 0,
     result = {},
@@ -231,7 +239,7 @@ const BattleViewArea = compose(
       </Fleets>
     )
     const enemyForce =
-      sortieState > 1 || isBaseDefense ? (
+      sortieState > SortieState.Navigation || isBaseDefense ? (
         <Fleets style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
           <FleetView
             fleet={enemyFleet}
@@ -281,8 +289,12 @@ const BattleViewArea = compose(
               </StatGroup>
             )}
           </FleetTitle>
-          <CombatVS visible={sortieState > 1 || isBaseDefense}>vs</CombatVS>
-          {sortieState > 1 || isBaseDefense ? (
+          <CombatVS
+            visible={sortieState > SortieState.Navigation || isBaseDefense}
+          >
+            vs
+          </CombatVS>
+          {sortieState > SortieState.Navigation || isBaseDefense ? (
             <FleetTitle title={t(enemyTitle)}>
               {airForce[2] > 0 && (
                 <StatGroup>
@@ -310,7 +322,7 @@ const BattleViewArea = compose(
       <ProphetInfo className="alert prophet-info">
         {
           /* eslint-disable no-nested-ternary */
-          sortieState === 1 && !isBaseDefense ? (
+          sortieState === SortieState.Navigation && !isBaseDefense ? (
             <NextSpotInfo eventId={eventId} eventKind={eventKind} />
           ) : isBaseDefense ? (
             [
@@ -319,7 +331,7 @@ const BattleViewArea = compose(
             ]
           ) : getShip || getItem ? (
             <DropInfo getShip={getShip} getItem={getItem} />
-          ) : sortieState > 1 || isBaseDefense ? (
+          ) : sortieState > SortieState.Navigation || isBaseDefense ? (
             battleInfo
           ) : (
             <noscript />

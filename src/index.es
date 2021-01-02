@@ -38,6 +38,7 @@ import {
   synthesizeInfo,
   getAirForceStatus,
   transformToDazzyDingClass,
+  SortieState,
 } from './utils'
 import { Models, Simulator } from '../lib/battle'
 import {
@@ -87,12 +88,6 @@ const adjustedFleetShipsDataSelectorFactory = memoize((fleetId) =>
   ),
 )
 
-// sortieState
-// 0: port, switch on when /kcsapi/api_port/port
-// 1: before battle, switch on when /kcsapi/api_req_map/start or /kcsapi/api_req_map/next
-// 2: battle, switch on with PM emit type
-// 3: practice, switch on with PM emit type
-
 class ProphetBase extends Component {
   static initState = {
     mainFleet: [], // An array of fleet
@@ -103,7 +98,7 @@ class ProphetBase extends Component {
     airForce: [0, 0, 0, 0], // [fPlaneInit, fLost, ePlaneInit, eLost]
     airControl: '', // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
     isBaseDefense: false,
-    sortieState: 0, // 0: port, 1: before battle, 2: battle, 3: practice
+    sortieState: SortieState.InPort, // 0: port, 1: before battle, 2: battle, 3: practice
     eventId: 0,
     eventKind: 0,
     result: {},
@@ -189,7 +184,9 @@ class ProphetBase extends Component {
 
   handlePacket = (battle) => {
     const sortieState =
-      battle.type === (BattleType.Practice || BattleType.Pratice) ? 3 : 2
+      battle.type === (BattleType.Practice || BattleType.Pratice)
+        ? SortieState.Practice
+        : SortieState.Battle
     // console.log(battle)
     const simulator = new Simulator(battle.fleet, { usePoiAPI: true })
     // correct main fleet flagship HP for possible repair usage
@@ -233,7 +230,7 @@ class ProphetBase extends Component {
       if (
         ship.nowHP / ship.maxHP <= 0.25 &&
         !includes(escapedPos, ship.pos - 1) &&
-        sortieState !== 3
+        sortieState !== SortieState.Practice
       ) {
         const shipName = getStore(
           `const.$ships.${ship.raw.api_ship_id}.api_name`,
@@ -313,7 +310,7 @@ class ProphetBase extends Component {
           api_destruction_battle,
           api_maparea_id,
         } = body
-        sortieState = 1
+        sortieState = SortieState.Navigation
         eventId = api_event_id
         eventKind = api_event_kind
         ;({
