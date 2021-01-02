@@ -11,7 +11,6 @@ import _, {
   get,
   filter,
   first,
-  find,
 } from 'lodash'
 import { join } from 'path'
 import { connect } from 'react-redux'
@@ -30,7 +29,16 @@ import {
 import { store } from 'views/create-store'
 
 import BattleViewArea from './views/battle-view-area'
-import { PLUGIN_KEY, initEnemy, lostKind, getAutoLayout } from './utils'
+import {
+  PLUGIN_KEY,
+  initEnemy,
+  lostKind,
+  getAutoLayout,
+  transformToLibBattleClass,
+  synthesizeInfo,
+  getAirForceStatus,
+  transformToDazzyDingClass,
+} from './utils'
 import { Models, Simulator } from '../lib/battle'
 import {
   onBattleResult,
@@ -42,7 +50,6 @@ import {
 const {
   Ship,
   ShipOwner,
-  StageType,
   Battle,
   BattleType,
   Fleet,
@@ -61,196 +68,6 @@ const Container = styled.div`
   height: 100%;
   overflow: scroll;
 `
-
-const updateByStageHp = (fleet, nowhps) => {
-  if (!fleet || !nowhps) {
-    return fleet
-  }
-  return fleet.map((ship, i) =>
-    !ship
-      ? ship
-      : {
-          ...ship,
-          stageHP: nowhps[i],
-        },
-  )
-}
-
-const transformToLibBattleClass = (fleets, equips) =>
-  (fleets || [])
-    .map((fleet, fleetPos) =>
-      (fleet || []).map(([_ship, $ship] = [], shipPos) =>
-        !_ship
-          ? null
-          : new Ship({
-              id: _ship.api_ship_id,
-              owner: ShipOwner.Ours,
-              pos: fleetPos * 6 + shipPos + 1,
-              maxHP: _ship.api_maxhp,
-              nowHP: _ship.api_nowhp,
-              initHP: _ship.api_nowhp,
-              lostHP: 0,
-              damage: 0,
-              items: equips[fleetPos][shipPos].map((e) =>
-                e ? e[0].api_slotitem_id : null,
-              ),
-              useItem: null,
-              baseParam: [
-                $ship.api_houg[0] + _ship.api_kyouka[0],
-                $ship.api_raig[0] + _ship.api_kyouka[1],
-                $ship.api_tyku[0] + _ship.api_kyouka[2],
-                $ship.api_souk[0] + _ship.api_kyouka[3],
-              ],
-              finalParam: [
-                _ship.api_karyoku[0],
-                _ship.api_raisou[0],
-                _ship.api_taiku[0],
-                _ship.api_soukou[0],
-              ],
-              raw: {
-                ...$ship,
-                ..._ship,
-                poi_slot: equips[fleetPos][shipPos].map(([equip] = []) =>
-                  equip && equip.api_id !== _ship.api_slot_ex ? equip : null,
-                ),
-                poi_slot_ex:
-                  find(
-                    equips[fleetPos][shipPos],
-                    ([equip] = []) => equip?.api_id === _ship.api_slot_ex,
-                  )?.[0] || null,
-              },
-            }),
-      ),
-    )
-    .concat([undefined, undefined])
-    .slice(0, 2)
-
-const transformToDazzyDingClass = (fleets, equips) =>
-  (fleets || [])
-    .map((fleet, fleetPos) =>
-      (fleet || []).map(([_ship, $ship] = [], shipPos) =>
-        !_ship
-          ? null
-          : {
-              ...$ship,
-              ..._ship,
-              poi_slot: equips[fleetPos][shipPos].map((e) => (e ? e[0] : null)),
-              poi_slot_ex: null,
-            },
-      ),
-    )
-    .concat([undefined, undefined])
-    .slice(0, 2)
-
-const updateIfExist = (obj, key, prev) => get(obj, key, prev)
-
-// extracts necessary information
-// infomation: mvp, formation, aerial, hp (day and night)
-const synthesizeInfo = (_simulator, result, packets) => {
-  let { mainFleet, escortFleet, enemyFleet, enemyEscort } = { ..._simulator }
-  const { stages } = { ..._simulator }
-  let airForce = [0, 0, 0, 0] // [fPlaneInit, fLost, ePlaneInit, eLost]
-  let airControl = ''
-  let fFormation = ''
-  let eFormation = ''
-  let battleForm = ''
-  // assign mvp to specific ship
-  const [mainMvp, escortMvp] = result.mvp || [0, 0]
-  if (!(mainMvp < 0 || mainMvp > 6)) mainFleet[mainMvp].isMvp = true
-  if (!(escortMvp < 0 || escortMvp > 6)) escortFleet[escortMvp].isMvp = true
-
-  let fResidule = 0
-  let fLost = 0
-  let eResidule = 0
-  let eLost = 0
-
-  each(stages, (stage) => {
-    if (isNil(stage)) return
-    const { engagement, aerial, type } = stage || {}
-
-    if (engagement && type === StageType.Engagement) {
-      // There might be multiple engagements (day and night)
-      // fortunately the formation is the same for now
-      battleForm = (engagement || {}).engagement || ''
-      eFormation = (engagement || {}).eFormation || ''
-      fFormation = (engagement || {}).fFormation || ''
-    }
-
-    if (aerial && type === StageType.Aerial) {
-      // There might be multiple aerial stages, e.g. jet assult, 1-6 air battle
-      const { fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control } = aerial
-      // [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
-      fResidule = fPlaneNow
-      eResidule = ePlaneNow
-      fLost += (fPlaneInit || 0) - (fPlaneNow || 0)
-      eLost += (ePlaneInit || 0) - (ePlaneNow || 0)
-      // [fPlaneInit, fLost, ePlaneInit, eLost]
-      airControl = control || ''
-    }
-  })
-
-  airForce = [fResidule + fLost, fLost, eResidule + eLost, eLost]
-
-  let api_f_nowhps
-  let api_e_nowhps
-  let api_f_nowhps_combined
-  let api_e_nowhps_combined
-  each(packets, (packet) => {
-    api_f_nowhps = updateIfExist(packet, 'api_f_nowhps', api_f_nowhps)
-    api_e_nowhps = updateIfExist(packet, 'api_e_nowhps', api_e_nowhps)
-    api_f_nowhps_combined = updateIfExist(
-      packet,
-      'api_f_nowhps_combined',
-      api_f_nowhps_combined,
-    )
-    api_e_nowhps_combined = updateIfExist(
-      packet,
-      'api_e_nowhps_combined',
-      api_e_nowhps_combined,
-    )
-  })
-
-  mainFleet = updateByStageHp(mainFleet, api_f_nowhps)
-  enemyFleet = updateByStageHp(enemyFleet, api_e_nowhps)
-
-  escortFleet = updateByStageHp(escortFleet, api_f_nowhps_combined)
-  enemyEscort = updateByStageHp(enemyEscort, api_e_nowhps_combined)
-
-  return {
-    mainFleet,
-    escortFleet,
-    enemyFleet,
-    enemyEscort,
-    airControl,
-    airForce,
-    battleForm,
-    eFormation,
-    fFormation,
-    result,
-  }
-}
-
-const getAirForceStatus = (stages = []) => {
-  let t_api_f_count = 0
-  let t_api_f_lostcount = 0
-  let t_api_e_count = 0
-  let t_api_e_lostcount = 0
-  stages.forEach((stage) => {
-    if (stage) {
-      const {
-        api_f_count,
-        api_f_lostcount,
-        api_e_count,
-        api_e_lostcount,
-      } = stage
-      t_api_f_count = Math.max(t_api_f_count, api_f_count || 0)
-      t_api_f_lostcount += api_f_lostcount || 0
-      t_api_e_count = Math.max(t_api_e_count, api_e_count || 0)
-      t_api_e_lostcount += api_e_lostcount || 0
-    }
-  })
-  return [t_api_f_count, t_api_f_lostcount, t_api_e_count, t_api_e_lostcount]
-}
 
 /* selector */
 const fleetSlotCountSelectorFactory = memoize((fleetId) =>
