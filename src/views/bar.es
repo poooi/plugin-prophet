@@ -78,6 +78,9 @@ const ShipData = styled.div`
 
 const Loss = styled.span`
   margin-left: 1ex;
+  flex-shrink: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
 
   ::before {
     content: '(';
@@ -85,6 +88,15 @@ const Loss = styled.span`
 
   ::after {
     content: ')';
+  }
+`
+
+const HP = styled.span``
+
+const UseItem = styled.span`
+  img {
+    width: 20px;
+    height: 20px;
   }
 `
 
@@ -109,17 +121,17 @@ export const HPBar = connect((state, props) => ({
     const loss = Math.max(_from - _stage, 0) - damage
 
     return (
-      <div>
+      <>
         <ShipData>
-          <span className="ship-hp">
+          <HP>
             {_to} / {max}
-            {_stage !== 0 && loss !== 0 && <Loss>{loss}</Loss>}
-            {!!item && $equip && (
-              <span className="item-icon">
-                <SlotitemIcon slotitemId={$equip.api_type[3]} />
-              </span>
-            )}
-          </span>
+          </HP>
+          {_stage !== 0 && loss !== 0 && <Loss>{loss}</Loss>}
+          {!!item && $equip && (
+            <UseItem>
+              <SlotitemIcon slotitemId={$equip.api_type[3]} />
+            </UseItem>
+          )}
           {typeof cond !== 'undefined' && (
             <Condition className={getCondStyle(cond)}>★{cond}</Condition>
           )}
@@ -135,7 +147,7 @@ export const HPBar = connect((state, props) => ({
             />
           ))}
         </ProgressBar>
-      </div>
+      </>
     )
   },
 )
