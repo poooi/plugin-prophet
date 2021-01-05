@@ -20,6 +20,7 @@ export const ShipInfo = styled.div`
   display: flex;
   flex-flow: row nowrap;
   justify-content: space-between;
+  align-items: center;
   min-width: 0;
   position: relative;
 

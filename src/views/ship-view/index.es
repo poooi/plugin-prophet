@@ -17,12 +17,10 @@ import { TooltipContent } from './tooltip-content'
 
 const ShipDamage = styled.div`
   white-space: nowrap;
-  vertical-align: bottom;
-  padding-top: 4px;
   opacity: 0.8;
   text-align: right;
   margin-right: 0;
-  flex: ${({ compact }) => compact && 1};
+  margin-left: 1ex;
 
   ::after {
     display: none;
