@@ -2,7 +2,6 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { get, size } from 'lodash'
-import { resolve } from 'path'
 import { withNamespaces } from 'react-i18next'
 import { compose } from 'redux'
 import styled from 'styled-components'
@@ -17,6 +16,7 @@ import {
   spotInfo,
   getSpotKind,
   getSpotMessage,
+  resolvePluginPath,
 } from '../utils'
 
 const Container = styled.div`
@@ -75,9 +75,8 @@ const SpotIcon = ({ spotKind }) => {
   if (typeof spotIcon[spotKind] === 'undefined') {
     return null
   }
-  const iconPath = resolve(
-    __dirname,
-    `../../assets/icons/spot/${spotIcon[spotKind]}.svg`,
+  const iconPath = resolvePluginPath(
+    `./assets/icons/spot/${spotIcon[spotKind]}.svg`,
   )
   return <SpotImage src={iconPath} alt="spot" />
 }
@@ -167,9 +166,8 @@ const NextSpotInfo = compose(
           <div>
             {Number.isFinite(compassAngle) && (
               <CompassIcon
-                src={resolve(
-                  __dirname,
-                  `../../assets/icons/compass-arrow-${
+                src={resolvePluginPath(
+                  `./assets/icons/compass-arrow-${
                     window.isDarkTheme ? 'dark' : 'light'
                   }.svg`,
                 )}

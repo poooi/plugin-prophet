@@ -1,5 +1,4 @@
 import React from 'react'
-import { join } from 'path'
 import { connect } from 'react-redux'
 import { get } from 'lodash'
 import { withNamespaces } from 'react-i18next'
@@ -7,7 +6,7 @@ import { compose } from 'redux'
 import { SlotitemIcon } from 'views/components/etc/icon'
 import styled from 'styled-components'
 
-const { ROOT } = window
+import { resolveMainPath } from '../../utils'
 
 const Container = styled.div`
   white-space: nowrap;
@@ -83,12 +82,8 @@ export const SlotItem = compose(
         <ALv className="alv">
           {data.api_alv >= 1 && data.api_alv <= 7 && (
             <ALvImage
-              src={join(
-                ROOT,
-                'assets',
-                'img',
-                'airplane',
-                `alv${data.api_alv}.png`,
+              src={resolveMainPath(
+                `./assets/img/airplane/alv${data.api_alv}.png`,
               )}
               alt="alv"
             />

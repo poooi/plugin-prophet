@@ -1,11 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import path from 'path'
 import { withNamespaces } from 'react-i18next'
 import styled, { css } from 'styled-components'
 import { compact } from 'lodash'
 
-import { _t } from '../utils'
+import { _t, resolvePluginPath } from '../utils'
 
 const ResultIcon = styled.img`
   width: 32px;
@@ -43,10 +42,7 @@ const BattleInfo = withNamespaces('poi-plugin-prophet')(
       <div>
         {BATTLE_RESULT.includes(result) ? (
           <ResultIcon
-            src={path.resolve(
-              __dirname,
-              `../../assets/icons/result-${result}.svg`,
-            )}
+            src={resolvePluginPath(`./assets/icons/result-${result}.svg`)}
             isLight={!window.isDarkTheme}
             alt="result"
           />

@@ -2,6 +2,7 @@ export * from './lib-battle-adapter'
 export * from './constants'
 export * from './spot'
 export * from './transport'
+export * from './path'
 
 /**
  * determines layout by content width and height

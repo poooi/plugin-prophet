@@ -1,7 +1,7 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { resolve } from 'path'
 import styled from 'styled-components'
+import { resolvePluginPath } from '../../utils'
 
 const ParameterImage = styled.img`
   width: 16px;
@@ -9,7 +9,7 @@ const ParameterImage = styled.img`
 `
 
 export const ParameterIcon = ({ name = '' }) => {
-  const iconPath = resolve(__dirname, `../../../assets/icons/${name}.svg`)
+  const iconPath = resolvePluginPath(`./assets/icons/${name}.svg`)
   return (
     <span>
       <ParameterImage src={iconPath} alt={name} />

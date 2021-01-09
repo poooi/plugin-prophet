@@ -12,7 +12,6 @@ import _, {
   filter,
   first,
 } from 'lodash'
-import { join } from 'path'
 import { connect } from 'react-redux'
 import { observe } from 'redux-observers'
 import memoize from 'fast-memoize'
@@ -39,6 +38,7 @@ import {
   getAirForceStatus,
   transformToDazzyDingClass,
   SortieState,
+  resolveMainPath,
 } from './utils'
 import { Models, Simulator } from '../lib/battle'
 import {
@@ -59,7 +59,7 @@ const {
   AirControlMap,
 } = Models
 
-const { ROOT, getStore, dispatch } = window
+const { getStore, dispatch } = window
 // const { fleetShipsDataSelectorFactory } = require(`${ROOT}/views/utils/selectors`)
 
 // const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
@@ -246,16 +246,7 @@ class ProphetBase extends Component {
     ) {
       window.notify(`${damageList.join(', ')} ${t('Heavily damaged')}`, {
         type: 'damaged',
-        icon: join(
-          ROOT,
-          'views',
-          'components',
-          'main',
-          'assets',
-          'img',
-          'state',
-          '4.png',
-        ),
+        icon: resolveMainPath('./views/components/main/assets/img/state/4.png'),
         audio: config.get('plugin.prophet.notify.damagedAudio'),
       })
     }
