@@ -4,7 +4,13 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: ['airbnb', 'prettier', 'prettier/react', 'poi-plugin'],
+  extends: [
+    'airbnb',
+    'airbnb/hooks',
+    'prettier',
+    'prettier/react',
+    'poi-plugin',
+  ],
   parser: 'babel-eslint',
   plugins: ['import', 'react', 'prettier'],
   rules: {
