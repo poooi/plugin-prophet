@@ -7,7 +7,6 @@ import _, {
   map,
   isEmpty,
   includes,
-  concat,
   get,
   filter,
   first,
@@ -132,6 +131,9 @@ const ProphetBase = (props) => {
     propsEquips: props.equips, // eslint-disable-line react/destructuring-assignment
   })
 
+  const [mainFleet, setMainFleet] = useState(propsMainFleet)
+  const [escortFleet, setEscortFleet] = useState(propsEscortFleet)
+
   const handlePacket = useCallback((battle) => {
     const sortieState =
       battle.type === (BattleType.Practice || BattleType.Pratice)
@@ -164,16 +166,14 @@ const ProphetBase = (props) => {
     }
   }, [])
 
+  const { t } = props
+
   const handlePacketResult = useCallback(
-    (battle) => {
-      const { t, sortie } = props
-      const { sortieState } = state
+    (battle, friendShips, sortie, sortieState) => {
       const newState = handlePacket(battle)
       // notify heavily damaged
       // as battle result does not touch hps, it is safe to notify here?
-      const { mainFleet, escortFleet } = state
       const escapedPos = sortie.escapedPos || []
-      const friendShips = concat(mainFleet, escortFleet)
       const damageList = []
 
       each(friendShips, (ship) => {
@@ -207,16 +207,16 @@ const ProphetBase = (props) => {
         ...newState,
       }
     },
-    [handlePacket, props, state],
+    [handlePacket, t],
   )
 
   const handleGameResponse = useCallback(
     (e) => {
-      const { t, fleets, equips, sortie } = props
+      const { fleets, equips, sortie } = props
       const { path, body } = e.detail
       // used in determining next spot type
 
-      const { mainFleet, escortFleet, propsFleets, propsEquips } = state
+      const { propsFleets, propsEquips } = state
 
       let {
         enemyFleet,
@@ -419,11 +419,18 @@ const ProphetBase = (props) => {
               fFormation,
             }),
           )
-          newState = handlePacketResult(battlePlay.current)
+          newState = handlePacketResult(
+            battlePlay.current,
+            [...mainFleet, ...escortFleet],
+            props.sortie,
+            sortieState,
+          )
           battlePlay.current = null
         } else {
           newState = handlePacket(battlePlay.current)
         }
+        setMainFleet(newState.mainFleet)
+        setEscortFleet(newState.escortFleet)
       } else if (
         !isEqual(propsFleets, fleets) ||
         !isEqual(propsEquips, equips)
@@ -433,18 +440,16 @@ const ProphetBase = (props) => {
           fleets,
           equips,
         )
+        setMainFleet(_mainFleet)
+        setEscortFleet(_escortFleet)
         newState = {
           ...newState,
-          mainFleet: _mainFleet,
-          escortFleet: _escortFleet,
           propsFleets: fleets,
           propsEquips: equips,
         }
       }
       setState((prev) => ({
         ...prev,
-        mainFleet,
-        escortFleet,
         enemyFleet,
         enemyEscort,
         landBase,
@@ -460,7 +465,7 @@ const ProphetBase = (props) => {
         ...newState,
       }))
     },
-    [props, state, handlePacketResult, handlePacket],
+    [props, state, t, handlePacketResult, mainFleet, escortFleet, handlePacket],
   )
 
   useEffect(() => {
@@ -518,8 +523,6 @@ const ProphetBase = (props) => {
   }, [])
 
   const {
-    mainFleet,
-    escortFleet,
     enemyFleet,
     enemyEscort,
     landBase,
