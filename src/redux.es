@@ -61,7 +61,7 @@ const HistoryReducer = (state = CACHE.history || {}, action) => {
   return state
 }
 
-const indexify = (data) => keyBy(data, 'api_id')
+const indexify = data => keyBy(data, 'api_id')
 
 const increment = (state, key, value) => ({
   ...state,
@@ -151,10 +151,10 @@ export const setLocalStorage = () =>
 
 const setLocalStorageDebounced = debounce(setLocalStorage, 5000)
 
-const createObserver = (path) => {
+const createObserver = path => {
   const selector = createSelector(
     [extensionSelectorFactory(PLUGIN_KEY)],
-    (ext) => get(ext, path, {}),
+    ext => get(ext, path, {}),
   )
 
   return observer(selector, (dispatch, current = {}, previous) => {

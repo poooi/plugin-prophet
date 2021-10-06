@@ -23,7 +23,7 @@ let computedFont = ''
  * mesure given text's rendered width
  * @param text {string} text to measure
  */
-export const getTextWidth = (text) => {
+export const getTextWidth = text => {
   const context = textCanvas.getContext('2d')
   computedFont = computedFont || getFont()
   context.font = computedFont

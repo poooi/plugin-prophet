@@ -51,7 +51,7 @@ const BattleInfo = withNamespaces('poi-plugin-prophet')(
         )}
       </div>
 
-      {compact([_t(eFormation), _t(battleForm), _t(airControl)]).map((text) => (
+      {compact([_t(eFormation), _t(battleForm), _t(airControl)]).map(text => (
         <div key={text}>{text}</div>
       ))}
     </Container>

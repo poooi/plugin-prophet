@@ -30,7 +30,7 @@ const RadioCheck = connect((state, props) => ({
       configName: propTypes.string.isRequired,
     }
 
-    handleClickRadio = (value) => () => {
+    handleClickRadio = value => () => {
       const { configName } = this.props
       config.set(configName, value)
     }

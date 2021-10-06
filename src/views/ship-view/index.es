@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 import FontAwesome from 'react-fontawesome'
 import { Tooltip } from 'views/components/etc/overlay'
 import { connect } from 'react-redux'

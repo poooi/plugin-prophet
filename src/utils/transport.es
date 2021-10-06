@@ -40,18 +40,18 @@ export const getTransportPoint = (
 ) => {
   const ignores = _.map(
     shipsData,
-    (ship) =>
+    ship =>
       escapedShipIds.includes(ship.api_id) ||
       ship.api_nowhp * 4 <= ship.api_maxhp,
   )
 
   const shipTPs = _.map(
     shipsData,
-    (ship) =>
+    ship =>
       (TPByShipType[ship.api_stype] || 0) + (TPByShip[ship.api_ship_id] || 0),
   )
 
-  const equipTPs = _.map(equipsData, (equipData) =>
+  const equipTPs = _.map(equipsData, equipData =>
     _.sum(
       _.map(equipData, ([equip] = []) => TPByItem[equip.api_slotitem_id] || 0),
     ),
@@ -98,7 +98,7 @@ export const getTPDazzyDing = (ships, escapedShipIds = []) => {
       _.sum(
         _.map(
           poi_slot.concat(poi_slot_ex),
-          (equip) => TPByItem[(equip || {}).api_slotitem_id] || 0,
+          equip => TPByItem[(equip || {}).api_slotitem_id] || 0,
         ),
       ),
     )

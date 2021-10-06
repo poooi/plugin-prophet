@@ -71,13 +71,14 @@ const Container = styled.div`
 `
 
 /* selector */
-const fleetSlotCountSelectorFactory = memoize((fleetId) =>
-  createSelector([fleetSelectorFactory(fleetId)], (fleet) =>
-    get(fleet, 'api_ship.length', 0),
+const fleetSlotCountSelectorFactory = memoize(fleetId =>
+  createSelector(
+    [fleetSelectorFactory(fleetId)],
+    fleet => get(fleet, 'api_ship.length', 0),
   ),
 )
 
-const adjustedFleetShipsDataSelectorFactory = memoize((fleetId) =>
+const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
   createSelector(
     [
       fleetShipsDataSelectorFactory(fleetId),
@@ -98,7 +99,9 @@ class ProphetBase extends Component {
     airForce: [0, 0, 0, 0], // [fPlaneInit, fLost, ePlaneInit, eLost]
     airControl: '', // 0=制空均衡, 1=制空権確保, 2=航空優勢, 3=航空劣勢, 4=制空権喪失
     isBaseDefense: false,
+    isHeavyBomberDefense: false,
     sortieState: SortieState.InPort, // 0: port, 1: before battle, 2: battle, 3: practice
+    mapAreaId: 0,
     eventId: 0,
     eventKind: 0,
     result: {},
@@ -164,8 +167,8 @@ class ProphetBase extends Component {
 
     // for debug (ugly)
     if (window.dbg.isEnabled()) {
-      window.prophetTest = (battle) => this.setState(this.handlePacket(battle))
-      window.baseDefenseTest = (e) => this.handleGameResponse({ detail: e })
+      window.prophetTest = battle => this.setState(this.handlePacket(battle))
+      window.baseDefenseTest = e => this.handleGameResponse({ detail: e })
     }
   }
 
@@ -182,7 +185,7 @@ class ProphetBase extends Component {
     delete window.baseDefenseTest
   }
 
-  handlePacket = (battle) => {
+  handlePacket = battle => {
     const sortieState =
       battle.type === (BattleType.Practice || BattleType.Pratice)
         ? SortieState.Practice
@@ -202,7 +205,7 @@ class ProphetBase extends Component {
       simulator.mainFleet[0].initHP = nowHP
       simulator.mainFleet[0].nowHP = nowHP
     }
-    each(battle.packet, (packet) => simulator.simulate(packet))
+    each(battle.packet, packet => simulator.simulate(packet))
     const { result } = simulator
 
     // Attention, aynthesizeStage will break object prototype, put it to last
@@ -214,7 +217,7 @@ class ProphetBase extends Component {
     }
   }
 
-  handlePacketResult = (battle) => {
+  handlePacketResult = battle => {
     const { t, sortie } = this.props
     const { sortieState } = this.state
     const newState = this.handlePacket(battle)
@@ -225,7 +228,7 @@ class ProphetBase extends Component {
     const friendShips = concat(mainFleet, escortFleet)
     const damageList = []
 
-    each(friendShips, (ship) => {
+    each(friendShips, ship => {
       if (ship == null) return
       if (
         ship.nowHP / ship.maxHP <= 0.25 &&
@@ -255,7 +258,7 @@ class ProphetBase extends Component {
     }
   }
 
-  handleGameResponse = (e) => {
+  handleGameResponse = e => {
     const { t, fleets, equips, sortie } = this.props
     const { path, body } = e.detail
     // used in determining next spot type
@@ -269,9 +272,11 @@ class ProphetBase extends Component {
       airForce,
       airControl,
       isBaseDefense,
+      isHeavyBomberDefense,
       sortieState,
       eventId,
       eventKind,
+      mapAreaId,
       result,
       battleForm,
       eFormation,
@@ -294,16 +299,21 @@ class ProphetBase extends Component {
         updateFleetStateFromLibBattle = false
         break
       case '/kcsapi/api_req_map/start':
-      case '/kcsapi/api_req_map/next': {
+      case '/kcsapi/api_req_map/next':
+      case '/kcsapi/api_req_map/air_raid': {
         const {
           api_event_kind,
           api_event_id,
           api_destruction_battle,
           api_maparea_id,
+          api_destruction_flag,
         } = body
+        isHeavyBomberDefense =
+          api_destruction_flag === 1 || path === '/kcsapi/api_req_map/air_raid'
         sortieState = SortieState.Navigation
-        eventId = api_event_id
-        eventKind = api_event_kind
+        eventId = api_event_id === undefined ? eventId : api_event_id
+        eventKind = api_event_kind === undefined ? eventKind : api_event_kind
+        mapAreaId = api_maparea_id === undefined ? mapAreaId : api_maparea_id
         ;({
           enemyFleet,
           enemyEscort,
@@ -312,80 +322,85 @@ class ProphetBase extends Component {
         } = this.constructor.initState)
         // land base air raid
         if (api_destruction_battle != null) {
-          // construct virtual fleet to reprsent the base attack
-          const { airbase } = this.props
-          const {
-            api_air_base_attack,
-            api_f_maxhps,
-            api_f_nowhps,
-          } = api_destruction_battle
-          const parsed_api_air_base_attack =
-            typeof api_air_base_attack === 'string'
-              ? JSON.parse(api_air_base_attack)
-              : api_air_base_attack
-          landBase = _(airbase)
-            .filter((squad) => squad.api_area_id === api_maparea_id)
-            .map(
-              (squad) =>
-                new Ship({
-                  id: -1,
-                  owner: ShipOwner.Ours,
-                  pos: squad.api_rid,
-                  maxHP: api_f_maxhps[squad.api_rid - 1] || 200,
-                  nowHP: api_f_nowhps[squad.api_rid - 1] || 0,
-                  items: map(squad.api_plane_info, (plane) => plane.api_slotid),
-                  raw: squad,
-                }),
+          const destructionBattleArray = Array.isArray(api_destruction_battle)
+            ? api_destruction_battle
+            : [api_destruction_battle]
+          destructionBattleArray.forEach(destructionBattle => {
+            // construct virtual fleet to reprsent the base attack
+            const { airbase } = this.props
+            const {
+              api_air_base_attack,
+              api_f_maxhps,
+              api_f_nowhps,
+            } = destructionBattle
+            const parsed_api_air_base_attack =
+              typeof api_air_base_attack === 'string'
+                ? JSON.parse(api_air_base_attack)
+                : api_air_base_attack
+            landBase = _(airbase)
+              .filter(squad => squad.api_area_id === mapAreaId)
+              .map(
+                squad =>
+                  new Ship({
+                    id: -1,
+                    owner: ShipOwner.Ours,
+                    pos: squad.api_rid,
+                    maxHP: api_f_maxhps[squad.api_rid - 1] || 200,
+                    nowHP: api_f_nowhps[squad.api_rid - 1] || 0,
+                    items: map(squad.api_plane_info, plane => plane.api_slotid),
+                    raw: squad,
+                  }),
+              )
+              .value()
+            // construct enemy
+            const {
+              api_ship_ke,
+              api_eSlot,
+              api_e_maxhps,
+              api_e_nowhps,
+              api_ship_lv,
+              api_lost_kind,
+              api_formation,
+            } = destructionBattle
+            enemyFleet = initEnemy(
+              0,
+              api_ship_ke,
+              api_eSlot,
+              api_e_maxhps,
+              api_e_nowhps,
+              api_ship_lv,
             )
-            .value()
-          // construct enemy
-          const {
-            api_ship_ke,
-            api_eSlot,
-            api_e_maxhps,
-            api_e_nowhps,
-            api_ship_lv,
-            api_lost_kind,
-            api_formation,
-          } = api_destruction_battle
-          enemyFleet = initEnemy(
-            0,
-            api_ship_ke,
-            api_eSlot,
-            api_e_maxhps,
-            api_e_nowhps,
-            api_ship_lv,
-          )
-          // simulation
-          battleForm = EngagementMap[(api_formation || {})[2]] || ''
-          eFormation = FormationMap[(api_formation || {})[1]] || ''
+            // simulation
+            battleForm = EngagementMap[(api_formation || {})[2]] || ''
+            eFormation = FormationMap[(api_formation || {})[1]] || ''
 
-          const {
-            api_stage1,
-            api_stage2,
-            api_stage3,
-          } = parsed_api_air_base_attack
-          airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
-          airControl = AirControlMap[(api_stage1 || {}).api_disp_seiku] || ''
-          if (!isNil(api_stage3)) {
-            const { api_fdam } = api_stage3
-            landBase = map(landBase, (squad, index) => {
-              const lostHP = api_fdam[index] || 0
-              const nowHP = squad.nowHP - lostHP
-              return {
+            const {
+              api_stage1,
+              api_stage2,
+              api_stage3,
+            } = parsed_api_air_base_attack
+            airForce = getAirForceStatus([api_stage1, api_stage2, api_stage3])
+            airControl = AirControlMap[(api_stage1 || {}).api_disp_seiku] || ''
+            if (!isNil(api_stage3)) {
+              const { api_fdam } = api_stage3
+              landBase = map(landBase, (squad, index) => {
+                const lostHP = api_fdam[index] || 0
+                const nowHP = squad.nowHP - lostHP
+                return {
+                  ...squad,
+                  lostHP,
+                  nowHP,
+                }
+              })
+            } else {
+              landBase = map(landBase, squad => ({
                 ...squad,
-                lostHP,
-                nowHP,
-              }
-            })
-          } else {
-            landBase = map(landBase, (squad) => ({
-              ...squad,
-              lostHP: 0,
-            }))
-          }
-          result = { rank: t(lostKind[api_lost_kind] || '') }
-          isBaseDefense = true
+                lostHP: 0,
+              }))
+            }
+            result = { rank: t(lostKind[api_lost_kind] || '') }
+            isBaseDefense = true
+          })
         }
         const isBoss = body.api_event_id === 5
         this.battle = new Battle({
@@ -491,7 +506,9 @@ class ProphetBase extends Component {
       airForce,
       airControl,
       isBaseDefense,
+      isHeavyBomberDefense,
       sortieState,
+      mapAreaId,
       eventId,
       eventKind,
       result,
@@ -511,6 +528,7 @@ class ProphetBase extends Component {
       airForce,
       airControl,
       isBaseDefense,
+      isHeavyBomberDefense,
       sortieState,
       eventId,
       eventKind,
@@ -537,6 +555,7 @@ class ProphetBase extends Component {
           airForce={airForce}
           airControl={airControl}
           isBaseDefense={isBaseDefense}
+          isHeavyBomberDefense={isHeavyBomberDefense}
           sortieState={sortieState}
           eventId={eventId}
           eventKind={eventKind}
@@ -554,7 +573,7 @@ class ProphetBase extends Component {
 
 export const Prophet = compose(
   withNamespaces([PLUGIN_KEY, 'resources'], { nsMode: 'fallback' }),
-  connect((state) => {
+  connect(state => {
     const sortie = state.sortie || {}
     const sortieStatus = sortie.sortieStatus || []
     const airbase = state.info.airbase || {}
@@ -566,17 +585,17 @@ export const Prophet = compose(
     } else if (sortie.combinedFlag) {
       fleetIds.push(0, 1)
     } else if (
-      filter(get(state, 'info.fleets.2.api_ship'), (id) => id > 0).length === 7
+      filter(get(state, 'info.fleets.2.api_ship'), id => id > 0).length === 7
     ) {
       // FIXME: 17 autumn event 7 ship fleet
       fleetIds.push(2)
     } else {
       fleetIds.push(0)
     }
-    const fleets = fleetIds.map((i) =>
+    const fleets = fleetIds.map(i =>
       adjustedFleetShipsDataSelectorFactory(i)(state),
     )
-    const equips = fleetIds.map((i) =>
+    const equips = fleetIds.map(i =>
       fleetShipsEquipDataSelectorFactory(i)(state),
     )
     return {

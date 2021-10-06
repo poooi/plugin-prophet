@@ -18,7 +18,7 @@ export const initEnemy = (
 ) => {
   if (!(api_ship_ke != null)) return []
   const fleet = []
-  _.range(api_ship_ke.length).forEach((i) => {
+  _.range(api_ship_ke.length).forEach(i => {
     const id = api_ship_ke[i]
     const slots = api_eSlot[i] || []
     let ship
@@ -27,7 +27,7 @@ export const initEnemy = (
       raw = {
         api_ship_id: id,
         api_lv: api_ship_lv[i],
-        poi_slot: slots.map((slotId) =>
+        poi_slot: slots.map(slotId =>
           window.getStore(`const.$equips.${slotId}`),
         ),
       }
@@ -58,7 +58,7 @@ export const AttackType = {
   Torpedo_Torpedo_CI: 'TTCI', // カットイン(魚雷/魚雷)
 }
 
-export const getAttackTypeName = (type) => {
+export const getAttackTypeName = type => {
   switch (type) {
     case AttackType.Normal:
       return __('AT.Normal')
@@ -124,7 +124,7 @@ const translation = {
   ...AirControlName,
 }
 
-export const _t = (str) => translation[str] || str
+export const _t = str => translation[str] || str
 
 const updateByStageHp = (fleet, nowhps) => {
   if (!fleet || !nowhps) {
@@ -155,7 +155,7 @@ export const transformToLibBattleClass = (fleets, equips) =>
               initHP: _ship.api_nowhp,
               lostHP: 0,
               damage: 0,
-              items: equips[fleetPos][shipPos].map((e) =>
+              items: equips[fleetPos][shipPos].map(e =>
                 e ? e[0].api_slotitem_id : null,
               ),
               useItem: null,
@@ -198,7 +198,7 @@ export const transformToDazzyDingClass = (fleets, equips) =>
           : {
               ...$ship,
               ..._ship,
-              poi_slot: equips[fleetPos][shipPos].map((e) => (e ? e[0] : null)),
+              poi_slot: equips[fleetPos][shipPos].map(e => (e ? e[0] : null)),
               poi_slot_ex: null,
             },
       ),
@@ -228,7 +228,7 @@ export const synthesizeInfo = (_simulator, result, packets) => {
   let eResidule = 0
   let eLost = 0
 
-  _.each(stages, (stage) => {
+  _.each(stages, stage => {
     if (_.isNil(stage)) return
     const { engagement, aerial, type } = stage || {}
 
@@ -259,7 +259,7 @@ export const synthesizeInfo = (_simulator, result, packets) => {
   let api_e_nowhps
   let api_f_nowhps_combined
   let api_e_nowhps_combined
-  _.each(packets, (packet) => {
+  _.each(packets, packet => {
     api_f_nowhps = updateIfExist(packet, 'api_f_nowhps', api_f_nowhps)
     api_e_nowhps = updateIfExist(packet, 'api_e_nowhps', api_e_nowhps)
     api_f_nowhps_combined = updateIfExist(
@@ -299,7 +299,7 @@ export const getAirForceStatus = (stages = []) => {
   let t_api_f_lostcount = 0
   let t_api_e_count = 0
   let t_api_e_lostcount = 0
-  stages.forEach((stage) => {
+  stages.forEach(stage => {
     if (stage) {
       const {
         api_f_count,

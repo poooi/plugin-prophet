@@ -1,7 +1,7 @@
 import styled from 'styled-components'
 
 export const ShipItem = styled.div`
-  opacity: ${(props) => props.escaped && 0.4};
+  opacity: ${props => props.escaped && 0.4};
   margin-bottom: 4px;
   height: 2.5em;
   max-height: 2.5em;

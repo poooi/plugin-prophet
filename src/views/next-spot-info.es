@@ -116,6 +116,7 @@ const NextSpotInfo = compose(
   ({
     currentNode,
     sortieMapId,
+    isHeavyBomberDefense,
     allMaps,
     eventId,
     eventKind,
@@ -139,7 +140,7 @@ const NextSpotInfo = compose(
 
     const resources = []
     if (size(item) > 0) {
-      Object.keys(item).forEach((itemKey) => {
+      Object.keys(item).forEach(itemKey => {
         resources.push(
           <span key={`${itemKey}-icon`}>
             <MaterialIcon
@@ -184,6 +185,9 @@ const NextSpotInfo = compose(
           </div>
         </CurrentInfo>
         {spotMessage && <SpotMessage>{t(spotMessage)}</SpotMessage>}
+        {isHeavyBomberDefense && (
+          <SpotMessage>{t('Heavy Bomber Defense')}</SpotMessage>
+        )}
         <div>{lastFormation && `${t('last_chosen')} ${_t(lastFormation)}`}</div>
       </Container>
     )
