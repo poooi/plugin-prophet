@@ -6,6 +6,10 @@ const TPByItem = {
   166: 8, // 大発動艇(八九式中戦車&陸戦隊)
   193: 8, // 特大発動艇
   230: 8, // 特大発動艇+戦車第11連隊
+  355: 8, // M4A1 DD
+  408: 8, // 装甲艇(AB艇)
+  409: 8, // 武装大発
+  436: 8, // 大発動艇(II号戦車/北アフリカ仕様)
   167: 2, // 特二式内火艇
   145: 1, // 戦闘糧食
   150: 1, // 秋刀魚の缶詰
@@ -40,18 +44,18 @@ export const getTransportPoint = (
 ) => {
   const ignores = _.map(
     shipsData,
-    ship =>
+    (ship) =>
       escapedShipIds.includes(ship.api_id) ||
       ship.api_nowhp * 4 <= ship.api_maxhp,
   )
 
   const shipTPs = _.map(
     shipsData,
-    ship =>
+    (ship) =>
       (TPByShipType[ship.api_stype] || 0) + (TPByShip[ship.api_ship_id] || 0),
   )
 
-  const equipTPs = _.map(equipsData, equipData =>
+  const equipTPs = _.map(equipsData, (equipData) =>
     _.sum(
       _.map(equipData, ([equip] = []) => TPByItem[equip.api_slotitem_id] || 0),
     ),
@@ -98,7 +102,7 @@ export const getTPDazzyDing = (ships, escapedShipIds = []) => {
       _.sum(
         _.map(
           poi_slot.concat(poi_slot_ex),
-          equip => TPByItem[(equip || {}).api_slotitem_id] || 0,
+          (equip) => TPByItem[(equip || {}).api_slotitem_id] || 0,
         ),
       ),
     )
