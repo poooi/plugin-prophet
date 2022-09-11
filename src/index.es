@@ -129,6 +129,7 @@ class ProphetBase extends Component {
     fleetIds: PropTypes.arrayOf(PropTypes.number),
     t: PropTypes.func.isRequired,
     layout: PropTypes.string.isRequired,
+    showAirRaid: PropTypes.bool.isRequired,
   }
 
   root = React.createRef()
@@ -259,7 +260,7 @@ class ProphetBase extends Component {
   }
 
   handleGameResponse = e => {
-    const { t, fleets, equips, sortie } = this.props
+    const { t, fleets, equips, sortie, showAirRaid } = this.props
     const { path, body } = e.detail
     // used in determining next spot type
 
@@ -321,7 +322,7 @@ class ProphetBase extends Component {
           airForce,
         } = this.constructor.initState)
         // land base air raid
-        if (api_destruction_battle != null) {
+        if (showAirRaid && api_destruction_battle != null) {
           const destructionBattleArray = Array.isArray(api_destruction_battle)
             ? api_destruction_battle
             : [api_destruction_battle]
@@ -598,13 +599,15 @@ export const Prophet = compose(
     const equips = fleetIds.map(i =>
       fleetShipsEquipDataSelectorFactory(i)(state),
     )
+    const config = get(state, 'config.plugin.prophet')
     return {
       sortie,
       airbase,
       fleets,
       equips,
       fleetIds,
-      layout: get(state.config, 'plugin.prophet.layout', 'auto'),
+      layout: get(config, 'layout', 'auto'),
+      showAirRaid: get(config, 'showAirRaid', true),
     }
   }),
 )(ProphetBase)
