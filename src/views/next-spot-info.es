@@ -140,7 +140,7 @@ const NextSpotInfo = compose(
 
     const resources = []
     if (size(item) > 0) {
-      Object.keys(item).forEach(itemKey => {
+      Object.keys(item).forEach((itemKey) => {
         resources.push(
           <span key={`${itemKey}-icon`}>
             <MaterialIcon

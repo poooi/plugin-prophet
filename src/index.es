@@ -71,14 +71,13 @@ const Container = styled.div`
 `
 
 /* selector */
-const fleetSlotCountSelectorFactory = memoize(fleetId =>
-  createSelector(
-    [fleetSelectorFactory(fleetId)],
-    fleet => get(fleet, 'api_ship.length', 0),
+const fleetSlotCountSelectorFactory = memoize((fleetId) =>
+  createSelector([fleetSelectorFactory(fleetId)], (fleet) =>
+    get(fleet, 'api_ship.length', 0),
   ),
 )
 
-const adjustedFleetShipsDataSelectorFactory = memoize(fleetId =>
+const adjustedFleetShipsDataSelectorFactory = memoize((fleetId) =>
   createSelector(
     [
       fleetShipsDataSelectorFactory(fleetId),
@@ -168,8 +167,8 @@ class ProphetBase extends Component {
 
     // for debug (ugly)
     if (window.dbg.isEnabled()) {
-      window.prophetTest = battle => this.setState(this.handlePacket(battle))
-      window.baseDefenseTest = e => this.handleGameResponse({ detail: e })
+      window.prophetTest = (battle) => this.setState(this.handlePacket(battle))
+      window.baseDefenseTest = (e) => this.handleGameResponse({ detail: e })
     }
   }
 
@@ -186,7 +185,7 @@ class ProphetBase extends Component {
     delete window.baseDefenseTest
   }
 
-  handlePacket = battle => {
+  handlePacket = (battle) => {
     const sortieState =
       battle.type === (BattleType.Practice || BattleType.Pratice)
         ? SortieState.Practice
@@ -206,7 +205,7 @@ class ProphetBase extends Component {
       simulator.mainFleet[0].initHP = nowHP
       simulator.mainFleet[0].nowHP = nowHP
     }
-    each(battle.packet, packet => simulator.simulate(packet))
+    each(battle.packet, (packet) => simulator.simulate(packet))
     const { result } = simulator
 
     // Attention, aynthesizeStage will break object prototype, put it to last
@@ -218,7 +217,7 @@ class ProphetBase extends Component {
     }
   }
 
-  handlePacketResult = battle => {
+  handlePacketResult = (battle) => {
     const { t, sortie } = this.props
     const { sortieState } = this.state
     const newState = this.handlePacket(battle)
@@ -229,7 +228,7 @@ class ProphetBase extends Component {
     const friendShips = concat(mainFleet, escortFleet)
     const damageList = []
 
-    each(friendShips, ship => {
+    each(friendShips, (ship) => {
       if (ship == null) return
       if (
         ship.nowHP / ship.maxHP <= 0.25 &&
@@ -259,7 +258,7 @@ class ProphetBase extends Component {
     }
   }
 
-  handleGameResponse = e => {
+  handleGameResponse = (e) => {
     const { t, fleets, equips, sortie, showAirRaid } = this.props
     const { path, body } = e.detail
     // used in determining next spot type
@@ -326,7 +325,7 @@ class ProphetBase extends Component {
           const destructionBattleArray = Array.isArray(api_destruction_battle)
             ? api_destruction_battle
             : [api_destruction_battle]
-          destructionBattleArray.forEach(destructionBattle => {
+          destructionBattleArray.forEach((destructionBattle) => {
             // construct virtual fleet to reprsent the base attack
             const { airbase } = this.props
             const {
@@ -339,16 +338,19 @@ class ProphetBase extends Component {
                 ? JSON.parse(api_air_base_attack)
                 : api_air_base_attack
             landBase = _(airbase)
-              .filter(squad => squad.api_area_id === mapAreaId)
+              .filter((squad) => squad.api_area_id === mapAreaId)
               .map(
-                squad =>
+                (squad) =>
                   new Ship({
                     id: -1,
                     owner: ShipOwner.Ours,
                     pos: squad.api_rid,
                     maxHP: api_f_maxhps[squad.api_rid - 1] || 200,
                     nowHP: api_f_nowhps[squad.api_rid - 1] || 0,
-                    items: map(squad.api_plane_info, plane => plane.api_slotid),
+                    items: map(
+                      squad.api_plane_info,
+                      (plane) => plane.api_slotid,
+                    ),
                     raw: squad,
                   }),
               )
@@ -394,7 +396,7 @@ class ProphetBase extends Component {
                 }
               })
             } else {
-              landBase = map(landBase, squad => ({
+              landBase = map(landBase, (squad) => ({
                 ...squad,
                 lostHP: 0,
               }))
@@ -574,7 +576,7 @@ class ProphetBase extends Component {
 
 export const Prophet = compose(
   withNamespaces([PLUGIN_KEY, 'resources'], { nsMode: 'fallback' }),
-  connect(state => {
+  connect((state) => {
     const sortie = state.sortie || {}
     const sortieStatus = sortie.sortieStatus || []
     const airbase = state.info.airbase || {}
@@ -586,17 +588,17 @@ export const Prophet = compose(
     } else if (sortie.combinedFlag) {
       fleetIds.push(0, 1)
     } else if (
-      filter(get(state, 'info.fleets.2.api_ship'), id => id > 0).length === 7
+      filter(get(state, 'info.fleets.2.api_ship'), (id) => id > 0).length === 7
     ) {
       // FIXME: 17 autumn event 7 ship fleet
       fleetIds.push(2)
     } else {
       fleetIds.push(0)
     }
-    const fleets = fleetIds.map(i =>
+    const fleets = fleetIds.map((i) =>
       adjustedFleetShipsDataSelectorFactory(i)(state),
     )
-    const equips = fleetIds.map(i =>
+    const equips = fleetIds.map((i) =>
       fleetShipsEquipDataSelectorFactory(i)(state),
     )
     const config = get(state, 'config.plugin.prophet')

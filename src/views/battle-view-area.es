@@ -95,22 +95,22 @@ const CombatVS = styled.div`
 `
 
 const inEventSelector = createSelector(
-  [state => state.const.$maps],
-  (maps = {}) => Object.keys(maps).some(mapId => +mapId > 100),
+  [(state) => state.const.$maps],
+  (maps = {}) => Object.keys(maps).some((mapId) => +mapId > 100),
 )
 
 const escapedShipIdSelector = createSelector(
   [
-    state => _.get(state, 'sortie.escapedPos', []),
-    state => _.get(state, 'sortie.combinedFlag', 0),
-    state => state,
+    (state) => _.get(state, 'sortie.escapedPos', []),
+    (state) => _.get(state, 'sortie.combinedFlag', 0),
+    (state) => state,
   ],
   (escapedPos, combinedFlag, state) => {
     if (combinedFlag > 0) {
-      const shipIds = _.flatMap([0, 1], fleetId =>
+      const shipIds = _.flatMap([0, 1], (fleetId) =>
         _.get(state, `info.fleets.${fleetId}.api_ship`),
       ) // -1 for no ship, considered safe
-      return escapedPos.map(pos => shipIds[pos])
+      return escapedPos.map((pos) => shipIds[pos])
     }
     return [] // because you could only escape in combined fleet
   },
@@ -216,9 +216,9 @@ const BattleViewArea = compose(
     // adapt the view according to layout by setting FleetView's div xs = 12/count
     // this can support 12v6, 6v12 and 12v12
     const fleetCount =
-      1 && _.sumBy([mainFleet, escortFleet], fleet => fleet != null)
+      1 && _.sumBy([mainFleet, escortFleet], (fleet) => fleet != null)
     const enemyCount =
-      1 && _.sumBy([enemyFleet, enemyEscort], fleet => fleet != null)
+      1 && _.sumBy([enemyFleet, enemyEscort], (fleet) => fleet != null)
     const fleetWidth = escortFleet && !isBaseDefense ? 2 : 1
     const enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
     const { getShip, getItem } = _.pick(result, ['getShip', 'getItem'])
@@ -322,30 +322,31 @@ const BattleViewArea = compose(
     )
     const mapInfo = (
       <ProphetInfo className="alert prophet-info">
-        {/* eslint-disable no-nested-ternary */
-        sortieState === SortieState.Navigation && !isBaseDefense ? (
-          <NextSpotInfo
-            eventId={eventId}
-            eventKind={eventKind}
-            isHeavyBomberDefense={isHeavyBomberDefense}
-          />
-        ) : isBaseDefense ? (
-          [
-            battleInfo,
+        {
+          /* eslint-disable no-nested-ternary */
+          sortieState === SortieState.Navigation && !isBaseDefense ? (
             <NextSpotInfo
               eventId={eventId}
               eventKind={eventKind}
               isHeavyBomberDefense={isHeavyBomberDefense}
-            />,
-          ]
-        ) : getShip || getItem ? (
-          <DropInfo getShip={getShip} getItem={getItem} />
-        ) : sortieState > SortieState.Navigation || isBaseDefense ? (
-          battleInfo
-        ) : (
-          <noscript />
-        )
-        /* eslint-enable no-nested-ternary */
+            />
+          ) : isBaseDefense ? (
+            [
+              battleInfo,
+              <NextSpotInfo
+                eventId={eventId}
+                eventKind={eventKind}
+                isHeavyBomberDefense={isHeavyBomberDefense}
+              />,
+            ]
+          ) : getShip || getItem ? (
+            <DropInfo getShip={getShip} getItem={getItem} />
+          ) : sortieState > SortieState.Navigation || isBaseDefense ? (
+            battleInfo
+          ) : (
+            <noscript />
+          )
+          /* eslint-enable no-nested-ternary */
         }
       </ProphetInfo>
     )

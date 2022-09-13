@@ -7,8 +7,8 @@ import styled from 'styled-components'
 import ShipView from './ship-view'
 
 const Container = styled.div`
-  flex: ${props => (props.visible ? 1 : 0)};
-  padding: 0 ${props => (props.visible ? 5 : 0)}px;
+  flex: ${(props) => (props.visible ? 1 : 0)};
+  padding: 0 ${(props) => (props.visible ? 5 : 0)}px;
   width: 50%;
 `
 
@@ -85,7 +85,7 @@ class FleetView extends PureComponent {
         <div>
           {map(
             fleet,
-            ship =>
+            (ship) =>
               ship && (
                 <View
                   ship={ship}

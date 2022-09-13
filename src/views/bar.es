@@ -45,8 +45,8 @@ const HpIndicator = styled.div`
   border-left: black 1px solid;
   height: 4px;
   z-index: 1000;
-  left: ${props => `${25 * props.idx}%`};
-  opacity: ${props => props.opacity};
+  left: ${(props) => `${25 * props.idx}%`};
+  opacity: ${(props) => props.opacity};
 `
 
 const ProgressBar = styled.div`
@@ -139,7 +139,7 @@ export const HPBar = connect((state, props) => ({
         <ProgressBar>
           <Progress intent={getHpStyle(now)} value={now} />
           <Progress intent="gray" value={lost} theme={theme} />
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <HpIndicator
               key={i}
               idx={i}

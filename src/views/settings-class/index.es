@@ -92,7 +92,7 @@ class SettingsClass extends Component {
           <CheckboxLabelConfig
             label={t('Display air raid results')}
             configName="plugin.prophet.showAirRaid"
-            defaultVal={true}
+            defaultVal
           />
         </CheckboxContainer>
         <Gap />
