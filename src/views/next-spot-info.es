@@ -109,6 +109,13 @@ const NextSpotInfo = compose(
           spot,
           'fFormation',
         ]),
+      lastSmoke:
+        showLastFormation &&
+        get(extensionSelectorFactory(PLUGIN_KEY)(state), [
+          'history',
+          spot,
+          'smokeType',
+        ]),
       item,
     }
   }),
@@ -121,6 +128,7 @@ const NextSpotInfo = compose(
     eventId,
     eventKind,
     lastFormation,
+    lastSmoke,
     item,
     t,
   }) => {
@@ -188,7 +196,12 @@ const NextSpotInfo = compose(
         {isHeavyBomberDefense && (
           <SpotMessage>{t('Heavy Bomber Defense')}</SpotMessage>
         )}
-        <div>{lastFormation && `${t('last_chosen')} ${_t(lastFormation)}`}</div>
+        <div>
+          {lastFormation &&
+            `${t('last_chosen')} ${_t(lastFormation)}${
+              lastSmoke ? ` (${t('smoke')})` : ''
+            }`}
+        </div>
       </Container>
     )
   },

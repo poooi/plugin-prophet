@@ -14,11 +14,12 @@ export const CACHE = do {
   JSON.parse(item || '{}')
 }
 
-export const onBattleResult = ({ spot, fFormation, title }) => ({
+export const onBattleResult = ({ spot, fFormation, title, smokeType }) => ({
   type: '@@poi-plugin-prophet@updateHistory',
   spot,
   fFormation,
   title,
+  smokeType,
 })
 
 export const onGetPracticeInfo = ({ title }) => ({
@@ -32,7 +33,7 @@ export const onLoadHistory = ({ history }) => ({
 })
 
 const HistoryReducer = (state = CACHE.history || {}, action) => {
-  const { type, spot, fFormation, title, history } = action
+  const { type, spot, fFormation, title, history, smokeType } = action
   switch (type) {
     case '@@poi-plugin-prophet@updateHistory':
       return {
@@ -40,6 +41,7 @@ const HistoryReducer = (state = CACHE.history || {}, action) => {
         [spot]: {
           fFormation,
           title,
+          smokeType,
         },
       }
     case '@@poi-plugin-prophet@updatePractice':

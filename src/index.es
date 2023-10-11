@@ -105,6 +105,7 @@ class ProphetBase extends Component {
     eventKind: 0,
     result: {},
     battleForm: '', // api_formation[2]
+    smokeType: 0, // api_smoke_type
     eFormation: '', // enemy formation, api_formation[1]
     fFormation: '',
     width: 500,
@@ -473,12 +474,13 @@ class ProphetBase extends Component {
         const title = (packet.api_enemy_info || {}).api_deck_name
         const { sortieMapId, currentNode } = sortie
         const spot = `${sortieMapId}-${currentNode}`
-        const { fFormation } = this.state
+        const { fFormation, smokeType } = this.state
         dispatch(
           onBattleResult({
             spot,
             title,
             fFormation,
+            smokeType,
           }),
         )
         newState = this.handlePacketResult(this.battle)
@@ -540,6 +542,7 @@ class ProphetBase extends Component {
       eFormation,
       width,
       height,
+      smokeType,
     } = this.state
 
     const { fleetIds, layout } = this.props
@@ -568,6 +571,7 @@ class ProphetBase extends Component {
           fleetIds={fleetIds}
           horizontalLayout={finalLayout === 'horizontal'}
           root={this.root.current}
+          smokeType={smokeType}
         />
       </Container>
     )

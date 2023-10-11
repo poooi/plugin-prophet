@@ -218,6 +218,7 @@ export const synthesizeInfo = (_simulator, result, packets) => {
   let fFormation = ''
   let eFormation = ''
   let battleForm = ''
+  let smokeType = 0
   // assign mvp to specific ship
   const [mainMvp, escortMvp] = result.mvp || [0, 0]
   if (!(mainMvp < 0 || mainMvp > 6)) mainFleet[mainMvp].isMvp = true
@@ -238,6 +239,7 @@ export const synthesizeInfo = (_simulator, result, packets) => {
       battleForm = (engagement || {}).engagement || ''
       eFormation = (engagement || {}).eFormation || ''
       fFormation = (engagement || {}).fFormation || ''
+      smokeType = (engagement || {}).smokeType || 0
     }
 
     if (aerial && type === StageType.Aerial) {
@@ -290,6 +292,7 @@ export const synthesizeInfo = (_simulator, result, packets) => {
     battleForm,
     eFormation,
     fFormation,
+    smokeType,
     result,
   }
 }

@@ -210,6 +210,7 @@ const BattleViewArea = compose(
     t,
     horizontalLayout,
     root,
+    smokeType,
   }) => {
     const View = isBaseDefense ? SquadView : ShipView
     const times = !horizontalLayout ? 1 : 2
@@ -318,6 +319,7 @@ const BattleViewArea = compose(
         eFormation={eFormation}
         battleForm={battleForm}
         airControl={airControl}
+        smokeType={smokeType}
       />
     )
     const mapInfo = (

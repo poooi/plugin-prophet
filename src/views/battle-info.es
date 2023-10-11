@@ -37,7 +37,14 @@ const Container = styled.div`
 const BATTLE_RESULT = ['SS', 'S', 'A', 'B', 'C', 'D', 'E']
 
 const BattleInfo = withNamespaces('poi-plugin-prophet')(
-  ({ result = '', eFormation = '', battleForm = '', airControl = '', t }) => (
+  ({
+    result = '',
+    eFormation = '',
+    battleForm = '',
+    airControl = '',
+    smokeType = 0,
+    t,
+  }) => (
     <Container>
       <div>
         {BATTLE_RESULT.includes(result) ? (
@@ -51,7 +58,12 @@ const BattleInfo = withNamespaces('poi-plugin-prophet')(
         )}
       </div>
 
-      {compact([_t(eFormation), _t(battleForm), _t(airControl)]).map((text) => (
+      {compact([
+        _t(eFormation),
+        _t(battleForm),
+        _t(airControl),
+        ...(smokeType ? [`${t('smoke')}: ${smokeType}`] : []),
+      ]).map((text) => (
         <div key={text}>{text}</div>
       ))}
     </Container>
@@ -63,6 +75,7 @@ BattleInfo.propTypes = {
   eFormation: PropTypes.string,
   battleForm: PropTypes.string,
   airControl: PropTypes.string,
+  smokeType: PropTypes.number,
   t: PropTypes.func.isRequired,
 }
 
