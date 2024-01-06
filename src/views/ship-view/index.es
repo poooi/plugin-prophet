@@ -22,7 +22,7 @@ const ShipDamage = styled.div`
   margin-right: 0;
   margin-left: 1ex;
 
-  ::after {
+  &::after {
     display: none;
   }
 `

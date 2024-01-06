@@ -82,11 +82,11 @@ const Loss = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
 
-  ::before {
+  &::before {
     content: '(';
   }
 
-  ::after {
+  &::after {
     content: ')';
   }
 `
