@@ -31,7 +31,7 @@
     "typescript": "^5.0.0"
   },
   "scripts": {
-    "reset": "git clean -f && git checkout . && git submodule foreach git checkout . && git submodule foreach git clean -f",
+    "reset": "git clean -f && git checkout . && git submodule foreach git checkout",
     "prepack": "tsdown",
     "postpublish": "npm run reset",
     "test": "echo \"Error: no test specified\" && exit 1",
