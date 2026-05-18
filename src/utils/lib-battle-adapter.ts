@@ -146,11 +146,9 @@ const updateByStageHp = (
 }
 
 export const transformToLibBattleClass = (
-  _fleets: unknown[][] | null | undefined,
-  _equips: unknown[][][] | null | undefined,
+  fleets: (FleetShipPair[] | null | undefined)[] | null | undefined,
+  equips: (EquipSlot[] | null | undefined)[][] | null | undefined,
 ): [(Ship | null)[], (Ship | null)[]] => {
-  const fleets = _fleets as (FleetShipPair[] | null | undefined)[] | null | undefined
-  const equips = _equips as (EquipSlot[] | null | undefined)[][] | null | undefined
   const result = (fleets || [])
     .map((fleet, fleetPos) =>
       (fleet || []).map((pair, shipPos) => {
@@ -202,11 +200,9 @@ export const transformToLibBattleClass = (
 }
 
 export const transformToDazzyDingClass = (
-  _fleets: unknown[][] | null | undefined,
-  _equips: unknown[][][] | null | undefined,
+  fleets: (FleetShipPair[] | null | undefined)[] | null | undefined,
+  equips: (EquipSlot[] | null | undefined)[][] | null | undefined,
 ): [(RawFleetShip | null)[], (RawFleetShip | null)[]] => {
-  const fleets = _fleets as (FleetShipPair[] | null | undefined)[] | null | undefined
-  const equips = _equips as (EquipSlot[] | null | undefined)[][] | null | undefined
   const result = (fleets || [])
     .map((fleet, fleetPos) =>
       (fleet || []).map((pair, shipPos) => {
@@ -225,15 +221,15 @@ export const transformToDazzyDingClass = (
   return [fleet1 ?? [], fleet2 ?? []]
 }
 
-const updateIfExist = (obj: unknown, key: string, prev: number[] | undefined): number[] | undefined => {
-  const val = _.get(obj as object, key)
+const updateIfExist = (obj: Record<string, unknown>, key: string, prev: number[] | undefined): number[] | undefined => {
+  const val = _.get(obj, key)
   return val !== undefined ? (val as number[]) : prev
 }
 
 export const synthesizeInfo = (
   _simulator: Simulator,
   result: Result,
-  packets: unknown[],
+  packets: Record<string, unknown>[],
 ): {
   mainFleet: (Ship | null)[] | undefined
   escortFleet: (Ship | null)[] | undefined

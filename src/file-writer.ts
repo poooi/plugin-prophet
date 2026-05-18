@@ -1,4 +1,3 @@
-import Bluebird from 'bluebird'
 import { writeJSON, ensureDir } from 'fs-extra'
 import type { WriteOptions } from 'fs-extra'
 import { dirname } from 'path-extra'
@@ -19,7 +18,7 @@ export default class FileWriter {
     this.writing = true
     const queue = this._queue.slice()
     this._queue = []
-    await Bluebird.each(queue, async ([path, data, options, callback]: WriteEntry) => {
+    for (const [path, data, options, callback] of queue) {
       await ensureDir(dirname(path))
       try {
         await writeJSON(path, data, options ?? undefined)
@@ -27,7 +26,7 @@ export default class FileWriter {
       } catch (e) {
         if (callback) callback(e instanceof Error ? e : new Error(String(e)))
       }
-    })
+    }
     this.writing = false
   }
 }

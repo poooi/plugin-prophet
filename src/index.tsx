@@ -28,14 +28,17 @@ import {
   resolveMainPath,
 } from './utils'
 import { Models, Simulator, Battle, Fleet } from 'poi-lib-battle'
-import type { Ship, Result, RawFleetShip } from 'poi-lib-battle'
+import type { RawFleetShip } from 'poi-lib-battle'
 import {
   onBattleResult,
   onGetPracticeInfo,
+  onPatchBattle,
+  battleStateSelector,
+  initBattleState,
   historyObserver,
   useitemObserver,
 } from './redux'
-import type { ProphetBattleResult } from './types'
+import type { BattleDisplayState } from './types'
 
 const {
   Ship: ShipClass,
@@ -67,58 +70,11 @@ const fleetSlotCountSelectorFactory = memoize((fleetId: number) =>
 const adjustedFleetShipsDataSelectorFactory = memoize((fleetId: number) =>
   createSelector(
     [fleetShipsDataSelectorFactory(fleetId), fleetSlotCountSelectorFactory(fleetId)],
-    (ships: unknown[] = [], count: number) =>
+    (ships = [], count: number) =>
       ships.concat(new Array(count).fill(undefined)).slice(0, count),
   ),
 )
 
-interface ProphetState {
-  mainFleet: (Ship | null)[]
-  escortFleet: (Ship | null)[]
-  enemyFleet: (Ship | null)[] | null
-  enemyEscort: (Ship | null)[] | null
-  landBase: (Ship | null)[]
-  airForce: number[]
-  airControl: string
-  isBaseDefense: boolean
-  isHeavyBomberDefense: boolean
-  sortieState: number
-  mapAreaId: number
-  eventId: number
-  eventKind: number
-  result: ProphetBattleResult
-  battleForm: string
-  smokeType: number
-  eFormation: string
-  fFormation: string
-  width: number
-  height: number
-  propsFleets?: unknown[][]
-  propsEquips?: unknown[][][]
-}
-
-const initState: ProphetState = {
-  mainFleet: [],
-  escortFleet: [],
-  enemyFleet: null,
-  enemyEscort: null,
-  landBase: [],
-  airForce: [0, 0, 0, 0],
-  airControl: '',
-  isBaseDefense: false,
-  isHeavyBomberDefense: false,
-  sortieState: SortieState.InPort,
-  mapAreaId: 0,
-  eventId: 0,
-  eventKind: 0,
-  result: {},
-  battleForm: '',
-  smokeType: 0,
-  eFormation: '',
-  fFormation: '',
-  width: 500,
-  height: 400,
-}
 
 const computeFleetIds = (state: PoiRootState): number[] => {
   const sortie = state.sortie
@@ -161,9 +117,6 @@ interface MapEventBody {
   api_destruction_battle?: AirRaidDestructionBattle | AirRaidDestructionBattle[]
 }
 
-interface PracticeEnemyInfoBody {
-  api_deckname: string
-}
 
 interface BattleResultBody {
   api_enemy_info?: { api_deck_name?: string }
@@ -177,10 +130,10 @@ export const Prophet: FC = () => {
   const airbase = useSelector((state: PoiRootState) => state.info?.airbase ?? [])
   const fleetIds = useSelector(computeFleetIds)
   const fleets = useSelector((state: PoiRootState) =>
-    fleetIds.map((i) => adjustedFleetShipsDataSelectorFactory(i)(state as object)),
+    fleetIds.map((i) => adjustedFleetShipsDataSelectorFactory(i)(state)),
   )
   const equips = useSelector((state: PoiRootState) =>
-    fleetIds.map((i) => fleetShipsEquipDataSelectorFactory(i)(state as object)),
+    fleetIds.map((i) => (fleetShipsEquipDataSelectorFactory(i)(state) ?? []).map(e => e ?? [])),
   )
   const layout = useSelector((state: PoiRootState) =>
     state.config?.plugin?.prophet?.layout ?? 'auto',
@@ -189,22 +142,20 @@ export const Prophet: FC = () => {
     state.config?.plugin?.prophet?.showAirRaid ?? true,
   )
 
-  const [state, setState] = useState<ProphetState>(() => {
-    const [mainFleet, escortFleet] = transformToLibBattleClass(fleets, equips)
-    return { ...initState, mainFleet, escortFleet }
-  })
+  const battleState = useSelector(battleStateSelector)
+  const battleStateRef = useRef(battleState)
+  battleStateRef.current = battleState
+
+  const [viewSize, setViewSize] = useState({ width: 500, height: 400 })
 
   const rootRef = useRef<HTMLDivElement>(null)
   const battleRef = useRef<Battle | null>(null)
   const unsubscribeRef = useRef<(() => void) | null>(null)
 
-  const stateRef = useRef(state)
-  stateRef.current = state
-
   const propsRef = useRef({ t, fleets, equips, sortie, showAirRaid, airbase, dispatch })
   propsRef.current = { t, fleets, equips, sortie, showAirRaid, airbase, dispatch }
 
-  const handlePacket = useCallback((battle: Battle): Partial<ProphetState> => {
+  const handlePacket = useCallback((battle: Battle): Partial<BattleDisplayState> => {
     const sortieState =
       battle.type === BattleType.Practice
         ? SortieState.Practice
@@ -223,14 +174,14 @@ export const Prophet: FC = () => {
     packets.forEach((packet) => simulator.simulate(packet))
     const { result } = simulator
 
-    const newState = synthesizeInfo(simulator, result, packets)
+    const newState = synthesizeInfo(simulator, result, packets as Record<string, unknown>[])
     return { ...newState, sortieState, result }
   }, [])
 
   const handlePacketResult = useCallback(
-    (battle: Battle): Partial<ProphetState> => {
+    (battle: Battle): Partial<BattleDisplayState> => {
       const { t: _t, sortie: _sortie } = propsRef.current
-      const { sortieState, mainFleet, escortFleet } = stateRef.current
+      const { sortieState, mainFleet, escortFleet } = battleStateRef.current
       const newState = handlePacket(battle)
       const escapedPos = _sortie.escapedPos ?? []
       const friendShips = concat(mainFleet, escortFleet)
@@ -267,7 +218,7 @@ export const Prophet: FC = () => {
       const { path } = eventDetail
       const body = eventDetail.body
 
-      const { mainFleet, escortFleet, propsFleets, propsEquips } = stateRef.current
+      const { mainFleet, escortFleet, propsFleets, propsEquips } = battleStateRef.current
       let {
         enemyFleet,
         enemyEscort,
@@ -283,7 +234,7 @@ export const Prophet: FC = () => {
         result,
         battleForm,
         eFormation,
-      } = stateRef.current
+      } = battleStateRef.current
       isBaseDefense = false
       let updateFleetStateFromLibBattle = !!battleRef.current
 
@@ -299,7 +250,7 @@ export const Prophet: FC = () => {
             eventKind,
             result,
             airForce,
-          } = initState)
+          } = initBattleState)
           updateFleetStateFromLibBattle = false
           break
 
@@ -320,7 +271,7 @@ export const Prophet: FC = () => {
           eventId = api_event_id === undefined ? eventId : api_event_id
           eventKind = api_event_kind === undefined ? eventKind : api_event_kind
           mapAreaId = api_maparea_id === undefined ? mapAreaId : api_maparea_id
-          ;({ enemyFleet, enemyEscort, landBase, airForce } = initState)
+          ;({ enemyFleet, enemyEscort, landBase, airForce } = initBattleState)
 
           if (_showAirRaid && api_destruction_battle != null) {
             const destructionBattleArray = Array.isArray(api_destruction_battle)
@@ -414,7 +365,7 @@ export const Prophet: FC = () => {
         }
 
         case '/kcsapi/api_req_member/get_practice_enemyinfo': {
-          const { api_deckname } = body as unknown as PracticeEnemyInfoBody
+          const api_deckname = body.api_deckname as string
           _dispatch(onGetPracticeInfo({ title: api_deckname }))
           updateFleetStateFromLibBattle = false
           break
@@ -435,7 +386,7 @@ export const Prophet: FC = () => {
         default:
       }
 
-      let newState: Partial<ProphetState> = {}
+      let newState: Partial<BattleDisplayState> = {}
 
       if (updateFleetStateFromLibBattle && battleRef.current) {
         const packet = Object.clone(body)
@@ -459,7 +410,7 @@ export const Prophet: FC = () => {
           const title = resultBody.api_enemy_info?.api_deck_name
           const { sortieMapId, currentNode } = _sortie
           const spot = `${sortieMapId}-${currentNode}`
-          const { fFormation, smokeType } = stateRef.current
+          const { fFormation, smokeType } = battleStateRef.current
           _dispatch(onBattleResult({ spot, title: title ?? '', fFormation, smokeType }))
           newState = handlePacketResult(battleRef.current)
           battleRef.current = null
@@ -477,8 +428,7 @@ export const Prophet: FC = () => {
         }
       }
 
-      setState((prev) => ({
-        ...prev,
+      dispatch(onPatchBattle({
         mainFleet,
         escortFleet,
         enemyFleet,
@@ -507,7 +457,7 @@ export const Prophet: FC = () => {
 
     const resizeObserver = new window.ResizeObserver(([{ contentRect }]: ResizeObserverEntry[]) => {
       const { width, height } = contentRect
-      setState((prev) => ({ ...prev, width, height }))
+      setViewSize({ width, height })
     })
 
     if (rootRef.current) {
@@ -516,7 +466,7 @@ export const Prophet: FC = () => {
 
     if (window.dbg?.isEnabled()) {
       window.prophetTest = (battle) =>
-        setState((prev) => ({ ...prev, ...handlePacket(battle) }))
+        dispatch(onPatchBattle(handlePacket(battle)))
       window.baseDefenseTest = (eventDetail) =>
         handleGameResponse({ detail: eventDetail } as unknown as Event)
     }
@@ -534,7 +484,7 @@ export const Prophet: FC = () => {
 
   useEffect(() => {
     const [mainFleet, escortFleet] = transformToLibBattleClass(fleets, equips)
-    setState((prev) => ({ ...prev, mainFleet, escortFleet, propsFleets: fleets, propsEquips: equips }))
+    dispatch(onPatchBattle({ mainFleet, escortFleet, propsFleets: fleets, propsEquips: equips }))
   }, [fleets, equips])
 
   const {
@@ -553,10 +503,9 @@ export const Prophet: FC = () => {
     result,
     battleForm,
     eFormation,
-    width,
-    height,
     smokeType,
-  } = state
+  } = battleState
+  const { width, height } = viewSize
 
   const finalLayout = layout === 'auto' ? getAutoLayout(width, height) : layout
 

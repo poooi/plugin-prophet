@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import _ from 'lodash'
 import FA from 'react-fontawesome'
 import { useTranslation } from 'react-i18next'
+import type { ProphetExtState } from '../types'
 
 interface DropInfoProps {
   getShip?: number
@@ -21,9 +22,9 @@ const DropInfo: FC<DropInfoProps> = ({ getShip, getItem }) => {
     (state: PoiRootState) => state.ipc?.NavyAlbum?.showShip ?? false,
   )
   const count = useSelector((state: PoiRootState) => {
-    const useitemStore = state.ext?.['poi-plugin-prophet']?._?.['useitem']
+    const useitemStore = state.ext?.['poi-plugin-prophet']?._?.['useitem'] as ProphetExtState['useitem']
     if (!useitemStore || getItem == null) return 0
-    return ((useitemStore as Record<string, Record<string, unknown>>)[String(getItem)]?.api_count as number | undefined) ?? 0
+    return useitemStore[String(getItem)]?.api_count ?? 0
   })
 
   const handleClick = () => {

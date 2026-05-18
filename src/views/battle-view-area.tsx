@@ -173,7 +173,7 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
   const historyTitle = useSelector((state: PoiRootState) =>
     showEnemyTitle
       ? _.get(
-          extensionSelectorFactory(PLUGIN_KEY)(state as object),
+          extensionSelectorFactory(PLUGIN_KEY)(state),
           ['history', spot, 'title'],
           enemyTitle,
         ) as string
@@ -200,8 +200,8 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
 
   const View = isBaseDefense ? SquadView : ShipView
   const times = !horizontalLayout ? 1 : 2
-  const fleetCount = 1 && _.sumBy([mainFleet, escortFleet], (fleet) => fleet != null ? 1 : 0)
-  const enemyCount = 1 && _.sumBy([enemyFleet, enemyEscort], (fleet) => fleet != null ? 1 : 0)
+  const fleetCount = _.sumBy([mainFleet, escortFleet], (fleet) => fleet != null ? 1 : 0)
+  const enemyCount = _.sumBy([enemyFleet, enemyEscort], (fleet) => fleet != null ? 1 : 0)
   const fleetWidth = escortFleet && !isBaseDefense ? 2 : 1
   const enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
   const { getShip, getItem } = _.pick(result, ['getShip', 'getItem']) as { getShip?: number; getItem?: number }

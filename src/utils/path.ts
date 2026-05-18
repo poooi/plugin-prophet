@@ -2,7 +2,7 @@ import path from 'path'
 
 const { ROOT } = window
 
-const PLUGIN_ROOT = path.resolve(__dirname, '../../')
+const PLUGIN_ROOT = __dirname
 
 export const resolvePluginPath = (...parts: string[]): string =>
   path.resolve(PLUGIN_ROOT, ...parts)

@@ -5,12 +5,18 @@ declare module 'views/env-parts/i18next' {
 }
 
 declare module 'views/utils/selectors' {
-  import { Selector } from 'reselect'
+  import type { Selector } from 'reselect'
+  import type { APIMstShip, APIMstSlotitem } from 'kcsapi/api_start2/getData/response'
+  import type { APIGetMemberShip2Response } from 'kcsapi/api_get_member/ship2/response'
+  import type { APIGetMemberSlotItemResponse } from 'kcsapi/api_get_member/slot_item/response'
 
-  export const extensionSelectorFactory: (id: string) => Selector<any, any>
-  export const fleetSelectorFactory: (id: number) => Selector<any, any>
-  export const fleetShipsDataSelectorFactory: (id: number) => Selector<any, any>
-  export const fleetShipsEquipDataSelectorFactory: (id: number) => Selector<any, any>
+  type ShipData = [APIGetMemberShip2Response, APIMstShip]
+  type EquipData = [APIGetMemberSlotItemResponse, APIMstSlotitem, number | undefined]
+
+  export const extensionSelectorFactory: (id: string) => (state: PoiRootState) => Record<string, unknown>
+  export const fleetSelectorFactory: (id: number) => (state: PoiRootState) => { api_ship: number[]; api_name: string } | undefined
+  export const fleetShipsDataSelectorFactory: (id: number) => (state: PoiRootState) => (ShipData | undefined)[] | undefined
+  export const fleetShipsEquipDataSelectorFactory: (id: number) => (state: PoiRootState) => (EquipData[] | undefined)[] | undefined
 }
 
 declare module 'views/utils/tools' {
@@ -29,8 +35,8 @@ declare module 'views/components/etc/avatar' {
 
 declare module 'views/components/etc/icon' {
   import { ComponentType } from 'react'
-  export const SlotitemIcon: ComponentType<any>
-  export const MaterialIcon: ComponentType<any>
+  export const SlotitemIcon: ComponentType<{ slotitemId?: number; className?: string; alt?: string }>
+  export const MaterialIcon: ComponentType<{ materialId?: number; className?: string; alt?: string }>
 }
 
 declare module 'views/utils/game-utils' {
@@ -39,5 +45,6 @@ declare module 'views/utils/game-utils' {
 }
 
 declare module 'views/create-store' {
-  export const store: any
+  import type { Store } from 'redux'
+  export const store: Store<PoiRootState>
 }

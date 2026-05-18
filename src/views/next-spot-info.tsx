@@ -16,6 +16,7 @@ import {
   getSpotMessage,
   resolvePluginPath,
 } from '../utils'
+import type { ProphetExtState } from '../types'
 
 const Container = styled.div`
   display: flex;
@@ -105,13 +106,13 @@ const NextSpotInfo: FC<NextSpotInfoProps> = ({ eventId, eventKind, isHeavyBomber
   const spot = `${sortieMapId}-${currentNode}`
   const lastFormation = useSelector((state: PoiRootState) => {
     if (!showLastFormation) return undefined
-    const history = extensionSelectorFactory(PLUGIN_KEY)(state as never) as Record<string, unknown> | null | undefined
-    return (history?.['history'] as Record<string, Record<string, unknown>> | undefined)?.[spot]?.['fFormation'] as string | undefined
+    const ext = extensionSelectorFactory(PLUGIN_KEY)(state) as ProphetExtState
+    return ext.history?.[spot]?.fFormation
   })
   const lastSmoke = useSelector((state: PoiRootState) => {
     if (!showLastFormation) return undefined
-    const history = extensionSelectorFactory(PLUGIN_KEY)(state as never) as Record<string, unknown> | null | undefined
-    return (history?.['history'] as Record<string, Record<string, unknown>> | undefined)?.[spot]?.['smokeType'] as number | undefined
+    const ext = extensionSelectorFactory(PLUGIN_KEY)(state) as ProphetExtState
+    return ext.history?.[spot]?.smokeType
   })
 
   const mapKey = `${Math.floor(sortieMapId / 10)}-${sortieMapId % 10}`

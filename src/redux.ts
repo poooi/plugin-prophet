@@ -5,7 +5,8 @@ import { createSelector } from 'reselect'
 import { compareUpdate, pickExisting } from 'views/utils/tools'
 import { extensionSelectorFactory } from 'views/utils/selectors'
 
-import { PLUGIN_KEY } from './utils'
+import { PLUGIN_KEY, SortieState } from './utils'
+import type { BattleDisplayState } from './types'
 
 export const LS_PATH = '_prophet'
 
@@ -207,9 +208,58 @@ const UseItemReducer = (
   return state
 }
 
+export const initBattleState: BattleDisplayState = {
+  mainFleet: [],
+  escortFleet: [],
+  enemyFleet: null,
+  enemyEscort: null,
+  landBase: [],
+  airForce: [0, 0, 0, 0],
+  airControl: '',
+  isBaseDefense: false,
+  isHeavyBomberDefense: false,
+  sortieState: SortieState.InPort,
+  mapAreaId: 0,
+  eventId: 0,
+  eventKind: 0,
+  result: {},
+  battleForm: '',
+  smokeType: 0,
+  eFormation: '',
+  fFormation: '',
+}
+
+interface PatchBattleAction {
+  type: '@@poi-plugin-prophet@patchBattle'
+  payload: Partial<BattleDisplayState>
+}
+
+type BattleAction = PatchBattleAction | { type: string }
+
+export const onPatchBattle = (payload: Partial<BattleDisplayState>): PatchBattleAction => ({
+  type: '@@poi-plugin-prophet@patchBattle',
+  payload,
+})
+
+const BattleReducer = (
+  state: BattleDisplayState = initBattleState,
+  action: BattleAction,
+): BattleDisplayState => {
+  if (action.type === '@@poi-plugin-prophet@patchBattle') {
+    return { ...state, ...(action as PatchBattleAction).payload }
+  }
+  return state
+}
+
+export const battleStateSelector = (state: PoiRootState): BattleDisplayState => {
+  const ext = extensionSelectorFactory(PLUGIN_KEY)(state)
+  return (ext as { battle?: BattleDisplayState }).battle ?? initBattleState
+}
+
 export const reducer = combineReducers({
   history: HistoryReducer,
   useitem: UseItemReducer,
+  battle: BattleReducer,
 })
 
 export const setLocalStorage = (): void =>
@@ -225,9 +275,10 @@ const createObserver = (path: string) => {
     (ext) => get(ext, path, {}),
   )
 
-  return observer(selector, (_dispatch: unknown, current: Record<string, unknown> = {}, previous: unknown) => {
-    if (!isEqual(current, previous) && Object.keys(current).length > 0) {
-      set(CACHE, path, current)
+  return observer(selector, (_dispatch: unknown, current: unknown = {}, previous: unknown) => {
+    const cur = current as Record<string, unknown>
+    if (!isEqual(cur, previous) && Object.keys(cur).length > 0) {
+      set(CACHE, path, cur)
       setLocalStorageDebounced()
     }
   })

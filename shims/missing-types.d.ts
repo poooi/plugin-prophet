@@ -1,13 +1,3 @@
-declare module 'bluebird' {
-  class BluePromise<T> extends Promise<T> {
-    static each<T>(
-      array: T[],
-      iterator: (item: T, index: number, length: number) => PromiseLike<void> | void,
-    ): BluePromise<T[]>
-  }
-  export = BluePromise
-}
-
 declare module 'fs-extra' {
   export interface WriteOptions {
     spaces?: number | string
@@ -24,6 +14,18 @@ declare module 'fs-extra' {
 declare module 'path-extra' {
   export * from 'path'
   export function dirname(path: string): string
+}
+
+declare module 'redux-observers' {
+  import type { Store, Dispatch } from 'redux'
+  type ObserverFn<S = unknown> = (state: S, dispatch: Dispatch, options: object) => void
+  export function observe<S>(store: Store<S>, observers: ObserverFn<S>[], options?: object): () => void
+  export function observer<S, T>(
+    selector: (state: S, ...args: any[]) => T,
+    dispatcher: (dispatch: unknown, current: T | undefined, previous: T | undefined) => void,
+    locals?: object,
+  ): ObserverFn<S>
+  export function shallowEquals(a: unknown, b: unknown): boolean
 }
 
 declare module 'react-fontawesome' {
