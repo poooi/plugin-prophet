@@ -74,17 +74,21 @@ export const onLoadHistory = ({ history }: { history: Record<string, unknown> })
 
 const HistoryReducer = (
   state: Record<string, unknown> = (CACHE.history as Record<string, unknown>) ?? {},
-  action: HistoryAction,
+  action: HistoryAction | { type: string },
 ): Record<string, unknown> => {
-  switch (action.type) {
-    case '@@poi-plugin-prophet@updateHistory':
-      return { ...state, [action.spot]: { fFormation: action.fFormation, title: action.title, smokeType: action.smokeType } }
+  switch ((action as HistoryAction).type) {
+    case '@@poi-plugin-prophet@updateHistory': {
+      const a = action as UpdateHistoryAction
+      return { ...state, [a.spot]: { fFormation: a.fFormation, title: a.title, smokeType: a.smokeType } }
+    }
     case '@@poi-plugin-prophet@updatePractice':
-      return { ...state, practice: { title: action.title } }
+      return { ...state, practice: { title: (action as UpdatePracticeAction).title } }
     case '@@poi-plugin-prophet@loadHistory':
-      return { ...state, ...action.history }
+      return { ...state, ...(action as LoadHistoryAction).history }
     case '@@poi-plugin-prophet@clearHistory':
       return {}
+    default:
+      return state
   }
 }
 

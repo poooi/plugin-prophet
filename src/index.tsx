@@ -1,6 +1,6 @@
 import React, { FC, useRef, useState, useEffect, useCallback } from 'react'
 import _, { isEqual, isNil, each, map, isEmpty, includes, concat, get, filter, first } from 'lodash'
-import { useSelector, useDispatch } from 'react-redux'
+import { useSelector, useDispatch, shallowEqual } from 'react-redux'
 import { observe } from 'redux-observers'
 import memoize from 'fast-memoize'
 import { createSelector } from 'reselect'
@@ -128,7 +128,7 @@ export const Prophet: FC = () => {
 
   const sortie = useSelector((state: PoiRootState) => state.sortie)
   const airbase = useSelector((state: PoiRootState) => state.info?.airbase ?? [])
-  const fleetIds = useSelector(computeFleetIds)
+  const fleetIds = useSelector(computeFleetIds, shallowEqual)
   const fleets = useSelector((state: PoiRootState) =>
     fleetIds.map((i) => adjustedFleetShipsDataSelectorFactory(i)(state)),
   )
@@ -483,6 +483,8 @@ export const Prophet: FC = () => {
   }, [handleGameResponse, handlePacket])
 
   useEffect(() => {
+    const { propsFleets, propsEquips } = battleStateRef.current
+    if (isEqual(propsFleets, fleets) && isEqual(propsEquips, equips)) return
     const [mainFleet, escortFleet] = transformToLibBattleClass(fleets, equips)
     dispatch(onPatchBattle({ mainFleet, escortFleet, propsFleets: fleets, propsEquips: equips }))
   }, [fleets, equips])
