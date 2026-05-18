@@ -4,3 +4,13 @@ test/*.json
 src/**/*.ts
 src/**/*.tsx
 shims/*
+*.local.*
+.github
+.vscode
+commitlint.config.js
+prettier.config.js
+tsconfig.json
+tsdown.config.ts
+lint-staged.config.js
+index-src.ts
+eslint.config.mjs
