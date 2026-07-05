@@ -110,7 +110,7 @@ The object entry name `index` is required so the root output is `index.js`. Do n
 `fixedExtension: false` is required so CJS output is `index.js`/`index.d.ts` instead of `index.cjs`/`index.d.cts`. The compatibility and package smoke tests must assert exact emitted filenames.
 Use `deps.onlyBundle` only as a whitelist for dependencies that are already being bundled. It does not force bundling. If a non-host runtime package from `node_modules` must be bundled, add it deliberately to `deps.alwaysBundle`, also include it in `deps.onlyBundle`, document why it cannot remain external, and update the package smoke test to assert the bundled dependency is expected.
 
-`lib-battle` decision: upgrade the current stale `lib/battle` submodule to the upstream TypeScript rewrite before Phase 2. Target upstream tag `v3.0.5` unless a newer tagged release is explicitly chosen and recorded. Keep `lib-battle` vendored in this repository as a pinned git submodule or checked-in source package and import it by relative path from `src/battle/libBattleAdapter.ts`. Do not rely on Poi to provide `lib-battle` at runtime. Package smoke must fail if the built output contains an external `require('lib-battle')`, `require('poi-lib-battle')`, or equivalent unresolved `lib-battle` package import.
+`lib-battle` decision: upgrade the current stale `lib/battle` submodule to the upstream TypeScript rewrite before Phase 2. Target upstream tag `v3.0.5` unless a newer tagged release is explicitly chosen and recorded. Keep `lib-battle` vendored in this repository as a pinned git submodule or checked-in source package and import it by relative path from `src/battle/lib-battle-adapter.ts`. Do not rely on Poi to provide `lib-battle` at runtime. Package smoke must fail if the built output contains an external `require('lib-battle')`, `require('poi-lib-battle')`, or equivalent unresolved `lib-battle` package import.
 
 Required `lib-battle` upgrade procedure:
 
@@ -154,7 +154,7 @@ Forbidden in new TypeScript source:
 - untyped `window` access
 - untyped `config` access
 - direct `localStorage` access outside `src/state/storage.ts`
-- direct `lib-battle` imports outside `src/battle/libBattleAdapter.ts`
+- direct `lib-battle` imports outside `src/battle/lib-battle-adapter.ts`
 - raw `game.response` parsing inside React components
 - lodash `get` for new internal data structures
 
@@ -164,43 +164,43 @@ Forbidden in new TypeScript source:
 src/
   index.ts
   plugin/
-    ProphetRoot.tsx
-    SettingsRoot.tsx
-    pluginExports.ts
+    prophet-root.tsx
+    settings-root.tsx
+    plugin-exports.ts
   host/
-    poiGlobals.ts
-    poiRedux.ts
-    poiI18n.ts
-    poiUi.tsx
-    poiAssets.ts
-    poiTypes.ts
+    poi-globals.ts
+    poi-redux.ts
+    poi-i18n.ts
+    poi-ui.tsx
+    poi-assets.ts
+    poi-types.ts
   battle/
-    libBattleAdapter.ts
-    packetTypes.ts
-    packetController.ts
-    battleViewModel.ts
-    damageNotification.ts
+    lib-battle-adapter.ts
+    packet-types.ts
+    packet-controller.ts
+    battle-view-model.ts
+    damage-notification.ts
   state/
     actions.ts
-    pluginReducer.ts
+    plugin-reducer.ts
     selectors.ts
     storage.ts
     observers.ts
   components/
     battle/
-      BattlePanel.tsx
-      FleetColumn.tsx
-      ShipCard.tsx
-      ShipTooltip.tsx
-      HpBar.tsx
-      BattleSummary.tsx
-      DropInfo.tsx
-      NextSpotInfo.tsx
-      LandBaseSquad.tsx
+      battle-panel.tsx
+      fleet-column.tsx
+      ship-card.tsx
+      ship-tooltip.tsx
+      hp-bar.tsx
+      battle-summary.tsx
+      drop-info.tsx
+      next-spot-info.tsx
+      land-base-squad.tsx
     settings/
-      SettingsPanel.tsx
-      CheckboxSetting.tsx
-      RadioSetting.tsx
+      settings-panel.tsx
+      checkbox-setting.tsx
+      radio-setting.tsx
   utils/
     layout.ts
     spot.ts
@@ -208,8 +208,8 @@ src/
     paths.ts
   types/
     plugin.ts
-    kancolleApi.ts
-    viewModels.ts
+    kancolle-api.ts
+    view-models.ts
 ```
 
 Only `src/index.ts` may expose the final plugin exports. It must not contain business logic.
@@ -217,9 +217,9 @@ Only `src/index.ts` may expose the final plugin exports. It must not contain bus
 ## Approved dependency directions
 
 ```text
-components -> React + styling + child components + host UI facade + viewModels/types only
+components -> React + styling + child components + host UI facade + view-models/types only
 plugin -> host + state + battle + components
-battle -> host types + libBattleAdapter + packet types
+battle -> host types + lib-battle-adapter + packet types
 state -> host types + storage
 host -> typed facades over globals, Poi modules, and host UI modules only
 utils -> pure helpers only
@@ -228,11 +228,11 @@ utils -> pure helpers only
 Rules:
 
 1. `components/**` must not import `lib-battle`, `window`, `config`, Redux store objects, or raw battle packets.
-2. `components/**` may import `host/poiUi.tsx` for typed wrappers around Poi tooltips, avatars, icons, material icons, slot item icons, and game color helpers.
+2. `components/**` may import `host/poi-ui.tsx` for typed wrappers around Poi tooltips, avatars, icons, material icons, slot item icons, and game color helpers.
 3. `battle/**` must not import React.
 4. `state/**` must not import React.
 5. `host/**` must not import plugin components.
-6. `libBattleAdapter.ts` is the only production module allowed to import the new TypeScript `lib-battle`; `legacyLibBattleAdapter.ts` may import the old JavaScript implementation only for test parity and must be deleted in Phase 8.
+6. `lib-battle-adapter.ts` is the only production module allowed to import the new TypeScript `lib-battle`; `legacy-lib-battle-adapter.ts` may import the old JavaScript implementation only for test parity and must be deleted in Phase 8.
 
 ## View model boundary
 
@@ -389,12 +389,12 @@ No rewrite code may replace legacy rendering before this phase passes.
 
 Create:
 
-- `src/host/poiGlobals.ts`
-- `src/host/poiRedux.ts`
-- `src/host/poiI18n.ts`
-- `src/host/poiUi.tsx`
-- `src/host/poiAssets.ts`
-- `src/host/poiTypes.ts`
+- `src/host/poi-globals.ts`
+- `src/host/poi-redux.ts`
+- `src/host/poi-i18n.ts`
+- `src/host/poi-ui.tsx`
+- `src/host/poi-assets.ts`
+- `src/host/poi-types.ts`
 
 Responsibilities:
 
@@ -413,7 +413,7 @@ Responsibilities:
    - `state.fcd.map`
    - `state.ipc.NavyAlbum.showShip`
 4. Keep existing host import strings such as `views/utils/selectors` in one place.
-5. Wrap host UI integrations in `poiUi.tsx`:
+5. Wrap host UI integrations in `poi-ui.tsx`:
    - `Tooltip`
    - `Avatar`
    - `MaterialIcon`
@@ -423,7 +423,7 @@ Responsibilities:
 6. Wrap NavyAlbum IPC calls behind an injected function:
    - `showShipInNavyAlbum(shipId: number): void`
    - focus `poi-plugin-navy-album` if `MainWindow.ipcFocusPlugin` is available.
-7. Provide two explicit asset resolvers in `poiAssets.ts`:
+7. Provide two explicit asset resolvers in `poi-assets.ts`:
    - `resolvePluginAssetPath(...parts)` for this package's `assets/**`
    - `resolvePoiHostAssetPath(...parts)` for Poi host assets under `window.ROOT`, including damaged notification icon and aircraft proficiency images.
 
@@ -431,7 +431,7 @@ Acceptance gate:
 
 - No new source file outside `host/**` may access `window` or `config`.
 - Host wrappers have unit tests using fake globals.
-- No component imports `views/*` directly; components import `host/poiUi.tsx`.
+- No component imports `views/*` directly; components import `host/poi-ui.tsx`.
 
 ### Phase 2: Upgrade `lib-battle`
 
@@ -441,14 +441,14 @@ Rules:
 
 1. Do not change UI behavior in this phase.
 2. Create the legacy-to-TypeScript bridge before changing production imports:
-   - `src/battle/libBattleAdapter.ts` contains the strict TypeScript adapter.
+   - `src/battle/lib-battle-adapter.ts` contains the strict TypeScript adapter.
    - `test/fixtures/legacy-interop/legacy-adapter-entry.ts` re-exports the CJS-compatible adapter surface.
    - `npm run build:legacy-interop` emits a generated CommonJS bridge consumed by legacy `.es` code during Phase 2.
    - A temporary legacy `.es` facade may `require` only that generated bridge; it must not import TypeScript directly.
 3. First rewire production source so legacy rendering reaches battle behavior only through the generated bridge and adapter boundary; do this before replacing or deleting the old submodule path.
 4. Keep the old JavaScript `lib/battle` available for tests until adapter parity is accepted.
-5. Create `src/battle/legacyLibBattleAdapter.ts` for test-only parity if the Babel legacy harness is used.
-6. Create `src/battle/libBattleAdapter.ts` for the new TypeScript `lib-battle`.
+5. Create `src/battle/legacy-lib-battle-adapter.ts` for test-only parity if the Babel legacy harness is used.
+6. Create `src/battle/lib-battle-adapter.ts` for the new TypeScript `lib-battle`.
 7. If any temporary old import path compatibility is needed, implement it as an explicit facade that delegates to the generated bridge and delete it in Phase 8.
 8. Convert old adapter responsibilities into typed functions:
    - own fleet conversion
@@ -457,7 +457,7 @@ Rules:
    - result synthesis
    - air force status extraction
    - formation/engagement/air-control translation
-9. All production `lib-battle` imports must be in `libBattleAdapter.ts`.
+9. All production `lib-battle` imports must be in `lib-battle-adapter.ts`.
 
 Acceptance gate:
 
@@ -467,7 +467,7 @@ Acceptance gate:
 - Parity tests compare old adapter or golden output to new adapter output for every battle fixture.
 - Every mismatch is classified as `bug-compatible required`, `accepted lib-battle behavior change`, or `new regression`.
 - Accepted behavior changes are recorded in the incompatibility decision log with a regression test for the new expected behavior.
-- No production `lib-battle` imports outside `src/battle/libBattleAdapter.ts`; test-only old implementation imports are limited to `src/battle/legacyLibBattleAdapter.ts`.
+- No production `lib-battle` imports outside `src/battle/lib-battle-adapter.ts`; test-only old implementation imports are limited to `src/battle/legacy-lib-battle-adapter.ts`.
 
 ### Phase 3: Extract packet controller
 
@@ -475,10 +475,10 @@ Replace the event-handling block currently inside `src/index.es` with a pure con
 
 Create:
 
-- `src/battle/packetController.ts`
-- `src/battle/damageNotification.ts`
+- `src/battle/packet-controller.ts`
+- `src/battle/damage-notification.ts`
 
-`packetController.ts` owns:
+`packet-controller.ts` owns:
 
 1. Current battle lifecycle.
 2. Transition on map start/next/air raid.
@@ -487,7 +487,7 @@ Create:
 5. Fleet refresh from host Redux state.
 6. Dispatching history/practice actions through an injected dispatcher.
 
-`damageNotification.ts` owns:
+`damage-notification.ts` owns:
 
 1. Heavily damaged ship detection.
 2. Escaped ship exclusion.
@@ -505,7 +505,7 @@ Acceptance gate:
 Create:
 
 - `src/state/actions.ts`
-- `src/state/pluginReducer.ts`
+- `src/state/plugin-reducer.ts`
 - `src/state/storage.ts`
 - `src/state/observers.ts`
 - `src/state/selectors.ts`
@@ -540,10 +540,10 @@ Acceptance gate:
 
 Create:
 
-- `src/plugin/SettingsRoot.tsx`
-- `src/components/settings/SettingsPanel.tsx`
-- `src/components/settings/CheckboxSetting.tsx`
-- `src/components/settings/RadioSetting.tsx`
+- `src/plugin/settings-root.tsx`
+- `src/components/settings/settings-panel.tsx`
+- `src/components/settings/checkbox-setting.tsx`
+- `src/components/settings/radio-setting.tsx`
 
 Preserve settings:
 
@@ -579,21 +579,21 @@ Rendering rules:
 3. Tooltip placement is isolated in a hook:
    - `useFleetMeasurement(rootRef, containerRef)`
 4. Translation happens before or at the component edge, never inside battle simulation.
-5. SVG/icon paths are resolved through `host/poiAssets.ts`.
+5. SVG/icon paths are resolved through `host/poi-assets.ts`.
 
 Required component tests:
 
 | Component | Required assertions |
 |---|---|
-| `BattlePanel` | horizontal layout, vertical layout, empty enemy while navigating, battle info placement |
-| `FleetColumn` | main fleet, escort fleet, hidden empty fleet, compact mode |
-| `ShipCard` | normal damage, MVP, escaped, avatar enabled, avatar disabled |
-| `HpBar` | current HP, lost HP, stage HP, repair item, scale enabled/disabled, condition class |
-| `ShipTooltip` | friendly ship, enemy ship ID, fuel/ammo, params, normal slots, extra slot |
-| `BattleSummary` | rank icon, formation, engagement, air control, smoke |
-| `DropInfo` | ship drop, item drop with cached count, no drop, NavyAlbum button availability, NavyAlbum click IPC |
-| `NextSpotInfo` | compass angle, spot icon, resources, last formation, smoke hint, heavy bomber defense |
-| `LandBaseSquad` | base damage and HP rendering |
+| `battle-panel.tsx` | horizontal layout, vertical layout, empty enemy while navigating, battle info placement |
+| `fleet-column.tsx` | main fleet, escort fleet, hidden empty fleet, compact mode |
+| `ship-card.tsx` | normal damage, MVP, escaped, avatar enabled, avatar disabled |
+| `hp-bar.tsx` | current HP, lost HP, stage HP, repair item, scale enabled/disabled, condition class |
+| `ship-tooltip.tsx` | friendly ship, enemy ship ID, fuel/ammo, params, normal slots, extra slot |
+| `battle-summary.tsx` | rank icon, formation, engagement, air control, smoke |
+| `drop-info.tsx` | ship drop, item drop with cached count, no drop, NavyAlbum button availability, NavyAlbum click IPC |
+| `next-spot-info.tsx` | compass angle, spot icon, resources, last formation, smoke hint, heavy bomber defense |
+| `land-base-squad.tsx` | base damage and HP rendering |
 
 Additional required UI assertions:
 
@@ -618,8 +618,8 @@ Acceptance gate:
 
 Create:
 
-- `src/plugin/ProphetRoot.tsx`
-- `src/plugin/pluginExports.ts`
+- `src/plugin/prophet-root.tsx`
+- `src/plugin/plugin-exports.ts`
 - `src/index.ts`
 
 Active fleet selection contract:
@@ -630,12 +630,12 @@ Active fleet selection contract:
 4. Otherwise, select fleet `0`.
 5. For each selected fleet, pad selected ship data with `undefined` and slice to the fleet slot count before converting to battle models.
 
-`ProphetRoot.tsx` owns:
+`prophet-root.tsx` owns:
 
 1. Connecting typed host selectors to the packet controller.
 2. Subscribing and unsubscribing from `game.response`.
 3. Observing root size.
-4. Passing `ProphetViewModel` to `BattlePanel`.
+4. Passing `ProphetViewModel` to the `battle-panel.tsx` component.
 
 It must not own:
 
@@ -647,7 +647,7 @@ It must not own:
 
 Acceptance gate:
 
-- Integration test mounts `ProphetRoot` with fake Poi host state and dispatches `game.response` events.
+- Integration test mounts `ProphetRoot` from `prophet-root.tsx` with fake Poi host state and dispatches `game.response` events.
 - Export test verifies `reactClass`, `settingsClass`, `reducer`, and `switchPluginPath`.
 - Active fleet selection tests cover sortieStatus, combinedFlag, seven-ship fleet 2, fallback fleet 0, and empty-slot padding.
 - Legacy root is deleted only after parity tests pass.
@@ -861,7 +861,7 @@ Agents implementing this plan must follow these rules exactly:
 2. Do not add new behavior during parity phases.
 3. Do not delete legacy code until the equivalent new module has parity tests.
 4. Do not access host globals directly outside `src/host/**`.
-5. Do not import production `lib-battle` outside `src/battle/libBattleAdapter.ts`; test-only old implementation imports are limited to `src/battle/legacyLibBattleAdapter.ts` and must be removed in Phase 8.
+5. Do not import production `lib-battle` outside `src/battle/lib-battle-adapter.ts`; test-only old implementation imports are limited to `src/battle/legacy-lib-battle-adapter.ts` and must be removed in Phase 8.
 6. Do not put raw packet parsing in React components.
 7. Do not add `any`, `@ts-ignore`, broad catch blocks, or silent fallbacks.
 8. Do not change `_prophet` storage shape without a migration test.
