@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "target": "ES2019",
+    "module": "CommonJS",
+    "moduleResolution": "Node",
+    "ignoreDeprecations": "6.0",
+    "lib": ["ES2019", "DOM"],
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": false,
+    "useUnknownInCatchVariables": true,
+    "isolatedModules": true,
+    "jsx": "react-jsx",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "types": ["node"],
+    "declaration": true,
+    "declarationMap": false,
+    "sourceMap": true,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "views/*": ["src/host/types/views/*"],
+      "@blueprintjs/core": ["node_modules/@blueprintjs/core"]
+    }
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "lib/battle", "test"],
+  "references": [{ "path": "./lib/battle" }]
+}
