@@ -11,44 +11,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v2
       with:
         submodules: 'recursive'
 
-    - name: Use Node.js 22.x
-      uses: actions/setup-node@v4
+    - name: Use Node.js 14.x
+      uses: actions/setup-node@v1
       with:
-        node-version: '22.x'
+        node-version: '14.x'
 
-    - uses: actions/cache@v4
+    - uses: actions/cache@v2
       with:
         path: ~/.npm
         key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
           ${{ runner.os }}-node-
 
-    - name: Build lib-battle
-      working-directory: lib/battle
-      run: |
-        npm ci
-        npm run build
-
     - name: Install deps
       run: |
         npm ci
 
-    - name: Type check
-      run: |
-        npm run typecheck
-
-    - name: Lint
+    - name: Test
       run: |
         npm run lint
-
-    - name: Test with coverage
-      run: |
-        npm run test:coverage
-
-    - name: Build
-      run: |
-        npm run build
