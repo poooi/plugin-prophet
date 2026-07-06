@@ -128,7 +128,9 @@ Required `lib-battle` upgrade procedure:
 6. Use lib-battle oracle packet/result data as the primary source for Prophet replay and E2E battle fixtures.
 7. Map this plugin's required fixture matrix to upstream fixtures first; synthesize local fixtures only for plugin-specific Poi integration, storage, notification, settings, and view-model behavior not covered upstream.
 8. Add an upgrade note recording old submodule ref, new tag/ref or commit SHA, migration notes used, fixture corpus location, and any upstream behavior changes accepted for this plugin.
-9. Re-pin the main `lib/battle` path only after the bridge/parity harness can load both old and new implementations.
+9. Add a temporary pinned source for the new TypeScript implementation, such as `lib/battle-next` or `test/fixtures/lib-battle-upstream/source`, before writing the new adapter.
+10. `src/battle/lib-battle-adapter.ts` imports the temporary new TypeScript source during parity; it does not import the old `lib/battle` path.
+11. Re-pin or move the main `lib/battle` path only after the bridge/parity harness can load both old and new implementations from separate paths.
 
 Package migration requirements:
 
@@ -258,7 +260,7 @@ Only `src/index.ts` may expose the final plugin exports. It must not contain bus
 components -> React + styling + child components + host UI/assets facades + view-models/types + typed interaction callbacks only
 plugin -> host + state + battle + components
 battle -> host types + lib-battle-adapter + packet types
-state -> host types + storage
+state -> battle + host types + storage + utils/types
 host -> typed facades over globals, Poi modules, and host UI modules only
 utils -> pure helpers only
 ```
@@ -270,7 +272,7 @@ Rules:
 3. `components/**` may import `host/poi-assets.ts` for typed plugin/host asset path resolution.
 4. Components must receive host side-effect actions, such as opening NavyAlbum, through typed props/callbacks from `prophet-root.tsx`; components must not import IPC or call host globals directly.
 5. `battle/**` must not import React.
-6. `state/**` must not import React.
+6. `state/**` may import pure battle controllers/adapters and view-model builders, but must not import React or `lib-battle` directly.
 7. `host/**` must not import plugin components.
 8. `lib-battle-adapter.ts` is the only production module allowed to import the new TypeScript `lib-battle`; `legacy-lib-battle-adapter.ts` may import the old JavaScript implementation only for test parity and must be deleted in Phase 8.
 
@@ -369,10 +371,11 @@ Rules:
 
 1. `prophet-root.tsx` uses Jotai hooks to read/write atoms and pass a derived `ProphetViewModel` plus `ProphetInteractions` to `battle-panel.tsx`.
 2. Battle simulation atoms must expose enough intermediate state for tests and debugging: packet sequence, active battle metadata, converted fleets, simulator result, synthesized battle summary, and notification candidates.
-3. Components still consume view models or focused atom-derived values; they must not parse raw packets.
+3. Components consume view models and typed interaction props only; they must not parse raw packets or read Jotai atoms directly.
 4. Do not store the whole battle screen in one opaque atom. Split state into source atoms and named derived atoms.
 5. All derived atoms used for battle simulation must have unit tests that can run without mounting React.
 6. The exported Redux reducer remains for Poi's plugin extension state and persisted compatibility; it is not the internal UI state manager.
+7. Only plugin/root/container modules may read Jotai atoms. Storybook's fake Jotai provider is for root/container integration stories; presentational component stories use fixed view-model props.
 
 ## Implementation phases
 
@@ -532,7 +535,7 @@ Rules:
 3. First rewire production source so legacy rendering reaches battle behavior only through the generated bridge and adapter boundary; do this before replacing or deleting the old submodule path.
 4. Keep the preserved old JavaScript `lib-battle` path available for tests until adapter parity is accepted.
 5. Create `src/battle/legacy-lib-battle-adapter.ts` for test-only parity if the Babel legacy harness is used.
-6. Create `src/battle/lib-battle-adapter.ts` for the new TypeScript `lib-battle`.
+6. Create `src/battle/lib-battle-adapter.ts` for the new TypeScript `lib-battle`, importing the temporary pinned new-lib source until final re-pin.
 7. If any temporary old import path compatibility is needed, implement it as an explicit facade that delegates to the generated bridge and delete it in Phase 8.
 8. Convert old adapter responsibilities into typed functions:
    - own fleet conversion
@@ -542,7 +545,7 @@ Rules:
    - air force status extraction
    - formation/engagement/air-control normalization to translation keys or display tokens
 9. All production `lib-battle` imports must be in `lib-battle-adapter.ts`.
-10. Re-pin the main `lib/battle` submodule to the new TypeScript ref only after the legacy bridge and parity harness prove old and new implementations can be compared from separate paths.
+10. Re-pin the main `lib/battle` submodule to the new TypeScript ref only after the legacy bridge and parity harness prove old and new implementations can be compared from separate paths; delete the temporary new-lib source afterward.
 
 Acceptance gate:
 
@@ -659,7 +662,7 @@ Create the TSX components under `src/components/battle`.
 
 Rendering rules:
 
-1. Components consume only view models.
+1. Components consume only view models and typed interaction props.
 2. Layout decision happens in `utils/layout.ts`.
    - `layout: 'horizontal'` and `layout: 'vertical'` are explicit.
    - `layout: 'auto'` resolves to horizontal when `height < 300` or `height * 5 < width * 3`; otherwise it resolves to vertical.
@@ -945,7 +948,14 @@ Any uncovered line in `battle`, `state`, `host`, or `utils` must be either remov
 
 ## CI requirements
 
-Replace the current Node 14 lint-only workflow with a Node LTS validation workflow.
+The current repository workflow is a transitional legacy lint gate so documentation-only PRs and early migration PRs can still run before the rewrite scripts exist. It must not be treated as the final rewrite CI.
+
+Phase requirements:
+
+1. Phase 0 may keep a lint-only workflow if `typecheck`, coverage, parity, build, Storybook, E2E, and package smoke scripts do not exist yet.
+2. As soon as a script is introduced, CI must run it in the same PR or the next enabling PR.
+3. By Phase 8, replace the transitional workflow with the full Node LTS validation workflow below.
+4. `npm ci --legacy-peer-deps` is a temporary compatibility exception for the current legacy dependency graph. Before final validation CI, refresh dependencies/lockfile so plain `npm ci` succeeds under the selected Node/npm version, then remove the flag.
 
 Required CI jobs:
 
