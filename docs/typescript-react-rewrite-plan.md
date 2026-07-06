@@ -72,6 +72,7 @@ Required compatibility decisions:
 | Publish contents | `npm pack --dry-run` must show `index.js`, `index.d.ts`, `assets/**`, `package.json`, `README.md`, and required license files. |
 | Build Node version | CI and local validation use Node 22.x unless `tsdown` documents a newer minimum. |
 | Runtime JS target | Emit `es2018` unless the compatibility spike proves the minimum supported Poi/Electron runtime requires a lower target. |
+| Poi host types | Derive host/global/store/module types from upstream `poooi/poi`; do not invent shape-only local types. |
 
 Required `tsdown` contract:
 
@@ -132,6 +133,29 @@ Package migration requirements:
 5. Package smoke must fail if packed files include root `index.es`, `src/**/*.es`, legacy transpiler output, or `poi-util-transpile` lifecycle usage.
 
 Do not add runtime dependencies for packages proven to be provided by Poi. If a package is not provided by Poi and is required at runtime, add it to `dependencies` explicitly and include it in the package smoke test. Prefer native TypeScript helpers over adding lodash to the new implementation.
+
+## Poi type source contract
+
+`src/host/poi-types.ts` is an adapter-facing type surface, not a place to invent Poi APIs. Before implementing host wrappers, fetch and inspect the actual `poooi/poi` codebase at a recorded commit.
+
+Required upstream sources:
+
+| Type area | Upstream source to inspect first |
+|---|---|
+| global `window`, `config`, IPC, and utility shims | `poooi/poi:shims/global.d.ts`, `shims/utils.d.ts`, `shims/vendor/**` |
+| `views/*` module resolution | `poooi/poi:tsconfig.json` `paths.views/*` |
+| store shape and dispatch helpers | `poooi/poi:views/create-store.ts`, `views/redux/**`, `views/services*.ts` |
+| selectors and game data helpers | `poooi/poi:views/utils/**` |
+| host UI components | `poooi/poi:views/components/**` |
+| theme/assets/runtime environment | `poooi/poi:views/env*.ts`, `views/theme.ts`, `views/style.d.ts` |
+
+Rules:
+
+1. Pin the inspected Poi commit in the rewrite implementation notes.
+2. Prefer importing or referencing upstream exported types directly when feasible.
+3. If a local adapter type is needed, cite the upstream file and symbol or state field it mirrors.
+4. If upstream is untyped or uses a wider type than the plugin needs, define a narrowed local adapter type only at the host boundary and document the upstream evidence.
+5. Do not create host Redux state, selector, IPC, or global typings from observation of this plugin alone.
 
 Default TypeScript compiler posture if the compatibility spike confirms automatic JSX runtime support. If the host requires classic React JSX, keep every option below except set `"jsx": "react"`.
 
@@ -302,7 +326,7 @@ Deliverables:
 1. Run the runtime/build compatibility spike described above.
 2. Record the exact new TypeScript `lib-battle` package, version, commit, or submodule ref. Do not start Phase 2 until this is pinned in package metadata.
 3. Add the test runner, type checker, and coverage scripts.
-4. Add a minimal typed host fixture for tests.
+4. Add a minimal typed host fixture for tests, derived from the pinned `poooi/poi` sources listed in the Poi type source contract.
 5. Add a legacy parity harness before deleting legacy code.
 6. Capture or synthesize deterministic game response fixtures.
 7. Add a temporary compatibility build fixture:
@@ -401,7 +425,7 @@ Responsibilities:
 
 1. Wrap `window.getStore`, `window.notify`, `window.ResizeObserver`, `window.isDarkTheme`, `window.isSafeMode`, `window.APPDATA_PATH`, `window.ROOT`, `window.ipc`, debug hooks, and host diagnostics.
 2. Wrap global `config.get` and `config.set`.
-3. Declare typed selectors for required Poi Redux state:
+3. Declare typed selectors for required Poi Redux state by mirroring upstream `poooi/poi` types or documented source fields:
    - `state.sortie`
    - `state.info.airbase`
    - `state.info.fleets`
@@ -432,6 +456,7 @@ Acceptance gate:
 
 - No new source file outside `host/**` may access `window` or `config`.
 - Host wrappers have unit tests using fake globals.
+- `poi-types.ts` includes comments or references tying every local host type to upstream `poooi/poi` files, exported symbols, or documented source fields.
 - No component imports `views/*` directly; components import `host/poi-ui.tsx`.
 
 ### Phase 2: Upgrade `lib-battle`
