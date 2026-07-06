@@ -1,12 +1,12 @@
 import type { Ship } from 'poi-lib-battle'
 
-import { SortieState } from '../utils/constants'
+import { SortieState, type SortieStateValue } from '../utils/constants'
 
 export interface HeavyDamageShipNameInput {
   mainFleet?: (Ship | null)[]
   escortFleet?: (Ship | null)[]
   escapedPos?: number[]
-  sortieState: number
+  sortieState: SortieStateValue
   getShipName: (shipId: number | undefined) => string
   translate: (text: string) => string
 }

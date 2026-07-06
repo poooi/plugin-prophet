@@ -2,6 +2,7 @@ import type { APIGetMemberShip2Response } from 'kcsapi/api_get_member/ship2/resp
 import type { APIMstShip, APIMstSlotitem } from 'kcsapi/api_start2/getData/response'
 import type { APIGetMemberSlotItemResponse } from 'kcsapi/api_get_member/slot_item/response'
 import type { Ship } from 'poi-lib-battle'
+import type { SortieStateValue } from './utils/constants'
 
 export interface ProphetBattleResult {
   rank?: string
@@ -33,7 +34,7 @@ export interface BattleDisplayState {
   airControl: string
   isBaseDefense: boolean
   isHeavyBomberDefense: boolean
-  sortieState: number
+  sortieState: SortieStateValue
   mapAreaId: number
   eventId: number
   eventKind: number
