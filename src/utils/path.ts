@@ -1,6 +1,7 @@
-import path from 'path'
-
 const PLUGIN_ROOT = __dirname
 
+const joinPath = (root: string, parts: string[]): string =>
+  [root, ...parts].join('/').replace(/\/+/g, '/')
+
 export const resolvePluginPath = (...parts: string[]): string =>
-  path.resolve(PLUGIN_ROOT, ...parts)
+  joinPath(PLUGIN_ROOT, parts)
