@@ -72,7 +72,7 @@ Required compatibility decisions:
 | Publish contents | `npm pack --dry-run` must show `index.js`, `index.d.ts`, `assets/**`, `package.json`, `README.md`, and required license files. |
 | Build Node version | CI and local validation use Node 22.x unless `tsdown` documents a newer minimum. |
 | Runtime JS target | Emit `es2018` unless the compatibility spike proves the minimum supported Poi/Electron runtime requires a lower target. |
-| Poi host types | Derive host/global/store/module types from upstream `poooi/poi`; do not invent shape-only local types. |
+| Poi host types | Reuse or derive host/global/store/module types from upstream TypeScript in `poooi/poi`; do not invent shape-only local types. |
 
 Required `tsdown` contract:
 
@@ -136,7 +136,7 @@ Do not add runtime dependencies for packages proven to be provided by Poi. If a 
 
 ## Poi type source contract
 
-`src/host/poi-types.ts` is an adapter-facing type surface, not a place to invent Poi APIs. Before implementing host wrappers, fetch and inspect the actual `poooi/poi` codebase at a recorded commit.
+`src/host/poi-types.ts` is an adapter-facing type surface, not a place to invent Poi APIs. `poooi/poi` is already TypeScript in many host areas, so implementation must fetch the actual `poooi/poi` codebase at a recorded commit and reuse exported types wherever they exist.
 
 Required upstream sources:
 
@@ -152,10 +152,11 @@ Required upstream sources:
 Rules:
 
 1. Pin the inspected Poi commit in the rewrite implementation notes.
-2. Prefer importing or referencing upstream exported types directly when feasible.
-3. If a local adapter type is needed, cite the upstream file and symbol or state field it mirrors.
-4. If upstream is untyped or uses a wider type than the plugin needs, define a narrowed local adapter type only at the host boundary and document the upstream evidence.
-5. Do not create host Redux state, selector, IPC, or global typings from observation of this plugin alone.
+2. Prefer importing or referencing upstream exported TypeScript types directly; do not duplicate typed Poi components, globals, selectors, or store fields locally.
+3. Configure development-only type access to the pinned Poi source, such as a checked-out fixture, submodule, or generated type snapshot, so `views/*` host module typings come from Poi's real source.
+4. If a local adapter type is needed, cite the upstream file and symbol or state field it mirrors.
+5. If upstream is untyped or uses a wider type than the plugin needs, define a narrowed local adapter type only at the host boundary and document the upstream evidence.
+6. Do not create host Redux state, selector, IPC, component, or global typings from observation of this plugin alone.
 
 Default TypeScript compiler posture if the compatibility spike confirms automatic JSX runtime support. If the host requires classic React JSX, keep every option below except set `"jsx": "react"`.
 
@@ -830,7 +831,7 @@ Add these scripts:
     "build:compat": "tsdown --config test/fixtures/host-smoke/tsdown.compat.config.ts",
     "build:legacy-interop": "tsdown --config test/fixtures/legacy-interop/tsdown.legacy-interop.config.ts",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings=0",
     "lint:fix": "eslint . --fix",
     "test": "vitest run",
     "test:watch": "vitest",
