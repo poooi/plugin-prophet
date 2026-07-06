@@ -52,7 +52,7 @@ Use these choices unless a Poi runtime incompatibility is proven by an automated
 | Runtime React dependency | Do not bundle `react` or `react-dom`; continue to consume the Poi host React runtime |
 | Styling | Keep `styled-components` initially to preserve styling behavior |
 | Localization | Use `react-i18next` hooks directly in React components; do not add a Poi i18n wrapper |
-| State | Keep the exported plugin reducer; use local React hooks for component state |
+| State | Keep the exported plugin reducer for Poi persistence/contract; use Jotai source and derived atoms for internal application and battle simulation state |
 | Host imports | Keep Poi host imports behind typed adapter modules |
 
 ## Runtime, build, and package contract
@@ -104,13 +104,15 @@ export default defineConfig({
       'reselect',
       'styled-components',
     ],
+    alwaysBundle: ['jotai'],
   },
 })
 ```
 
 The object entry name `index` is required so the root output is `index.js`. Do not rely on default output naming for the package entry.
 `fixedExtension: false` is required so CJS output is `index.js`/`index.d.ts` instead of `index.cjs`/`index.d.cts`. The compatibility and package smoke tests must assert exact emitted filenames.
-If a non-host runtime package from `node_modules` must be bundled, add it deliberately to `deps.alwaysBundle`.
+Jotai is a plugin-owned runtime dependency. Add the latest stable `jotai` package during implementation and bundle it with the plugin unless a compatibility spike proves Poi provides it.
+If any other non-host runtime package from `node_modules` must be bundled, add it deliberately to `deps.alwaysBundle`.
 Document why it cannot remain external, and update the package smoke test to assert the bundled dependency is expected.
 
 `lib-battle` decision: upgrade the current stale `lib/battle` submodule to the upstream TypeScript rewrite before Phase 2. Target upstream tag `v3.0.5` unless a newer tagged release is explicitly chosen and recorded. Keep `lib-battle` vendored in this repository as a pinned git submodule or checked-in source package and import it by relative path from `src/battle/lib-battle-adapter.ts`. Do not rely on Poi to provide `lib-battle` at runtime. Package smoke must fail if the built output contains an external `require('lib-battle')`, `require('poi-lib-battle')`, or equivalent unresolved `lib-battle` package import.
@@ -209,6 +211,8 @@ src/
     damage-notification.ts
   state/
     actions.ts
+    battle-atoms.ts
+    view-model-atoms.ts
     plugin-reducer.ts
     selectors.ts
     storage.ts
@@ -318,6 +322,27 @@ export interface DropItemViewModel {
 
 The renderer must be replaceable without changing battle parsing. The battle parser must be testable without React.
 
+## Jotai state model contract
+
+Internal state must be reflective and inspectable. Do not rebuild the old root component as an opaque component-local state machine.
+
+Use Jotai in `src/state/**` as follows:
+
+| Atom kind | Required examples | Rule |
+|---|---|---|
+| source atoms | host state snapshot, plugin settings snapshot, packet log, active battle lifecycle, cache snapshot, root size | Only source atoms are written directly by event handlers, storage hydration, or host adapters. |
+| derived atoms | active fleet selection, simulator input, simulator output, normalized battle state, `ProphetViewModel`, damage notification candidates, drop view model, next-spot view model | Derived atoms are pure and deterministic; they must not write storage, dispatch actions, notify, or mutate simulator instances. |
+| action/write atoms | append packet, reset battle, hydrate cache, clear history, acknowledge notification | Write atoms call pure controller functions and update source atoms; side effects are injected and captured in tests. |
+
+Rules:
+
+1. `prophet-root.tsx` uses Jotai hooks to read/write atoms and pass a derived `ProphetViewModel` to `battle-panel.tsx`.
+2. Battle simulation atoms must expose enough intermediate state for tests and debugging: packet sequence, active battle metadata, converted fleets, simulator result, synthesized battle summary, and notification candidates.
+3. Components still consume view models or focused atom-derived values; they must not parse raw packets.
+4. Do not store the whole battle screen in one opaque atom. Split state into source atoms and named derived atoms.
+5. All derived atoms used for battle simulation must have unit tests that can run without mounting React.
+6. The exported Redux reducer remains for Poi's plugin extension state and persisted compatibility; it is not the internal UI state manager.
+
 ## Implementation phases
 
 ### Phase 0: Safety baseline
@@ -370,7 +395,7 @@ Required fixtures:
 | repair item correction | first battle packet flagship HP mismatch resulting in `useItemId` 42 and 43 cases |
 | escaped ship | combined fleet with `sortie.escapedPos` |
 | history restore | `_prophet.history` preloaded |
-| use item cache update | `api_get_member/require_info`, `useitem`, remodel, mission result, battle result |
+| use item count source | drop result count read from Poi main-program useitem state |
 | land-base destruction shape | `api_destruction_battle` as object and as array |
 | land-base serialized air attack | stringified `api_air_base_attack` |
 | land-base no stage3 | destruction battle without `api_stage3` |
@@ -433,6 +458,7 @@ Responsibilities:
    - `state.const.$ships`
    - `state.const.$equips`
    - `state.const.$useitems`
+   - Poi main-program useitem/member-item state, using the exact upstream state path and type discovered from `poooi/poi`
    - `state.const.$shipTypes`
    - `state.const.$maps`
    - `state.config.plugin.prophet`
@@ -540,26 +566,27 @@ Create:
 Compatibility requirements:
 
 1. `_prophet.history` format remains readable.
-2. `_prophet.useitem` format remains readable.
-3. Existing action types remain accepted:
+2. Do not reimplement the old plugin `UseItemReducer`; consume Poi main-program useitem/member-item state through a typed selector.
+3. Legacy `_prophet.useitem` may be read only for one-time migration or backward-compatible display fallback if the Poi state is unavailable; new code must not write or maintain it.
+4. Existing action types remain accepted:
    - `@@poi-plugin-prophet@updateHistory`
    - `@@poi-plugin-prophet@updatePractice`
    - `@@poi-plugin-prophet@loadHistory`
    - `@@poi-plugin-prophet@clearHistory`
-   - current Kancolle response action types used by `UseItemReducer`
-4. The exported `reducer` keeps the same state shape:
+5. Kancolle response action types previously used only for plugin-local useitem tracking are not handled by the plugin reducer; Poi's main reducer remains authoritative for useitem counts.
+6. The exported `reducer` keeps the plugin-owned state shape:
 
 ```ts
 {
   history: Record<string, HistoryEntry>
-  useitem: Record<string, UseItemEntry>
 }
 ```
-5. Malformed `_prophet` JSON must produce a host diagnostic, initialize an empty in-memory cache, and avoid overwriting storage until a valid state update occurs. This intentional improvement must be covered by tests and recorded in the incompatibility decision log.
+7. Malformed `_prophet` JSON must produce a host diagnostic, initialize an empty in-memory cache, and avoid overwriting storage until a valid state update occurs. This intentional improvement must be covered by tests and recorded in the incompatibility decision log.
 
 Acceptance gate:
 
-- Reducer parity tests cover every current action branch.
+- Reducer parity tests cover every plugin-owned action branch.
+- Tests prove useitem drop counts come from the typed Poi main-program useitem selector, not from plugin-local reducer state.
 - Storage tests cover safe mode, empty storage, malformed storage, save debounce trigger, and cache update.
 - No direct `localStorage` access outside `storage.ts`.
 
