@@ -45,6 +45,7 @@ Use these choices unless a Poi runtime incompatibility is proven by an automated
 | Type checking | `tsc --noEmit` |
 | Unit/integration tests | `vitest` |
 | React tests | `@testing-library/react`, `@testing-library/user-event`, `@testing-library/jest-dom`, `jsdom` |
+| Component workbench | Latest stable Storybook with React/Vite builder |
 | Coverage | Vitest V8 coverage provider |
 | E2E/parity smoke | `playwright` against a minimal Poi host fixture |
 | Lint | ESLint flat config with `@typescript-eslint` strict rules |
@@ -232,6 +233,9 @@ src/
       settings-panel.tsx
       checkbox-setting.tsx
       radio-setting.tsx
+  stories/
+    battle/
+    settings/
   utils/
     layout.ts
     spot.ts
@@ -321,6 +325,24 @@ export interface DropItemViewModel {
 ```
 
 The renderer must be replaceable without changing battle parsing. The battle parser must be testable without React.
+
+## Storybook component workbench
+
+Storybook is required for the rewritten React components. It is a development and visual review surface, not the source of production behavior.
+
+Rules:
+
+1. Use the latest stable Storybook React/Vite packages during implementation.
+2. Store stories under `src/stories/**` or colocated as `*.stories.tsx`; choose one convention in Phase 0 and use it consistently.
+3. Stories consume fixed `ProphetViewModel` and component view-model fixtures. They must not call real Poi globals, real IPC, real storage, or raw battle simulation.
+4. Provide Storybook decorators for:
+   - fake `react-i18next` provider
+   - fake Jotai provider and atom snapshots
+   - fake Poi UI facade components
+   - light/dark theme
+   - horizontal/vertical layout containers
+5. Storybook must include stories for all required UI states in Phase 5 and Phase 6.
+6. `storybook:build` must run in CI after the components exist.
 
 ## Jotai state model contract
 
@@ -619,6 +641,7 @@ Acceptance gate:
 - Component tests verify each setting renders, reads default, writes via host config adapter, and updates checked state.
 - Clear-history button dispatches `@@poi-plugin-prophet@clearHistory`, updates cache, and shows success state.
 - `plugin.prophet.notify.damagedAudio` is excluded from rendered setting assertions unless a separate accepted behavior change defines a new UI for it.
+- Storybook stories cover all setting controls, default values, toggled values, and clear-history success state.
 
 ### Phase 6: Rewrite battle UI
 
@@ -669,6 +692,7 @@ Acceptance gate:
 
 - Visual output snapshots or DOM assertions exist for every required UI state.
 - Components do not import Redux, raw packets, host globals, or `lib-battle`.
+- Storybook stories cover every required component state in the table above, including edge cases for layout, drops, transport points, last formation, air raid, and damaged/escaped/MVP ships.
 
 ### Phase 7: Replace plugin root
 
@@ -866,7 +890,9 @@ Add these scripts:
     "test:parity": "vitest run test/parity",
     "test:e2e": "playwright test",
     "test:package": "npm pack --dry-run && vitest run test/package",
-    "validate": "npm run typecheck && npm run lint && npm run test:coverage && npm run test:parity && npm run build && npm run test:e2e && npm run test:package"
+    "storybook": "storybook dev",
+    "storybook:build": "storybook build",
+    "validate": "npm run typecheck && npm run lint && npm run test:coverage && npm run test:parity && npm run build && npm run storybook:build && npm run test:e2e && npm run test:package"
   }
 }
 ```
@@ -898,9 +924,10 @@ Required CI jobs:
 6. Run `npm run test:coverage`.
 7. Run `npm run test:parity`.
 8. Run `npm run build`.
-9. Run `npm run test:e2e`.
-10. Run `npm run test:package`.
-11. Upload coverage artifacts.
+9. Run `npm run storybook:build`.
+10. Run `npm run test:e2e`.
+11. Run `npm run test:package`.
+12. Upload coverage artifacts.
 
 The workflow must fail on:
 
@@ -910,6 +937,7 @@ The workflow must fail on:
 - Snapshot mismatch.
 - Parity mismatch.
 - Build failure.
+- Storybook build failure.
 - Package smoke failure.
 
 ## Coding-agent rules
@@ -942,8 +970,9 @@ The rewrite is complete only when all of the following are true:
 4. No giant root component owns battle parsing, state mutation, host events, and rendering together.
 5. All required fixture scenarios pass parity validation.
 6. All quality scripts pass through `npm run validate`.
-7. CI runs typecheck, lint, coverage, parity, E2E smoke, build, and package smoke.
+7. CI runs typecheck, lint, coverage, parity, build, Storybook build, E2E smoke, and package smoke.
 8. Existing localStorage data under `_prophet` remains readable.
 9. Settings keep the same keys and defaults.
 10. The old JavaScript component stack is removed.
-11. `npm run validate` and package smoke tests pass on CI.
+11. Required Storybook stories exist for all settings and battle component view-model states.
+12. `npm run validate` and package smoke tests pass on CI.
