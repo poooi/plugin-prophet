@@ -5,10 +5,6 @@ import FA from 'react-fontawesome'
 import { useTranslation } from 'react-i18next'
 import { canShowShipInNavyAlbum, showShipInNavyAlbum } from '../host/poi-ipc'
 
-interface LegacyUseItemEntry {
-  api_count?: number
-}
-
 interface DropInfoProps {
   getShip?: number
   getItem?: number
@@ -25,12 +21,7 @@ const DropInfo: FC<DropInfoProps> = ({ getShip, getItem }) => {
   const navyAlbumShowShipAvailable = useSelector(canShowShipInNavyAlbum)
   const count = useSelector((state: PoiRootState) => {
     if (getItem == null) return 0
-    const currentCount = state.info?.useitems?.[String(getItem)]?.api_count
-    if (currentCount != null) return currentCount
-    const legacyUseitems = state.ext?.['poi-plugin-prophet']?._?.['useitem'] as
-      | Record<string, LegacyUseItemEntry>
-      | undefined
-    return legacyUseitems?.[String(getItem)]?.api_count ?? 0
+    return state.info?.useitems?.[String(getItem)]?.api_count ?? 0
   })
 
   const handleClick = () => {

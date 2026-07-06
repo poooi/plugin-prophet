@@ -23,7 +23,7 @@ The current TypeScript baseline already includes:
 | Build | `tsdown.config.ts` builds `index-src.ts` to root `index.js` |
 | UI | `src/index.tsx` is already a function component using React hooks |
 | Runtime handler | `src/game-handler.ts` owns game response handling and battle simulation orchestration |
-| Plugin reducer | `src/redux.ts` owns history, local useitem tracking, and battle display state |
+| Plugin reducer | `src/redux.ts` owns history and battle display state; useitem counts are sourced from Poi host state |
 | Battle library | `poi-lib-battle@^3.0.5` is already consumed as a package |
 | Battle adapter | `src/utils/lib-battle-adapter.ts` already wraps `poi-lib-battle`; refactor it rather than creating a second adapter |
 | Types | `kcsapi` types and local `shims/**` exist, but Poi host types still need verification against `poooi/poi` |
