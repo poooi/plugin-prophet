@@ -177,7 +177,7 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
           extensionSelectorFactory(PLUGIN_KEY)(state),
           ['history', spot, 'title'],
           undefined,
-        ) as string
+        ) as string | undefined
       : undefined,
   )
   const enemyTitle = buildEnemyTitle({ sortieState, showEnemyTitle, storedEnemyTitle: historyTitle })

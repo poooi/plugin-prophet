@@ -6,17 +6,6 @@
   },
   "fixtures": [
     {
-      "localPath": "test/fixtures/poi-lib-battle/battle-detail/injection-kouku/1616044537827.json",
-      "upstreamPath": "tests/fixtures/battle-detail/features/injection_kouku/1616044537827.json",
-      "coverage": [
-        "practice battle",
-        "injection aerial combat",
-        "shelling",
-        "night battle",
-        "closing torpedo"
-      ]
-    },
-    {
       "localPath": "test/fixtures/poi-lib-battle/battle-detail/air-base-attack/1615132578245.json",
       "upstreamPath": "tests/fixtures/battle-detail/features/air_base_attack/1615132578245.json",
       "coverage": [
