@@ -771,7 +771,7 @@ Acceptance gate:
 
 ## Parity validation strategy
 
-Parity is validated at four layers.
+Parity is validated at five layers.
 
 Old and new implementations may run side by side only in tests or development harnesses with side effects disabled. In real plugin runtime, do not process the same `game.response` through both implementations unless notifications, dispatches, storage writes, and IPC calls are mocked.
 
