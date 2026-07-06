@@ -1,6 +1,6 @@
 const PLUGIN_ROOT = __dirname
 
-const joinPath = (root: string, parts: string[]): string =>
+export const joinPath = (root: string, parts: string[]): string =>
   [
     root.replace(/\\/g, '/').replace(/\/+$/, ''),
     ...parts.map((part) =>

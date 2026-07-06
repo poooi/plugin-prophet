@@ -1,6 +1,5 @@
 import { observe, observer } from 'redux-observers'
-import _ from 'lodash'
-import { isEqual, isNil, map, isEmpty } from 'lodash'
+import _, { isEqual, isNil, map, isEmpty } from 'lodash'
 import i18next from 'views/env-parts/i18next'
 import { Models, Battle, Fleet } from 'poi-lib-battle'
 import type { RawFleetShip } from 'poi-lib-battle'
