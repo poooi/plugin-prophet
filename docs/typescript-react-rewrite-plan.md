@@ -125,9 +125,10 @@ Required `lib-battle` upgrade procedure:
 3. Preserve the current JavaScript implementation before changing `lib/battle`, either under `test/fixtures/lib-battle-legacy` or as a separate test-only worktree/submodule pinned to the current ref.
 4. Read upstream `MIGRATION.md` before writing the adapter.
 5. Inventory upstream fixture/oracle/test corpus and copy or reference the reusable cases under `test/fixtures/lib-battle-upstream`.
-6. Map this plugin's required fixture matrix to upstream fixtures first; synthesize local fixtures only for plugin-specific Poi integration, storage, notification, settings, and view-model behavior not covered upstream.
-7. Add an upgrade note recording old submodule ref, new tag/ref or commit SHA, migration notes used, fixture corpus location, and any upstream behavior changes accepted for this plugin.
-8. Re-pin the main `lib/battle` path only after the bridge/parity harness can load both old and new implementations.
+6. Use lib-battle oracle packet/result data as the primary source for Prophet replay and E2E battle fixtures.
+7. Map this plugin's required fixture matrix to upstream fixtures first; synthesize local fixtures only for plugin-specific Poi integration, storage, notification, settings, and view-model behavior not covered upstream.
+8. Add an upgrade note recording old submodule ref, new tag/ref or commit SHA, migration notes used, fixture corpus location, and any upstream behavior changes accepted for this plugin.
+9. Re-pin the main `lib/battle` path only after the bridge/parity harness can load both old and new implementations.
 
 Package migration requirements:
 
@@ -881,6 +882,27 @@ Comparison:
 - No bundled copies of React or host Poi modules appear in the built output.
 - If automatic JSX runtime is enabled, the fake Poi host must provide `react/jsx-runtime`; otherwise TypeScript must use classic React JSX.
 - No external unresolved `lib-battle` package import remains in the built output.
+
+### 5. E2E oracle replay parity
+
+Input:
+
+- lib-battle upstream oracle packet/result corpus
+- plugin-specific Poi host state fixtures
+- minimal fake Poi host runtime
+
+Output:
+
+- mounted Prophet plugin UI
+- rendered battle/fleet/drop/map/notification states
+- captured side effects for notification, dispatch, storage, and NavyAlbum IPC
+
+Comparison:
+
+- Use lib-battle oracle data as the default battle packet source for Playwright replay cases.
+- Assert plugin-level behavior on top of oracle outputs: HP bars, MVP, repair item, rank, formation, air control, fleet order, drops, transport points, heavy-damage notification candidates, and persisted history.
+- Each synthesized plugin-only E2E fixture must cite why no upstream oracle case covers it.
+- E2E tests must not re-derive expected battle simulation results by hand when an upstream oracle exists.
 
 ## Test and quality scripts
 
