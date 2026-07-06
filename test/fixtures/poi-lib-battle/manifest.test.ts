@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest'
 
 import manifest from './manifest.json'
 
-const repoRoot = path.resolve(__dirname, '../../..')
+const repoRoot = process.cwd()
 
 describe('poi-lib-battle oracle fixture manifest', () => {
   it('documents pinned upstream source metadata', () => {
