@@ -18,7 +18,6 @@ export interface ProphetHistoryEntry {
 
 export interface ProphetExtState {
   history?: Record<string, ProphetHistoryEntry>
-  useitem?: Record<string, { api_count?: number; api_id?: number }>
 }
 
 export type ProphetFleetEntry = [APIGetMemberShip2Response, APIMstShip] | undefined

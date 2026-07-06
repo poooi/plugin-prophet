@@ -3,6 +3,7 @@ import { Radio } from '@blueprintjs/core'
 import { useSelector } from 'react-redux'
 import { get, map } from 'lodash'
 import styled from 'styled-components'
+import { setConfig } from '../../host/poi-config'
 
 const RadioContainer = styled.div`
   display: flex;
@@ -28,7 +29,7 @@ const RadioCheck: FC<RadioCheckProps> = ({ label: displayName, configName, defau
   const current = useSelector((state: PoiRootState) => get(state.config, configName, defaultVal) as string)
 
   const handleClickRadio = (value: string) => () => {
-    config.set(configName, value)
+    setConfig(configName, value)
   }
 
   return (

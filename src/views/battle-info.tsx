@@ -4,6 +4,7 @@ import styled, { css } from 'styled-components'
 import { compact } from 'lodash'
 
 import { _t, resolvePluginPath } from '../utils'
+import { isPoiDarkTheme } from '../host/poi-assets'
 
 const ResultIcon = styled.img<{ isLight?: boolean }>`
   width: 32px;
@@ -57,7 +58,7 @@ const BattleInfo: FC<BattleInfoProps> = ({
         {BATTLE_RESULT.includes(result) ? (
           <ResultIcon
             src={resolvePluginPath(`./assets/icons/result-${result}.svg`)}
-            isLight={!window.isDarkTheme}
+            isLight={!isPoiDarkTheme()}
             alt="result"
           />
         ) : (

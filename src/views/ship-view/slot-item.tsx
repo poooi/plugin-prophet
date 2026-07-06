@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { SlotitemIcon } from 'views/components/etc/icon'
 import styled from 'styled-components'
 
-import { resolveMainPath } from '../../utils'
+import { resolvePoiHostAssetPath } from '../../host/poi-assets'
 
 const Container = styled.div`
   white-space: nowrap;
@@ -81,7 +81,7 @@ export const SlotItem: FC<SlotItemProps> = ({ item, label, warn }) => {
         <ALv className="alv">
           {(data.api_alv ?? 0) >= 1 && (data.api_alv ?? 0) <= 7 && (
             <ALvImage
-              src={resolveMainPath(`./assets/img/airplane/alv${data.api_alv}.png`)}
+              src={resolvePoiHostAssetPath(`./assets/img/airplane/alv${data.api_alv}.png`)}
               alt="alv"
             />
           )}

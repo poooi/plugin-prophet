@@ -1,6 +1,7 @@
 import type { APIMstShip, APIMstSlotitem, APIMstUseitem, APIMstStype } from 'kcsapi/api_start2/getData/response'
 import type { APIGetMemberSlotItemResponse } from 'kcsapi/api_get_member/slot_item/response'
 import type { APIAirBase } from 'kcsapi/api_get_member/mapinfo/response'
+import type { APIUseitem } from 'kcsapi/api_get_member/require_info/response'
 
 export {}
 
@@ -22,6 +23,8 @@ declare global {
     }
     info: {
       airbase?: APIAirBase[]
+      // Mirrored from poooi/poi views/redux/info/useitems.ts UseItemsState.
+      useitems?: Record<string, APIUseitem>
       fleets?: Record<number, {
         api_ship: number[]
         api_name: string

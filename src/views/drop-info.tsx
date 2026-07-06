@@ -3,7 +3,11 @@ import { useSelector } from 'react-redux'
 import _ from 'lodash'
 import FA from 'react-fontawesome'
 import { useTranslation } from 'react-i18next'
-import type { ProphetExtState } from '../types'
+import { canShowShipInNavyAlbum, showShipInNavyAlbum } from '../host/poi-ipc'
+
+interface LegacyUseItemEntry {
+  api_count?: number
+}
 
 interface DropInfoProps {
   getShip?: number
@@ -18,23 +22,20 @@ const DropInfo: FC<DropInfoProps> = ({ getShip, getItem }) => {
   const shipType = useSelector((state: PoiRootState) =>
     ship ? state.const?.$shipTypes?.[ship.api_stype] : undefined,
   )
-  const navyAlbumShowShipAvailable = useSelector(
-    (state: PoiRootState) => state.ipc?.NavyAlbum?.showShip ?? false,
-  )
+  const navyAlbumShowShipAvailable = useSelector(canShowShipInNavyAlbum)
   const count = useSelector((state: PoiRootState) => {
-    const useitemStore = state.ext?.['poi-plugin-prophet']?._?.['useitem'] as ProphetExtState['useitem']
-    if (!useitemStore || getItem == null) return 0
-    return useitemStore[String(getItem)]?.api_count ?? 0
+    if (getItem == null) return 0
+    const currentCount = state.info?.useitems?.[String(getItem)]?.api_count
+    if (currentCount != null) return currentCount
+    const legacyUseitems = state.ext?.['poi-plugin-prophet']?._?.['useitem'] as
+      | Record<string, LegacyUseItemEntry>
+      | undefined
+    return legacyUseitems?.[String(getItem)]?.api_count ?? 0
   })
 
   const handleClick = () => {
-    if (!window.ipc || !ship) return
-    const navyAlbum = window.ipc.access('NavyAlbum')
-    navyAlbum.showShip(ship.api_id)
-    const mainWindow = window.ipc.access('MainWindow')
-    if (mainWindow?.ipcFocusPlugin) {
-      mainWindow.ipcFocusPlugin('poi-plugin-navy-album')
-    }
+    if (!ship) return
+    showShipInNavyAlbum(ship.api_id)
   }
 
   const shipMessage =

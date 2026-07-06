@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux'
 import { get } from 'lodash'
 import { Checkbox } from '@blueprintjs/core'
 import styled from 'styled-components'
+import { setConfig } from '../../host/poi-config'
 
 const CheckboxLabelConfigContainer = styled.div`
   padding-right: 2em;
@@ -22,7 +23,7 @@ const CheckboxLabelConfig: FC<CheckboxLabelConfigProps> = ({
   const value = useSelector((state: PoiRootState) => get(state.config, configName, defaultVal) as boolean | undefined)
 
   const handleChange = () => {
-    config.set(configName, !value)
+    setConfig(configName, !value)
   }
 
   return (

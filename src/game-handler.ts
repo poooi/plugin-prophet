@@ -7,6 +7,9 @@ import type { RawFleetShip } from 'poi-lib-battle'
 
 import { store } from 'views/create-store'
 
+import { getConfig } from './host/poi-config'
+import { notify } from './host/poi-notification'
+import { getStore } from './host/poi-store'
 import {
   PLUGIN_KEY,
   initEnemy,
@@ -16,8 +19,8 @@ import {
   transformToLibBattleClass,
   transformToDazzyDingClass,
   SortieState,
-  resolveMainPath,
 } from './utils'
+import { resolvePoiHostAssetPath } from './host/poi-assets'
 import {
   onPatchBattle,
   onBattleResult,
@@ -25,7 +28,6 @@ import {
   initBattleState,
   battleStateSelector,
   historyObserver,
-  useitemObserver,
 } from './redux'
 import type { BattleDisplayState } from './types'
 import { selectFleetsEquips } from './selectors'
@@ -110,7 +112,7 @@ const handlePacketResult = (battle: Battle): Partial<BattleDisplayState> => {
       !includes(escapedPos, ship.pos - 1) &&
       sortieState !== SortieState.Practice
     ) {
-      const shipName = window.getStore<string>(
+      const shipName = getStore<string>(
         `const.$ships.${ship.raw && (ship.raw as { api_ship_id?: number }).api_ship_id}.api_name`,
         ' ',
       )
@@ -118,11 +120,11 @@ const handlePacketResult = (battle: Battle): Partial<BattleDisplayState> => {
     }
   })
 
-  if (!isEmpty(damageList) && config.get('plugin.prophet.notify.enable', true)) {
-    window.notify(`${damageList.join(', ')} ${t('Heavily damaged')}`, {
+  if (!isEmpty(damageList) && getConfig('plugin.prophet.notify.enable', true)) {
+    notify(`${damageList.join(', ')} ${t('Heavily damaged')}`, {
       type: 'damaged',
-      icon: resolveMainPath('./views/components/main/assets/img/state/4.png'),
-      audio: config.get('plugin.prophet.notify.damagedAudio'),
+      icon: resolvePoiHostAssetPath('./views/components/main/assets/img/state/4.png'),
+      audio: getConfig('plugin.prophet.notify.damagedAudio'),
     })
   }
   return { ...newState }
@@ -404,7 +406,7 @@ const fleetObserver = observer(
 
 export const initHandler = (): void => {
   window.addEventListener('game.response', handleGameResponse)
-  unsubscribeObservers = observe(store, [historyObserver, useitemObserver, fleetObserver])
+  unsubscribeObservers = observe(store, [historyObserver, fleetObserver])
 
   if (window.dbg?.isEnabled()) {
     window.prophetTest = (battle) =>
