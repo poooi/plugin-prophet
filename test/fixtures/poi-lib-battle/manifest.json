@@ -2,14 +2,13 @@
   "source": {
     "repository": "poooi/lib-battle",
     "commit": "5a62550a9ed563a7f7c4a1f171f02f2fa0084b0a",
-    "note": "Manually mirrored from upstream tests; lib-battle is consumed as an npm package, not as a submodule. Upstream practice fixtures intentionally keep the source spelling \"Pratice\" in their JSON type field."
+    "note": "Manually mirrored from upstream tests into one consolidated test corpus; lib-battle is consumed as an npm package, not as a submodule. Upstream practice fixtures intentionally keep the source spelling \"Pratice\" in their JSON type field."
   },
-  "fixtureRoot": "test/fixtures/poi-lib-battle/battle-detail",
+  "corpusPath": "test/fixtures/poi-lib-battle/battle-detail-corpus.json",
   "upstreamRoot": "tests/fixtures/battle-detail",
   "expectedFixtureCount": 303,
   "fixtureSets": [
     {
-      "localPath": "test/fixtures/poi-lib-battle/battle-detail/bulk",
       "upstreamPath": "tests/fixtures/battle-detail/bulk",
       "fixtureCount": 276,
       "coverage": [
@@ -19,7 +18,6 @@
       ]
     },
     {
-      "localPath": "test/fixtures/poi-lib-battle/battle-detail/combined",
       "upstreamPath": "tests/fixtures/battle-detail/combined",
       "fixtureCount": 2,
       "coverage": [
@@ -28,7 +26,6 @@
       ]
     },
     {
-      "localPath": "test/fixtures/poi-lib-battle/battle-detail/features",
       "upstreamPath": "tests/fixtures/battle-detail/features",
       "fixtureCount": 8,
       "coverage": [
@@ -42,7 +39,6 @@
       ]
     },
     {
-      "localPath": "test/fixtures/poi-lib-battle/battle-detail/sortie",
       "upstreamPath": "tests/fixtures/battle-detail/sortie",
       "fixtureCount": 17,
       "coverage": [

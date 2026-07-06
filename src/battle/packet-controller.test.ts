@@ -1,23 +1,14 @@
-import fs from 'node:fs'
-import path from 'node:path'
 import { Battle, type BattleOptions } from 'poi-lib-battle'
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import fixture from '../../test/fixtures/poi-lib-battle/battle-detail/features/air_base_attack/1615132578245.json'
+import { findBattleDetailFixture, readBattleDetailCorpus } from '../../test/fixtures/poi-lib-battle/corpus'
 import manifest from '../../test/fixtures/poi-lib-battle/manifest.json'
 import { SortieState } from '../utils/constants'
 import { simulateBattleDisplayState } from './packet-controller'
 
-const repoRoot = process.cwd()
-
-function collectJsonFixtures(root: string): string[] {
-  const entries = fs.readdirSync(root, { withFileTypes: true })
-  return entries.flatMap((entry) => {
-    const entryPath = path.join(root, entry.name)
-    if (entry.isDirectory()) return collectJsonFixtures(entryPath)
-    return entry.isFile() && entry.name.endsWith('.json') ? [entryPath] : []
-  })
-}
+const fixture = findBattleDetailFixture(
+  'tests/fixtures/battle-detail/features/air_base_attack/1615132578245.json',
+)
 
 describe('simulateBattleDisplayState', () => {
   beforeEach(() => {
@@ -41,22 +32,20 @@ describe('simulateBattleDisplayState', () => {
   })
 
   it('replays the full curated lib-battle battle-detail oracle corpus without packet-controller regressions', () => {
-    const fixtureRoot = path.resolve(repoRoot, manifest.fixtureRoot)
-    const fixturePaths = collectJsonFixtures(fixtureRoot)
+    const corpus = readBattleDetailCorpus()
 
-    expect(fixturePaths).toHaveLength(manifest.expectedFixtureCount)
+    expect(corpus.fixtures).toHaveLength(manifest.expectedFixtureCount)
 
-    for (const fixturePath of fixturePaths) {
-      const fixtureName = path.relative(repoRoot, fixturePath)
-      const battle = new Battle(JSON.parse(fs.readFileSync(fixturePath, 'utf8')) as BattleOptions)
+    for (const { upstreamPath, data } of corpus.fixtures) {
+      const battle = new Battle(data as BattleOptions)
       const state = simulateBattleDisplayState(battle)
 
-      expect(state.sortieState, fixtureName).toBeDefined()
-      expect(state.fFormation, fixtureName).toBeDefined()
-      expect(state.eFormation, fixtureName).toBeDefined()
-      expect(state.battleForm, fixtureName).toBeDefined()
-      expect(state.mainFleet?.length, fixtureName).toBeGreaterThan(0)
-      expect(state.enemyFleet?.length, fixtureName).toBeGreaterThan(0)
+      expect(state.sortieState, upstreamPath).toBeDefined()
+      expect(state.fFormation, upstreamPath).toBeDefined()
+      expect(state.eFormation, upstreamPath).toBeDefined()
+      expect(state.battleForm, upstreamPath).toBeDefined()
+      expect(state.mainFleet?.length, upstreamPath).toBeGreaterThan(0)
+      expect(state.enemyFleet?.length, upstreamPath).toBeGreaterThan(0)
     }
   })
 })
