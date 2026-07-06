@@ -1,12 +1,13 @@
 import { observe, observer } from 'redux-observers'
 import _ from 'lodash'
-import { isEqual, isNil, each, map, isEmpty, includes, concat, first } from 'lodash'
+import { isEqual, isNil, map, isEmpty, first } from 'lodash'
 import i18next from 'views/env-parts/i18next'
 import { Models, Simulator, Battle, Fleet } from 'poi-lib-battle'
 import type { RawFleetShip } from 'poi-lib-battle'
 
 import { store } from 'views/create-store'
 
+import { getHeavilyDamagedShipNames } from './battle/damage-notification'
 import { getConfig } from './host/poi-config'
 import { notify } from './host/poi-notification'
 import { getStore } from './host/poi-store'
@@ -102,22 +103,13 @@ const handlePacketResult = (battle: Battle): Partial<BattleDisplayState> => {
   const escapedPos = state.sortie.escapedPos ?? []
 
   const newState = handlePacket(battle)
-  const friendShips = concat(mainFleet, escortFleet)
-  const damageList: string[] = []
-
-  each(friendShips, (ship) => {
-    if (ship == null) return
-    if (
-      ship.nowHP / ship.maxHP <= 0.25 &&
-      !includes(escapedPos, ship.pos - 1) &&
-      sortieState !== SortieState.Practice
-    ) {
-      const shipName = getStore<string>(
-        `const.$ships.${ship.raw && (ship.raw as { api_ship_id?: number }).api_ship_id}.api_name`,
-        ' ',
-      )
-      damageList.push(t(shipName))
-    }
+  const damageList = getHeavilyDamagedShipNames({
+    mainFleet,
+    escortFleet,
+    escapedPos,
+    sortieState,
+    getShipName: (shipId) => getStore<string>(`const.$ships.${shipId}.api_name`, ' '),
+    translate: t,
   })
 
   if (!isEmpty(damageList) && getConfig('plugin.prophet.notify.enable', true)) {
