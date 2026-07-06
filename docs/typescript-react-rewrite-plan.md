@@ -51,6 +51,7 @@ Use these choices unless a Poi runtime incompatibility is proven by an automated
 | Formatting | Prettier |
 | Runtime React dependency | Do not bundle `react` or `react-dom`; continue to consume the Poi host React runtime |
 | Styling | Keep `styled-components` initially to preserve styling behavior |
+| Localization | Use `react-i18next` hooks directly in React components; do not add a Poi i18n wrapper |
 | State | Keep the exported plugin reducer; use local React hooks for component state |
 | Host imports | Keep Poi host imports behind typed adapter modules |
 
@@ -102,14 +103,14 @@ export default defineConfig({
       'reselect',
       'styled-components',
     ],
-    onlyBundle: [],
   },
 })
 ```
 
 The object entry name `index` is required so the root output is `index.js`. Do not rely on default output naming for the package entry.
 `fixedExtension: false` is required so CJS output is `index.js`/`index.d.ts` instead of `index.cjs`/`index.d.cts`. The compatibility and package smoke tests must assert exact emitted filenames.
-Use `deps.onlyBundle` only as a whitelist for dependencies that are already being bundled. It does not force bundling. If a non-host runtime package from `node_modules` must be bundled, add it deliberately to `deps.alwaysBundle`, also include it in `deps.onlyBundle`, document why it cannot remain external, and update the package smoke test to assert the bundled dependency is expected.
+If a non-host runtime package from `node_modules` must be bundled, add it deliberately to `deps.alwaysBundle`.
+Document why it cannot remain external, and update the package smoke test to assert the bundled dependency is expected.
 
 `lib-battle` decision: upgrade the current stale `lib/battle` submodule to the upstream TypeScript rewrite before Phase 2. Target upstream tag `v3.0.5` unless a newer tagged release is explicitly chosen and recorded. Keep `lib-battle` vendored in this repository as a pinned git submodule or checked-in source package and import it by relative path from `src/battle/lib-battle-adapter.ts`. Do not rely on Poi to provide `lib-battle` at runtime. Package smoke must fail if the built output contains an external `require('lib-battle')`, `require('poi-lib-battle')`, or equivalent unresolved `lib-battle` package import.
 
@@ -157,6 +158,7 @@ Forbidden in new TypeScript source:
 - direct `localStorage` access outside `src/state/storage.ts`
 - direct `lib-battle` imports outside `src/battle/lib-battle-adapter.ts`
 - raw `game.response` parsing inside React components
+- direct `i18next` or `react-i18next` usage outside React components
 - lodash `get` for new internal data structures
 
 ## Target source layout
@@ -171,7 +173,6 @@ src/
   host/
     poi-globals.ts
     poi-redux.ts
-    poi-i18n.ts
     poi-ui.tsx
     poi-assets.ts
     poi-types.ts
@@ -392,7 +393,6 @@ Create:
 
 - `src/host/poi-globals.ts`
 - `src/host/poi-redux.ts`
-- `src/host/poi-i18n.ts`
 - `src/host/poi-ui.tsx`
 - `src/host/poi-assets.ts`
 - `src/host/poi-types.ts`
@@ -457,7 +457,7 @@ Rules:
    - battle simulation
    - result synthesis
    - air force status extraction
-   - formation/engagement/air-control translation
+   - formation/engagement/air-control normalization to translation keys or display tokens
 9. All production `lib-battle` imports must be in `lib-battle-adapter.ts`.
 
 Acceptance gate:
@@ -579,7 +579,9 @@ Rendering rules:
    - `layout: 'auto'` resolves to horizontal when `height < 300` or `height * 5 < width * 3`; otherwise it resolves to vertical.
 3. Tooltip placement is isolated in a hook:
    - `useFleetMeasurement(rootRef, containerRef)`
-4. Translation happens before or at the component edge, never inside battle simulation.
+4. Translation happens at the React component edge with `react-i18next` hooks.
+   - View models carry translation keys, resource IDs, or domain display tokens.
+   - Non-React modules must not import `i18next` or `react-i18next`.
 5. SVG/icon paths are resolved through `host/poi-assets.ts`.
 
 Required component tests:
