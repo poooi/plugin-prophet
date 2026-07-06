@@ -20,7 +20,7 @@ const CheckboxLabelConfig: FC<CheckboxLabelConfigProps> = ({
   configName,
   defaultVal,
 }) => {
-  const value = useSelector((state: PoiRootState) => get(state.config, configName, defaultVal) as boolean | undefined)
+  const value = useSelector((state: PoiRootState) => get(state.config, configName, defaultVal) as boolean | undefined) ?? false
 
   const handleChange = () => {
     setConfig(configName, !value)
