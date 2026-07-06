@@ -47,7 +47,7 @@ Do not introduce a second internal state system by default. In particular, do no
 | State | Keep exported Redux reducer as the single plugin state store for now |
 | Component workbench | Add Storybook with React/Vite for visual component states |
 | Tests | Vitest for unit/integration/parity; Playwright for host/E2E replay |
-| E2E data | Use `poi-lib-battle` upstream oracle data as the primary battle replay source |
+| E2E data | Manually curate needed oracle cases from pinned upstream `poi-lib-battle` sources |
 
 ## Remaining work decisions
 
@@ -56,7 +56,7 @@ Do not introduce a second internal state system by default. In particular, do no
 | Full rewrite | Drop | The TypeScript migration already exists; refactoring is lower risk. |
 | Jotai | Defer/drop for now | Current battle state is already in Redux and inspectable through selectors. Add Jotai only after an ADR proves concrete maintainability benefit over Redux selectors. |
 | Plugin-local `UseItemReducer` | Remove after selector validation | Poi tracks useitem/member-item state. Prefer typed selectors against Poi state and delete plugin-local tracking/cache if parity proves the Poi state is complete enough. |
-| `poi-lib-battle` migration | Keep current package path | `poi-lib-battle@3.x` is already in package metadata; focus on adapter parity and oracle tests. |
+| `poi-lib-battle` migration | Keep current package path | `poi-lib-battle@3.x` is already in package metadata; focus on adapter parity and manually curated oracle tests. |
 | Storybook | Keep | Useful for the existing TSX component stack and visual parity during refactor. |
 | Playwright E2E | Keep focused | Use oracle replay and minimal fake Poi host; avoid broad/browser-heavy tests without parity value. |
 | Host type shims | Refactor | Replace guessed local shapes with types sourced from `poooi/poi` where available. |
@@ -163,14 +163,14 @@ Storybook is required for refactored components:
 
 ## Test and parity strategy
 
-Use the current TypeScript implementation as the baseline for plugin behavior, and use `poi-lib-battle` upstream oracle data for battle simulation expectations.
+Use the current TypeScript implementation as the baseline for plugin behavior, and use manually curated `poi-lib-battle` upstream oracle data for battle simulation expectations.
 
 Required layers:
 
 | Layer | Purpose |
 |---|---|
 | Unit tests | Pure selectors, reducers, packet controller, view-model builders |
-| Adapter/oracle tests | Verify plugin adapter output against `poi-lib-battle` oracle packet/result corpus |
+| Adapter/oracle tests | Verify plugin adapter output against manually curated `poi-lib-battle` oracle packet/result cases |
 | Component tests | React Testing Library for semantic DOM behavior |
 | Storybook build | Visual state coverage and component isolation |
 | Playwright E2E | Minimal fake Poi host replaying oracle battle packets |
@@ -191,13 +191,13 @@ Do not lower thresholds to make CI pass. Exclude only type-only declarations, ge
 
 ## Required fixtures
 
-Prefer `poi-lib-battle` upstream oracle cases for battle packets and results. The oracle corpus must come from a pinned upstream repository/test ref, not from the installed npm package tarball unless that tarball is proven to ship the needed tests/oracles. Add plugin-only fixtures only when the behavior is outside lib-battle's domain.
+Prefer `poi-lib-battle` upstream oracle cases for battle packets and results, but do not assume they are available locally through a submodule or the installed npm package. Manually pick the needed upstream oracle cases from a pinned upstream repository/test ref, copy the selected packets and expected results into this repository, and record the upstream commit/path for each copied case. Add plugin-only fixtures only when the behavior is outside lib-battle's domain.
 
 Required plugin scenarios:
 
 | Scenario | Source |
 |---|---|
-| normal, air, land-base, night, combined, enemy-combined, night-to-day battles | `poi-lib-battle` oracle corpus |
+| normal, air, land-base, night, combined, enemy-combined, night-to-day battles | manually selected `poi-lib-battle` oracle cases |
 | map start/next/air raid navigation | plugin fixture |
 | land-base destruction object/array/stringified forms | plugin fixture if not in oracle |
 | repair item HP correction | oracle if available, otherwise plugin fixture |
@@ -254,9 +254,10 @@ Target CI must run:
 ### Phase 0: Baseline audit
 
 1. Record current TypeScript baseline behavior.
-2. Pin inspected `poooi/poi` and `poi-lib-battle` refs.
-3. Identify all locally invented host types in `shims/**`.
-4. Inventory current gaps: tests, package smoke, CI, useitem ownership, battle state coupling.
+2. Pin inspected `poooi/poi` and upstream `poi-lib-battle` refs.
+3. Manually select the upstream `poi-lib-battle` oracle cases needed for Prophet parity and copy only those fixtures into this repository.
+4. Identify all locally invented host types in `shims/**`.
+5. Inventory current gaps: tests, package smoke, CI, useitem ownership, battle state coupling.
 
 ### Phase 1: Host and type cleanup
 
@@ -296,7 +297,7 @@ Coverage thresholds are final hardening gates, not requirements for the first PR
 
 1. Current TypeScript migration remains buildable through `tsdown`.
 2. Plugin public exports remain compatible.
-3. Battle behavior is covered by `poi-lib-battle` oracle replay plus plugin-specific parity tests.
+3. Battle behavior is covered by manually curated `poi-lib-battle` oracle replay plus plugin-specific parity tests.
 4. Host types are sourced from `poooi/poi` or explicitly justified.
 5. Plugin-local useitem tracking is removed or formally justified if Poi state cannot replace it.
 6. Storybook covers settings and battle component states.
