@@ -1,12 +1,8 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { Ship } from 'poi-lib-battle'
 
+import { SortieState } from '../utils/constants'
 import { getHeavilyDamagedShipNames } from './damage-notification'
-
-const SortieState = {
-  Battle: 2,
-  Practice: 3,
-} as const
 
 const ship = (overrides: Partial<Ship>): Ship =>
   ({

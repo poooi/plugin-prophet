@@ -1,6 +1,6 @@
 import type { Ship } from 'poi-lib-battle'
 
-const PRACTICE_SORTIE_STATE = 3
+import { SortieState } from '../utils/constants'
 
 export interface HeavyDamageShipNameInput {
   mainFleet?: (Ship | null)[]
@@ -25,7 +25,7 @@ export const getHeavilyDamagedShipNames = ({
   getShipName,
   translate,
 }: HeavyDamageShipNameInput): string[] => {
-  if (sortieState === PRACTICE_SORTIE_STATE) return []
+  if (sortieState === SortieState.Practice) return []
 
   return [...mainFleet, ...escortFleet].flatMap((ship) => {
     if (!ship) return []
