@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "types": ["node"],
+    "module": "preserve",
+    "jsx": "react",
+    "strict": true,
+    "moduleResolution": "bundler",
+    "baseUrl": "./",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "resolveJsonModule": true,
+    "strictNullChecks": true
+  },
+  "include": [
+    "index-src.ts",
+    "src/**/*",
+    "shims/**/*"
+  ],
+  "exclude": [
+    "lib"
+  ]
+}

@@ -1,33 +1,42 @@
 {
   "name": "poi-plugin-prophet",
-  "version": "8.17.0",
+  "version": "9.0.0-beta.2",
   "description": "A prophet plugin for Poi",
-  "main": "index.es",
+  "main": "index.js",
   "devDependencies": {
+    "@blueprintjs/core": "^4.0.0",
     "@commitlint/cli": "^11.0.0",
     "@commitlint/config-conventional": "^11.0.0",
-    "babel-eslint": "^10.1.0",
-    "eslint": "^7.14.0",
-    "eslint-config-airbnb": "^18.2.1",
-    "eslint-config-poi-plugin": "^3.0.1",
-    "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsx-a11y": "^6.4.1",
-    "eslint-plugin-prettier": "^3.2.0",
-    "eslint-plugin-react": "^7.21.5",
-    "eslint-plugin-react-hooks": "^4.2.0",
+    "@types/lodash": "^4.14.0",
+    "@types/node": "^18.19.130",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/react-redux": "^7.1.0",
+    "@types/styled-components": "^5.1.0",
+    "@eslint/js": "^9.39.4",
+    "eslint": "^9.39.4",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-react": "^7.37.5",
+    "typescript-eslint": "^8.59.2",
+    "fast-memoize": "^2.5.2",
     "husky": "^4.3.0",
+    "i18next": "^19.3.2",
+    "kcsapi": "^1.260508.0",
     "lint-staged": "^10.5.2",
-    "poi-util-transpile": "^10.3.4",
-    "prettier": "^2.2.1"
+    "poi-lib-battle": "^3.0.5",
+    "react-i18next": "^11.3.3",
+    "redux-observers": "^3.0.0",
+    "reselect": "^4.0.0",
+    "tsdown": "^0.17.0",
+    "typescript": "^5.0.0"
   },
   "scripts": {
-    "reset": "git clean -f && git checkout . && git submodule foreach git checkout . && git submodule foreach git clean -f",
-    "prepack": "poi-util-transpile --sm --replace",
+    "reset": "git clean -f && git checkout . && git submodule foreach git checkout",
+    "prepack": "tsdown",
     "postpublish": "npm run reset",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "lint": "eslint . --ext .es",
-    "lint:fix": "eslint . --ext .es --fix"
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"index-src.ts\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" \"index-src.ts\" --fix"
   },
   "repository": {
     "type": "git",
@@ -56,7 +65,6 @@
       "9.99.99": "7.11.1"
     }
   },
-  "dependencies": {},
   "husky": {
     "hooks": {
       "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
