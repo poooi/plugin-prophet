@@ -32,6 +32,22 @@ jobs:
           # Legacy peer graph is not npm 10-clean; remove after dependency refresh.
           npm ci --legacy-peer-deps
 
-      - name: Test
+      - name: Typecheck
+        run: |
+          npm run typecheck
+
+      - name: Lint
         run: |
           npm run lint
+
+      - name: Test with coverage
+        run: |
+          npm run test:coverage
+
+      - name: Build
+        run: |
+          npm run build
+
+      - name: Build Storybook
+        run: |
+          npm run storybook:build
