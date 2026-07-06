@@ -6,21 +6,37 @@ import manifest from './manifest.json'
 
 const repoRoot = process.cwd()
 
+function collectJsonFixtures(root: string): string[] {
+  const entries = fs.readdirSync(root, { withFileTypes: true })
+  return entries.flatMap((entry) => {
+    const entryPath = path.join(root, entry.name)
+    if (entry.isDirectory()) return collectJsonFixtures(entryPath)
+    return entry.isFile() && entry.name.endsWith('.json') ? [entryPath] : []
+  })
+}
+
 describe('poi-lib-battle oracle fixture manifest', () => {
   it('documents pinned upstream source metadata', () => {
     expect(manifest.source.repository).toBe('poooi/lib-battle')
     expect(manifest.source.commit).toMatch(/^[0-9a-f]{40}$/)
   })
 
-  it('points to valid local JSON fixtures', () => {
-    expect(manifest.fixtures.length).toBeGreaterThan(0)
+  it('mirrors the expected upstream battle-detail fixture corpus', () => {
+    const fixtureRoot = path.resolve(repoRoot, manifest.fixtureRoot)
+    const fixtures = collectJsonFixtures(fixtureRoot)
 
-    for (const fixture of manifest.fixtures) {
-      const fixturePath = path.resolve(repoRoot, fixture.localPath)
-      expect(fs.existsSync(fixturePath), fixture.localPath).toBe(true)
+    expect(fixtures).toHaveLength(manifest.expectedFixtureCount)
+
+    for (const fixtureSet of manifest.fixtureSets) {
+      const fixtureSetRoot = path.resolve(repoRoot, fixtureSet.localPath)
+      expect(fs.existsSync(fixtureSetRoot), fixtureSet.localPath).toBe(true)
+      expect(collectJsonFixtures(fixtureSetRoot)).toHaveLength(fixtureSet.fixtureCount)
+      expect(fixtureSet.upstreamPath).toMatch(/^tests\/fixtures\//)
+      expect(fixtureSet.coverage.length).toBeGreaterThan(0)
+    }
+
+    for (const fixturePath of fixtures) {
       expect(() => JSON.parse(fs.readFileSync(fixturePath, 'utf8'))).not.toThrow()
-      expect(fixture.upstreamPath).toMatch(/^tests\/fixtures\//)
-      expect(fixture.coverage.length).toBeGreaterThan(0)
     }
   })
 })

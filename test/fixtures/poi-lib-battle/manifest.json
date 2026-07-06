@@ -2,15 +2,53 @@
   "source": {
     "repository": "poooi/lib-battle",
     "commit": "5a62550a9ed563a7f7c4a1f171f02f2fa0084b0a",
-    "note": "Manually curated from upstream tests; lib-battle is consumed as an npm package, not as a submodule."
+    "note": "Manually mirrored from upstream tests; lib-battle is consumed as an npm package, not as a submodule. Upstream practice fixtures intentionally keep the source spelling \"Pratice\" in their JSON type field."
   },
-  "fixtures": [
+  "fixtureRoot": "test/fixtures/poi-lib-battle/battle-detail",
+  "upstreamRoot": "tests/fixtures/battle-detail",
+  "expectedFixtureCount": 303,
+  "fixtureSets": [
     {
-      "localPath": "test/fixtures/poi-lib-battle/battle-detail/air-base-attack/1615132578245.json",
-      "upstreamPath": "tests/fixtures/battle-detail/features/air_base_attack/1615132578245.json",
+      "localPath": "test/fixtures/poi-lib-battle/battle-detail/bulk",
+      "upstreamPath": "tests/fixtures/battle-detail/bulk",
+      "fixtureCount": 276,
       "coverage": [
+        "large upstream recent-capture corpus",
+        "mixed sortie battle shapes",
+        "mixed battle results"
+      ]
+    },
+    {
+      "localPath": "test/fixtures/poi-lib-battle/battle-detail/combined",
+      "upstreamPath": "tests/fixtures/battle-detail/combined",
+      "fixtureCount": 2,
+      "coverage": [
+        "combined battle transition",
+        "midnight battle"
+      ]
+    },
+    {
+      "localPath": "test/fixtures/poi-lib-battle/battle-detail/features",
+      "upstreamPath": "tests/fixtures/battle-detail/features",
+      "fixtureCount": 8,
+      "coverage": [
+        "air-base attack",
+        "friendly fleet",
+        "injection aerial combat",
+        "practice battle result"
+      ],
+      "notes": [
+        "Upstream injection_kouku JSON uses type \"Pratice\"; keep the copied oracle unmodified."
+      ]
+    },
+    {
+      "localPath": "test/fixtures/poi-lib-battle/battle-detail/sortie",
+      "upstreamPath": "tests/fixtures/battle-detail/sortie",
+      "fixtureCount": 17,
+      "coverage": [
+        "sortie air battle",
         "land-base air attack",
-        "aerial stage 3 damage"
+        "aerial-only battle phases"
       ]
     }
   ]
