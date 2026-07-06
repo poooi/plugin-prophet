@@ -1,10 +1,13 @@
 import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { defineConfig } from 'vitest/config'
+
+const configDir = path.dirname(fileURLToPath(import.meta.url))
 
 export default defineConfig({
   resolve: {
     alias: {
-      'views/env-parts/i18next': path.resolve(__dirname, './test/mocks/i18next.ts'),
+      'views/env-parts/i18next': path.resolve(configDir, './test/mocks/i18next.ts'),
     },
   },
   test: {
