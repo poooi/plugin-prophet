@@ -38,6 +38,7 @@ Use these choices unless a Poi runtime incompatibility is proven by an automated
 | Language | TypeScript with `strict: true` |
 | React style | Function components and hooks only |
 | Class components | Not allowed in new code |
+| Redux binding style | Do not use `connect` or `mapStateToProps` in new code; use typed hooks/selectors at the plugin boundary |
 | Decorators | Not allowed |
 | PropTypes | Not allowed in new code; TypeScript props replace them |
 | Build | `tsdown` for library/plugin entry build |
@@ -632,13 +633,15 @@ Active fleet selection contract:
 
 `prophet-root.tsx` owns:
 
-1. Connecting typed host selectors to the packet controller.
+1. Reading typed host state through hooks/selectors and passing selected data to the packet controller.
 2. Subscribing and unsubscribing from `game.response`.
 3. Observing root size.
 4. Passing `ProphetViewModel` to the `battle-panel.tsx` component.
 
 It must not own:
 
+- class lifecycle methods
+- `connect` or `mapStateToProps`
 - raw battle simulation
 - raw packet parsing
 - notification eligibility rules
@@ -650,6 +653,7 @@ Acceptance gate:
 - Integration test mounts `ProphetRoot` from `prophet-root.tsx` with fake Poi host state and dispatches `game.response` events.
 - Export test verifies `reactClass`, `settingsClass`, `reducer`, and `switchPluginPath`.
 - Active fleet selection tests cover sortieStatus, combinedFlag, seven-ship fleet 2, fallback fleet 0, and empty-slot padding.
+- Static checks or lint tests fail if new source uses React class components, decorators, `connect`, or `mapStateToProps`.
 - Legacy root is deleted only after parity tests pass.
 
 ### Phase 8: Remove legacy code
