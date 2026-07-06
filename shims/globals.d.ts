@@ -6,6 +6,8 @@ import type { APIUseitem } from 'kcsapi/api_get_member/require_info/response'
 export {}
 
 declare global {
+  // PoiRootState is narrowed for this plugin and should be kept in sync with
+  // poooi/poi views/redux/** and views/create-store.ts as fields are touched.
   interface ObjectConstructor {
     clone: <T>(obj: T) => T
   }
