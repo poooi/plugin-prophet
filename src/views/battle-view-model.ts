@@ -53,5 +53,5 @@ export const transportPoints = ({
   escapedShipIds?: number[]
 }): { total: number; actual: number } =>
   inEvent
-    ? getTPDazzyDing([...mainFleet, ...escortFleet, ...escapedShipIds.map(() => null)], escapedShipIds)
+    ? getTPDazzyDing([...mainFleet, ...escortFleet], escapedShipIds)
     : { total: 0, actual: 0 }
