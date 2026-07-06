@@ -49,3 +49,7 @@ jobs:
       - name: Build Storybook
         run: |
           npm run storybook:build
+
+      - name: Package smoke
+        run: |
+          npm run test:package

@@ -49,11 +49,12 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:package": "npm pack --dry-run",
     "lint": "eslint \"src/**/*.{ts,tsx}\" \"index-src.ts\" --max-warnings=0",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" \"index-src.ts\" --fix",
     "storybook": "storybook dev -p 6006",
     "storybook:build": "storybook build",
-    "validate": "npm run typecheck && npm run lint && npm run test:coverage && npm run build && npm run storybook:build"
+    "validate": "npm run typecheck && npm run lint && npm run test:coverage && npm run build && npm run storybook:build && npm run test:package"
   },
   "repository": {
     "type": "git",
