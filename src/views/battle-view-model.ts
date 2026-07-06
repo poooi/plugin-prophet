@@ -1,10 +1,10 @@
 import type { Ship } from 'poi-lib-battle'
 
-import { combinedFleetType, SortieState } from '../utils/constants'
+import { combinedFleetType, SortieState, type SortieStateValue } from '../utils/constants'
 import { getTPDazzyDing } from '../utils/transport'
 
 export interface BattleTitleInput {
-  sortieState: number
+  sortieState: SortieStateValue
   sortieMapId?: number
   currentNode?: number | string
   showEnemyTitle: boolean
@@ -15,7 +15,7 @@ export interface BattleTitleInput {
 }
 
 export const battleSpotKey = (
-  sortieState: number,
+  sortieState: SortieStateValue,
   sortieMapId?: number,
   currentNode?: number | string,
 ): string =>

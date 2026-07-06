@@ -18,6 +18,7 @@ import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY, SortieState } from '../utils'
 import type { ProphetBattleResult } from '../types'
+import type { SortieStateValue } from '../utils/constants'
 import {
   battleSpotKey,
   enemyTitle as buildEnemyTitle,
@@ -127,7 +128,7 @@ interface BattleViewAreaProps {
   airControl?: string
   isBaseDefense?: boolean
   isHeavyBomberDefense?: boolean
-  sortieState?: number
+  sortieState?: SortieStateValue
   eventId?: number
   eventKind?: number
   result?: ProphetBattleResult
