@@ -36,6 +36,7 @@
     "redux-observers": "^3.0.0",
     "reselect": "^4.0.0",
     "storybook": "^10.4.6",
+    "styled-components": "^6.4.3",
     "tsdown": "^0.17.0",
     "typescript": "^5.0.0",
     "typescript-eslint": "^8.59.2",
