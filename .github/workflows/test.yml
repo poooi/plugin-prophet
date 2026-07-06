@@ -29,6 +29,7 @@ jobs:
 
       - name: Install deps
         run: |
+          # Legacy peer graph is not npm 10-clean; remove after dependency refresh.
           npm ci --legacy-peer-deps
 
       - name: Test

@@ -111,21 +111,23 @@ export default defineConfig({
 ```
 
 The object entry name `index` is required so the root output is `index.js`. Do not rely on default output naming for the package entry.
-`fixedExtension: false` is required so CJS output is `index.js`/`index.d.ts` instead of `index.cjs`/`index.d.cts`. The compatibility and package smoke tests must assert exact emitted filenames.
+Keep `fixedExtension: false` explicit in config so the package contract cannot drift to `index.cjs`/`index.d.cts`. The compatibility and package smoke tests must assert exact emitted filenames.
 Jotai is a plugin-owned runtime dependency. Add the latest stable `jotai` package during implementation and bundle it with the plugin unless a compatibility spike proves Poi provides it.
 If any other non-host runtime package from `node_modules` must be bundled, add it deliberately to `deps.alwaysBundle`.
 Document why it cannot remain external, and update the package smoke test to assert the bundled dependency is expected.
 
-`lib-battle` decision: upgrade the current stale `lib/battle` submodule to the upstream TypeScript rewrite before Phase 2. Target upstream tag `v3.0.5` unless a newer tagged release is explicitly chosen and recorded. Keep `lib-battle` vendored in this repository as a pinned git submodule or checked-in source package and import it by relative path from `src/battle/lib-battle-adapter.ts`. Do not rely on Poi to provide `lib-battle` at runtime. Package smoke must fail if the built output contains an external `require('lib-battle')`, `require('poi-lib-battle')`, or equivalent unresolved `lib-battle` package import.
+`lib-battle` decision: upgrade the current stale `lib/battle` submodule to the upstream TypeScript rewrite, but do not assume a tag exists. Locate the TypeScript rewrite in upstream `poooi/lib-battle`, record an exact tag or commit SHA, and keep `lib-battle` vendored in this repository as a pinned git submodule or checked-in source package. Do not rely on Poi to provide `lib-battle` at runtime. Package smoke must fail if the built output contains an external `require('lib-battle')`, `require('poi-lib-battle')`, or equivalent unresolved `lib-battle` package import.
 
 Required `lib-battle` upgrade procedure:
 
-1. Fetch upstream tags for `lib/battle`.
-2. Re-pin the submodule to upstream tag `v3.0.5` or an explicitly recorded newer tag.
-3. Read upstream `MIGRATION.md` before writing the adapter.
-4. Inventory upstream fixture/oracle/test corpus and copy or reference the reusable cases under `test/fixtures/lib-battle-upstream`.
-5. Map this plugin's required fixture matrix to upstream fixtures first; synthesize local fixtures only for plugin-specific Poi integration, storage, notification, settings, and view-model behavior not covered upstream.
-6. Add an upgrade note recording old submodule ref, new tag/ref, migration notes used, fixture corpus location, and any upstream behavior changes accepted for this plugin.
+1. Fetch upstream tags and branches for `lib/battle`.
+2. Identify the TypeScript rewrite by source layout, package metadata, `MIGRATION.md`, and upstream tests; record an exact tag if one exists, otherwise record the exact commit SHA. Do not use a floating branch as the migration target.
+3. Preserve the current JavaScript implementation before changing `lib/battle`, either under `test/fixtures/lib-battle-legacy` or as a separate test-only worktree/submodule pinned to the current ref.
+4. Read upstream `MIGRATION.md` before writing the adapter.
+5. Inventory upstream fixture/oracle/test corpus and copy or reference the reusable cases under `test/fixtures/lib-battle-upstream`.
+6. Map this plugin's required fixture matrix to upstream fixtures first; synthesize local fixtures only for plugin-specific Poi integration, storage, notification, settings, and view-model behavior not covered upstream.
+7. Add an upgrade note recording old submodule ref, new tag/ref or commit SHA, migration notes used, fixture corpus location, and any upstream behavior changes accepted for this plugin.
+8. Re-pin the main `lib/battle` path only after the bridge/parity harness can load both old and new implementations.
 
 Package migration requirements:
 
@@ -252,7 +254,7 @@ Only `src/index.ts` may expose the final plugin exports. It must not contain bus
 ## Approved dependency directions
 
 ```text
-components -> React + styling + child components + host UI facade + view-models/types only
+components -> React + styling + child components + host UI/assets facades + view-models/types + typed interaction callbacks only
 plugin -> host + state + battle + components
 battle -> host types + lib-battle-adapter + packet types
 state -> host types + storage
@@ -264,10 +266,12 @@ Rules:
 
 1. `components/**` must not import `lib-battle`, `window`, `config`, Redux store objects, or raw battle packets.
 2. `components/**` may import `host/poi-ui.tsx` for typed wrappers around Poi tooltips, avatars, icons, material icons, slot item icons, and game color helpers.
-3. `battle/**` must not import React.
-4. `state/**` must not import React.
-5. `host/**` must not import plugin components.
-6. `lib-battle-adapter.ts` is the only production module allowed to import the new TypeScript `lib-battle`; `legacy-lib-battle-adapter.ts` may import the old JavaScript implementation only for test parity and must be deleted in Phase 8.
+3. `components/**` may import `host/poi-assets.ts` for typed plugin/host asset path resolution.
+4. Components must receive host side-effect actions, such as opening NavyAlbum, through typed props/callbacks from `prophet-root.tsx`; components must not import IPC or call host globals directly.
+5. `battle/**` must not import React.
+6. `state/**` must not import React.
+7. `host/**` must not import plugin components.
+8. `lib-battle-adapter.ts` is the only production module allowed to import the new TypeScript `lib-battle`; `legacy-lib-battle-adapter.ts` may import the old JavaScript implementation only for test parity and must be deleted in Phase 8.
 
 ## View model boundary
 
@@ -317,6 +321,10 @@ export interface DropViewModel {
   canOpenNavyAlbum: boolean
 }
 
+export interface ProphetInteractions {
+  openNavyAlbum(shipId: number): void
+}
+
 export interface DropItemViewModel {
   id: number
   name: string
@@ -358,7 +366,7 @@ Use Jotai in `src/state/**` as follows:
 
 Rules:
 
-1. `prophet-root.tsx` uses Jotai hooks to read/write atoms and pass a derived `ProphetViewModel` to `battle-panel.tsx`.
+1. `prophet-root.tsx` uses Jotai hooks to read/write atoms and pass a derived `ProphetViewModel` plus `ProphetInteractions` to `battle-panel.tsx`.
 2. Battle simulation atoms must expose enough intermediate state for tests and debugging: packet sequence, active battle metadata, converted fleets, simulator result, synthesized battle summary, and notification candidates.
 3. Components still consume view models or focused atom-derived values; they must not parse raw packets.
 4. Do not store the whole battle screen in one opaque atom. Split state into source atoms and named derived atoms.
@@ -376,19 +384,20 @@ Deliverables:
 3. Add the test runner, type checker, and coverage scripts.
 4. Add a minimal typed host fixture for tests, derived from the pinned `poooi/poi` sources listed in the Poi type source contract.
 5. Add a legacy parity harness before deleting legacy code.
-6. Capture or synthesize deterministic game response fixtures.
-7. Add a temporary compatibility build fixture:
+6. Preserve the current JavaScript `lib-battle` implementation under a separate test-only path before re-pinning the main `lib/battle` submodule.
+7. Capture or synthesize deterministic game response fixtures.
+8. Add a temporary compatibility build fixture:
    - `test/fixtures/host-smoke/compat-entry.ts`
    - `test/fixtures/host-smoke/tsdown.compat.config.ts`
    - `npm run build:compat`
-8. Add a legacy-to-TypeScript interop build fixture:
+9. Define a legacy-to-TypeScript interop build fixture:
    - `test/fixtures/legacy-interop/legacy-adapter-entry.ts`
    - `test/fixtures/legacy-interop/tsdown.legacy-interop.config.ts`
    - `npm run build:legacy-interop`
 
 `build:compat` must use the same `tsdown` output format, target, externals, JSX mode, asset-path assumptions, and fake Poi host loading path as the final package build, but it must not require final `src/index.ts` to exist. The final package `npm run build` gate starts in Phase 7 when `src/index.ts` exists.
 
-`build:legacy-interop` must compile the TypeScript adapter entry to CommonJS that legacy Babel/stage-0 `.es` code can load before Phase 7 exists. It must use the same `lib-battle` pin, target, CJS mode, and host externals as the final build, but output only the adapter bridge needed by legacy production/parity code.
+`build:legacy-interop` must compile the TypeScript adapter entry to CommonJS that legacy Babel/stage-0 `.es` code can load before Phase 7 exists. Phase 0 defines the config and script, but this build is not required to pass until Phase 2 creates `src/battle/lib-battle-adapter.ts`. It must use the same `lib-battle` pin, target, CJS mode, and host externals as the final build, but output only the adapter bridge needed by legacy production/parity code.
 
 Legacy parity harness options:
 
@@ -453,7 +462,6 @@ Acceptance gate:
 - `npm run test`
 - `npm run test:coverage`
 - `npm run build:compat`
-- `npm run build:legacy-interop`
 
 During Phase 0, `npm run test:coverage` is scoped to the newly added test harness, host fixture, compatibility build fixture, and parity snapshot tooling. Final global thresholds begin only after the corresponding TypeScript source areas exist, and all final thresholds are mandatory by Phase 8.
 
@@ -508,9 +516,9 @@ Acceptance gate:
 - `poi-types.ts` includes comments or references tying every local host type to upstream `poooi/poi` files, exported symbols, or documented source fields.
 - No component imports `views/*` directly; components import `host/poi-ui.tsx`.
 
-### Phase 2: Upgrade `lib-battle`
+### Phase 2: Bridge and upgrade `lib-battle`
 
-Replace the current `lib/battle` JavaScript submodule usage with the pinned new TypeScript `lib-battle`.
+Bridge legacy code to the pinned TypeScript `lib-battle` while keeping the preserved JavaScript implementation available for parity.
 
 Rules:
 
@@ -521,7 +529,7 @@ Rules:
    - `npm run build:legacy-interop` emits a generated CommonJS bridge consumed by legacy `.es` code during Phase 2.
    - A temporary legacy `.es` facade may `require` only that generated bridge; it must not import TypeScript directly.
 3. First rewire production source so legacy rendering reaches battle behavior only through the generated bridge and adapter boundary; do this before replacing or deleting the old submodule path.
-4. Keep the old JavaScript `lib/battle` available for tests until adapter parity is accepted.
+4. Keep the preserved old JavaScript `lib-battle` path available for tests until adapter parity is accepted.
 5. Create `src/battle/legacy-lib-battle-adapter.ts` for test-only parity if the Babel legacy harness is used.
 6. Create `src/battle/lib-battle-adapter.ts` for the new TypeScript `lib-battle`.
 7. If any temporary old import path compatibility is needed, implement it as an explicit facade that delegates to the generated bridge and delete it in Phase 8.
@@ -533,6 +541,7 @@ Rules:
    - air force status extraction
    - formation/engagement/air-control normalization to translation keys or display tokens
 9. All production `lib-battle` imports must be in `lib-battle-adapter.ts`.
+10. Re-pin the main `lib/battle` submodule to the new TypeScript ref only after the legacy bridge and parity harness prove old and new implementations can be compared from separate paths.
 
 Acceptance gate:
 
@@ -692,6 +701,7 @@ Acceptance gate:
 
 - Visual output snapshots or DOM assertions exist for every required UI state.
 - Components do not import Redux, raw packets, host globals, or `lib-battle`.
+- `drop-info.tsx` uses an injected `openNavyAlbum` callback when `canOpenNavyAlbum` is true; it must not import IPC or host globals.
 - Storybook stories cover every required component state in the table above, including edge cases for layout, drops, transport points, last formation, air raid, and damaged/escaped/MVP ships.
 
 ### Phase 7: Replace plugin root
@@ -715,7 +725,8 @@ Active fleet selection contract:
 1. Reading typed host state through hooks/selectors and passing selected data to the packet controller.
 2. Subscribing and unsubscribing from `game.response`.
 3. Observing root size.
-4. Passing `ProphetViewModel` to the `battle-panel.tsx` component.
+4. Passing `ProphetViewModel` and `ProphetInteractions` to the `battle-panel.tsx` component.
+5. Creating host side-effect callbacks such as `openNavyAlbum` by using typed host facades.
 
 It must not own:
 
