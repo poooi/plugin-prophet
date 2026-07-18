@@ -1,9 +1,4 @@
-import path from 'path'
-
-const { APPDATA_PATH } = window
-
 export const PLUGIN_KEY = 'poi-plugin-prophet'
-export const HISTORY_PATH = path.join(APPDATA_PATH, 'prophet-history.json')
 
 export const combinedFleetType: Record<number, string> = {
   0: 'Sortie Fleet',

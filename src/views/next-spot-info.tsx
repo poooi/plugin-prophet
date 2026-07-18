@@ -17,6 +17,7 @@ import {
   resolvePluginPath,
 } from '../utils'
 import type { ProphetExtState } from '../types'
+import { isPoiDarkTheme } from '../host/poi-assets'
 
 const Container = styled.div`
   display: flex;
@@ -151,7 +152,7 @@ const NextSpotInfo: FC<NextSpotInfoProps> = ({ eventId, eventKind, isHeavyBomber
           {Number.isFinite(compassAngle) && (
             <CompassIcon
               src={resolvePluginPath(
-                `./assets/icons/compass-arrow-${window.isDarkTheme ? 'dark' : 'light'}.svg`,
+                `./assets/icons/compass-arrow-${isPoiDarkTheme() ? 'dark' : 'light'}.svg`,
               )}
               style={{ transform: `rotate(${compassAngle - 135}deg)` }}
               alt="compass"

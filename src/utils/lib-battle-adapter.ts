@@ -16,6 +16,7 @@ import type { APIMstShip } from 'kcsapi/api_start2/getData/response'
 import type { APIGetMemberShip2Response } from 'kcsapi/api_get_member/ship2/response'
 import type { APISlotItem } from 'kcsapi/api_get_member/require_info/response'
 
+import { getStore } from '../host/poi-store'
 import { PLUGIN_KEY } from './constants'
 
 const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
@@ -45,7 +46,7 @@ export const initEnemy = (
       const raw = {
         api_ship_id: id,
         api_lv: api_ship_lv[i],
-        poi_slot: slots.map((slotId: number) => window.getStore<RawSlotItem | null>(`const.$equips.${slotId}`, null)),
+        poi_slot: slots.map((slotId: number) => getStore<RawSlotItem | null>(`const.$equips.${slotId}`, null)),
       }
       ship = new ShipClass({
         id,

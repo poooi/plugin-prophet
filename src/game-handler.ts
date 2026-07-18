@@ -1,23 +1,26 @@
 import { observe, observer } from 'redux-observers'
-import _ from 'lodash'
-import { isEqual, isNil, each, map, isEmpty, includes, concat, first } from 'lodash'
+import _, { isEqual, isNil, map, isEmpty } from 'lodash'
 import i18next from 'views/env-parts/i18next'
-import { Models, Simulator, Battle, Fleet } from 'poi-lib-battle'
+import { Models, Battle, Fleet } from 'poi-lib-battle'
 import type { RawFleetShip } from 'poi-lib-battle'
 
 import { store } from 'views/create-store'
 
+import { getHeavilyDamagedShipNames } from './battle/damage-notification'
+import { simulateBattleDisplayState } from './battle/packet-controller'
+import { getConfig } from './host/poi-config'
+import { notify } from './host/poi-notification'
+import { getStore } from './host/poi-store'
 import {
   PLUGIN_KEY,
   initEnemy,
   lostKind,
   getAirForceStatus,
-  synthesizeInfo,
   transformToLibBattleClass,
   transformToDazzyDingClass,
   SortieState,
-  resolveMainPath,
 } from './utils'
+import { resolvePoiHostAssetPath } from './host/poi-assets'
 import {
   onPatchBattle,
   onBattleResult,
@@ -25,7 +28,6 @@ import {
   initBattleState,
   battleStateSelector,
   historyObserver,
-  useitemObserver,
 } from './redux'
 import type { BattleDisplayState } from './types'
 import { selectFleetsEquips } from './selectors'
@@ -73,56 +75,26 @@ interface BattleResultBody {
 let battleRef: Battle | null = null
 let unsubscribeObservers: (() => void) | null = null
 
-const handlePacket = (battle: Battle): Partial<BattleDisplayState> => {
-  const sortieState =
-    battle.type === BattleType.Practice ? SortieState.Practice : SortieState.Battle
-  const simulator = new Simulator(battle.fleet!, { usePoiAPI: true })
-  const packets = battle.packet ?? []
-  const firstPacket = packets[0] as { api_f_nowhps?: number[]; api_f_maxhps?: number[] } | undefined
-  const nowHP = first(firstPacket?.api_f_nowhps)
-  if (simulator.mainFleet?.[0] && simulator.mainFleet[0].nowHP !== nowHP && typeof nowHP !== 'undefined') {
-    const maxHP = first(firstPacket?.api_f_maxhps)
-    const s = simulator.mainFleet[0]
-    s.useItem = maxHP === nowHP ? 43 : 42
-    s.initHP = nowHP
-    s.nowHP = nowHP
-  }
-  packets.forEach((packet) => simulator.simulate(packet))
-  const { result } = simulator
-
-  const newState = synthesizeInfo(simulator, result, packets as Record<string, unknown>[])
-  return { ...newState, sortieState, result }
-}
-
 const handlePacketResult = (battle: Battle): Partial<BattleDisplayState> => {
   const state = store.getState() as PoiRootState
   const { sortieState, mainFleet, escortFleet } = battleStateSelector(state)
   const escapedPos = state.sortie.escapedPos ?? []
 
-  const newState = handlePacket(battle)
-  const friendShips = concat(mainFleet, escortFleet)
-  const damageList: string[] = []
-
-  each(friendShips, (ship) => {
-    if (ship == null) return
-    if (
-      ship.nowHP / ship.maxHP <= 0.25 &&
-      !includes(escapedPos, ship.pos - 1) &&
-      sortieState !== SortieState.Practice
-    ) {
-      const shipName = window.getStore<string>(
-        `const.$ships.${ship.raw && (ship.raw as { api_ship_id?: number }).api_ship_id}.api_name`,
-        ' ',
-      )
-      damageList.push(t(shipName))
-    }
+  const newState = simulateBattleDisplayState(battle)
+  const damageList = getHeavilyDamagedShipNames({
+    mainFleet,
+    escortFleet,
+    escapedPos,
+    sortieState,
+    getShipName: (shipId) => getStore<string>(`const.$ships.${shipId}.api_name`, ' '),
+    translate: t,
   })
 
-  if (!isEmpty(damageList) && config.get('plugin.prophet.notify.enable', true)) {
-    window.notify(`${damageList.join(', ')} ${t('Heavily damaged')}`, {
+  if (!isEmpty(damageList) && getConfig('plugin.prophet.notify.enable', true)) {
+    notify(`${damageList.join(', ')} ${t('Heavily damaged')}`, {
       type: 'damaged',
-      icon: resolveMainPath('./views/components/main/assets/img/state/4.png'),
-      audio: config.get('plugin.prophet.notify.damagedAudio'),
+      icon: resolvePoiHostAssetPath('./views/components/main/assets/img/state/4.png'),
+      audio: getConfig('plugin.prophet.notify.damagedAudio'),
     })
   }
   return { ...newState }
@@ -337,7 +309,7 @@ const handleGameResponse = (e: Event): void => {
       newState = handlePacketResult(battleRef)
       battleRef = null
     } else {
-      newState = handlePacket(battleRef)
+      newState = simulateBattleDisplayState(battleRef)
     }
   } else if (!isEqual(propsFleets, _fleets) || !isEqual(propsEquips, _equips)) {
     const [_mainFleet, _escortFleet] = transformToLibBattleClass(_fleets, _equips)
@@ -404,11 +376,11 @@ const fleetObserver = observer(
 
 export const initHandler = (): void => {
   window.addEventListener('game.response', handleGameResponse)
-  unsubscribeObservers = observe(store, [historyObserver, useitemObserver, fleetObserver])
+  unsubscribeObservers = observe(store, [historyObserver, fleetObserver])
 
   if (window.dbg?.isEnabled()) {
     window.prophetTest = (battle) =>
-      store.dispatch(onPatchBattle(handlePacket(battle)))
+      store.dispatch(onPatchBattle(simulateBattleDisplayState(battle)))
     window.baseDefenseTest = (eventDetail) =>
       handleGameResponse({ detail: eventDetail } as unknown as Event)
   }

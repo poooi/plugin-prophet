@@ -1,0 +1,51 @@
+{
+  "source": {
+    "repository": "poooi/lib-battle",
+    "commit": "5a62550a9ed563a7f7c4a1f171f02f2fa0084b0a",
+    "note": "Manually mirrored from upstream tests into one consolidated test corpus; lib-battle is consumed as an npm package, not as a submodule. Upstream practice fixtures intentionally keep the source spelling \"Pratice\" in their JSON type field."
+  },
+  "corpusPath": "test/fixtures/poi-lib-battle/battle-detail-corpus.json",
+  "upstreamRoot": "tests/fixtures/battle-detail",
+  "expectedFixtureCount": 303,
+  "fixtureSets": [
+    {
+      "upstreamPath": "tests/fixtures/battle-detail/bulk",
+      "fixtureCount": 276,
+      "coverage": [
+        "large upstream recent-capture corpus",
+        "mixed sortie battle shapes",
+        "mixed battle results"
+      ]
+    },
+    {
+      "upstreamPath": "tests/fixtures/battle-detail/combined",
+      "fixtureCount": 2,
+      "coverage": [
+        "combined battle transition",
+        "midnight battle"
+      ]
+    },
+    {
+      "upstreamPath": "tests/fixtures/battle-detail/features",
+      "fixtureCount": 8,
+      "coverage": [
+        "air-base attack",
+        "friendly fleet",
+        "injection aerial combat",
+        "practice battle result"
+      ],
+      "notes": [
+        "Upstream injection_kouku JSON uses type \"Pratice\"; keep the copied oracle unmodified."
+      ]
+    },
+    {
+      "upstreamPath": "tests/fixtures/battle-detail/sortie",
+      "fixtureCount": 17,
+      "coverage": [
+        "sortie air battle",
+        "land-base air attack",
+        "aerial-only battle phases"
+      ]
+    }
+  ]
+}

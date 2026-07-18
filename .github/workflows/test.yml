@@ -11,26 +11,45 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
+      - uses: actions/checkout@v7
 
-    - name: Use Node.js 14.x
-      uses: actions/setup-node@v1
-      with:
-        node-version: '14.x'
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22.x'
 
-    - uses: actions/cache@v2
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-
+      - uses: actions/cache@v6
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
-    - name: Install deps
-      run: |
-        npm ci
+      - name: Install deps
+        run: |
+          # Legacy peer graph is not npm 10-clean; remove after dependency refresh.
+          npm ci --legacy-peer-deps
 
-    - name: Test
-      run: |
-        npm run lint
+      - name: Typecheck
+        run: |
+          npm run typecheck
+
+      - name: Lint
+        run: |
+          npm run lint
+
+      - name: Test with coverage
+        run: |
+          npm run test:coverage
+
+      - name: Build
+        run: |
+          npm run build
+
+      - name: Build Storybook
+        run: |
+          npm run storybook:build
+
+      - name: Package smoke
+        run: |
+          npm run test:package

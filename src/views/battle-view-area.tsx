@@ -16,8 +16,15 @@ import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
-import { PLUGIN_KEY, combinedFleetType, getTPDazzyDing, SortieState } from '../utils'
+import { PLUGIN_KEY, SortieState } from '../utils'
 import type { ProphetBattleResult } from '../types'
+import type { SortieStateValue } from '../utils/constants'
+import {
+  battleSpotKey,
+  enemyTitle as buildEnemyTitle,
+  friendTitle as buildFriendTitle,
+  transportPoints,
+} from './battle-view-model'
 
 const FleetsContainer = styled.div<{ horizontalLayout?: boolean }>`
   display: flex;
@@ -121,7 +128,7 @@ interface BattleViewAreaProps {
   airControl?: string
   isBaseDefense?: boolean
   isHeavyBomberDefense?: boolean
-  sortieState?: number
+  sortieState?: SortieStateValue
   eventId?: number
   eventKind?: number
   result?: ProphetBattleResult
@@ -164,39 +171,31 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
   const ecGameOrder = useSelector((state: PoiRootState) =>
     state.config?.plugin?.prophet?.ecGameOrder ?? true,
   )
-  const spot =
-    sortieState === SortieState.Practice
-      ? 'practice'
-      : `${sortieMapId}-${currentNode}`
-
-  let enemyTitle = sortieState === SortieState.Practice ? 'PvP' : 'Enemy Vessel'
+  const spot = battleSpotKey(sortieState, sortieMapId, currentNode)
   const historyTitle = useSelector((state: PoiRootState) =>
     showEnemyTitle
       ? _.get(
           extensionSelectorFactory(PLUGIN_KEY)(state),
           ['history', spot, 'title'],
-          enemyTitle,
-        ) as string
-      : enemyTitle,
+          undefined,
+        ) as string | undefined
+      : undefined,
   )
-  enemyTitle = historyTitle
+  const enemyTitle = buildEnemyTitle({ sortieState, showEnemyTitle, storedEnemyTitle: historyTitle })
 
   const escapedShipIds = useSelector(escapedShipIdSelector)
   const inEvent = useSelector(inEventSelector)
-  const TP = inEvent
-    ? getTPDazzyDing([...(mainFleet ?? []), ...(escortFleet ?? []), ...escapedShipIds.map(() => null)], escapedShipIds)
-    : { total: 0, actual: 0 }
+  const TP = transportPoints({ inEvent, mainFleet, escortFleet, escapedShipIds })
 
   const fleetName = useSelector((state: PoiRootState) =>
     state.info?.fleets?.[fleetIds[0]]?.api_name ?? 'Sortie Fleet',
   )
-  let friendTitle = 'Sortie Fleet'
-  if (showEnemyTitle) {
-    friendTitle = (combinedFlag ?? 0) > 0
-      ? (combinedFleetType[combinedFlag ?? 0] ?? 'Combined Fleet')
-      : fleetName
-  }
-  friendTitle = isBaseDefense ? 'Land Base' : friendTitle
+  const friendTitle = buildFriendTitle({
+    showEnemyTitle,
+    combinedFlag,
+    fleetName,
+    isBaseDefense,
+  })
 
   const View = isBaseDefense ? SquadView : ShipView
   const times = !horizontalLayout ? 1 : 2

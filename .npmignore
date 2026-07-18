@@ -1,6 +1,7 @@
 .babelrc
 .eslintrc.js
 test/*.json
+test/
 src/**/*.ts
 src/**/*.tsx
 shims/*

@@ -1,10 +1,13 @@
 import type { APIMstShip, APIMstSlotitem, APIMstUseitem, APIMstStype } from 'kcsapi/api_start2/getData/response'
 import type { APIGetMemberSlotItemResponse } from 'kcsapi/api_get_member/slot_item/response'
 import type { APIAirBase } from 'kcsapi/api_get_member/mapinfo/response'
+import type { APIUseitem } from 'kcsapi/api_get_member/require_info/response'
 
 export {}
 
 declare global {
+  // PoiRootState is narrowed for this plugin and should be kept in sync with
+  // poooi/poi views/redux/** and views/create-store.ts as fields are touched.
   interface ObjectConstructor {
     clone: <T>(obj: T) => T
   }
@@ -22,6 +25,8 @@ declare global {
     }
     info: {
       airbase?: APIAirBase[]
+      // Mirrored from poooi/poi views/redux/info/useitems.ts UseItemsState.
+      useitems?: Record<string, APIUseitem>
       fleets?: Record<number, {
         api_ship: number[]
         api_name: string
@@ -112,7 +117,7 @@ declare global {
     prophetTest?: (battle: import('poi-lib-battle').Battle) => void
     baseDefenseTest?: (eventDetail: { path: string; body: Record<string, unknown> }) => void
     ipc?: {
-      access: (name: string) => Record<string, (...args: unknown[]) => unknown>
+      access: (name: string) => Record<string, (...args: unknown[]) => unknown> | undefined
     }
   }
 }
