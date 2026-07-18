@@ -117,7 +117,7 @@ declare global {
     prophetTest?: (battle: import('poi-lib-battle').Battle) => void
     baseDefenseTest?: (eventDetail: { path: string; body: Record<string, unknown> }) => void
     ipc?: {
-      access: (name: string) => Record<string, (...args: unknown[]) => unknown>
+      access: (name: string) => Record<string, (...args: unknown[]) => unknown> | undefined
     }
   }
 }

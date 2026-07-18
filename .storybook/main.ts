@@ -4,6 +4,9 @@ import { fileURLToPath } from 'url'
 
 const storybookDir = path.dirname(fileURLToPath(import.meta.url))
 
+export const storybookPathModulePattern = /^(?:\.\/path|.*[\\/]utils[\\/]path(?:\.ts)?)$/
+export const storybookPoiAssetsModulePattern = /^.*[\\/]host[\\/]poi-assets(?:\.ts)?$/
+
 const aliasEntries = (alias: NonNullable<StorybookConfig['viteFinal']> extends (...args: infer Args) => unknown
   ? Args[0]['resolve'] extends { alias?: infer Alias }
     ? Alias
@@ -29,8 +32,8 @@ const config: StorybookConfig = {
         alias: [
           ...aliases,
           { find: 'views/env-parts/i18next', replacement: path.resolve(storybookDir, './mocks/i18next.ts') },
-          { find: /src[\\/]utils[\\/]path\.ts$/, replacement: path.resolve(storybookDir, './mocks/path.ts') },
-          { find: /src[\\/]host[\\/]poi-assets\.ts$/, replacement: path.resolve(storybookDir, './mocks/poi-assets.ts') },
+          { find: storybookPathModulePattern, replacement: path.resolve(storybookDir, './mocks/path.ts') },
+          { find: storybookPoiAssetsModulePattern, replacement: path.resolve(storybookDir, './mocks/poi-assets.ts') },
         ],
       },
     }

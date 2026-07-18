@@ -35,4 +35,24 @@ describe('poi ipc facade', () => {
   it('does nothing when IPC is unavailable', () => {
     expect(() => showShipInNavyAlbum(123)).not.toThrow()
   })
+
+  it('shows the ship without throwing when MainWindow IPC is unavailable', () => {
+    const showShip = vi.fn()
+
+    window.ipc = {
+      access: (name: string): Record<string, (...args: unknown[]) => unknown> | undefined =>
+        name === 'NavyAlbum' ? { showShip } : undefined,
+    }
+
+    expect(() => showShipInNavyAlbum(123)).not.toThrow()
+    expect(showShip).toHaveBeenCalledWith(123)
+  })
+
+  it('does not throw when an advertised NavyAlbum scope becomes unavailable', () => {
+    window.ipc = {
+      access: (): undefined => undefined,
+    }
+
+    expect(() => showShipInNavyAlbum(123)).not.toThrow()
+  })
 })
