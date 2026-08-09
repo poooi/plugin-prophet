@@ -1,8 +1,9 @@
 import FontAwesome from 'react-fontawesome'
-import React, { FC } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import { createSelector } from 'reselect'
 import _ from 'lodash'
 import { useSelector } from 'react-redux'
+import { Collapse } from '@blueprintjs/core'
 import { Tooltip } from 'views/components/etc/overlay'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
@@ -94,6 +95,31 @@ const CombatVS = styled.div<{ visible?: boolean }>`
   margin-right: 0.5em;
   cursor: default;
   opacity: ${({ visible }) => (visible ? 1 : 0)};
+`
+
+const AirRaidPanel = styled.div`
+  margin-bottom: 6px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.4);
+`
+
+const AirRaidHeader = styled.div<{ isOpen?: boolean }>`
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  line-height: 24px;
+  opacity: 0.8;
+
+  &:hover {
+    opacity: 1;
+  }
+
+  /* one icon rotated, so the label does not shift when toggling */
+  .svg-inline--fa {
+    margin-right: 1ex;
+    width: 1ex;
+    transform: rotate(${({ isOpen }) => (isOpen ? 90 : 0)}deg);
+  }
 `
 
 const inEventSelector = createSelector(
@@ -190,42 +216,58 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
   const fleetName = useSelector((state: PoiRootState) =>
     state.info?.fleets?.[fleetIds[0]]?.api_name ?? 'Sortie Fleet',
   )
-  const friendTitle = buildFriendTitle({
-    showEnemyTitle,
-    combinedFlag,
-    fleetName,
-    isBaseDefense,
-  })
+  const [airRaidOpen, setAirRaidOpen] = useState(true)
+  const toggleAirRaid = () => setAirRaidOpen((open) => !open)
 
-  const View = isBaseDefense ? SquadView : ShipView
+  // every raid starts expanded, even if the previous one was collapsed by hand
+  useEffect(() => {
+    if (isBaseDefense) setAirRaidOpen(true)
+  }, [isBaseDefense, sortieMapId, currentNode])
+
   const times = !horizontalLayout ? 1 : 2
   const fleetCount = _.sumBy([mainFleet, escortFleet], (fleet) => fleet != null ? 1 : 0)
   const enemyCount = _.sumBy([enemyFleet, enemyEscort], (fleet) => fleet != null ? 1 : 0)
-  const fleetWidth = escortFleet && !isBaseDefense ? 2 : 1
-  const enemyWidth = enemyEscort && !isBaseDefense ? 2 : 1
   const { getShip, getItem } = _.pick(result, ['getShip', 'getItem']) as { getShip?: number; getItem?: number }
 
-  const alliedForce = (
-    <Fleets>
-      <FleetView
-        fleet={isBaseDefense ? landBase : mainFleet}
-        title={t('Main Fleet')}
-        count={times * fleetCount}
-        View={View}
-        root={root}
-      />
-      <FleetView
-        fleet={isBaseDefense ? undefined : escortFleet}
-        title={t('Escort Fleet')}
-        count={times * fleetCount}
-        View={View}
-        root={root}
-      />
-    </Fleets>
-  )
+  // `baseDefense` selects which battle is being drawn: the land base air defense
+  // (shown in the collapsible panel) or the sortie fleet (shown as usual below it).
+  // The air raid's own stats (air force, rank, formations) belong to the panel only;
+  // the sortie area relies on an air raid always leaving `sortieState` at Navigation,
+  // which keeps it on `NextSpotInfo` instead of the raid's `BattleInfo`.
+  const renderArea = (baseDefense: boolean): React.ReactElement => {
+    const friendTitle = buildFriendTitle({
+      showEnemyTitle,
+      combinedFlag,
+      fleetName,
+      isBaseDefense: baseDefense,
+    })
+    const View = baseDefense ? SquadView : ShipView
+    // air force / battle result belong to the air raid whenever there is one
+    const shownAirForce = baseDefense === Boolean(isBaseDefense) ? airForce : []
+    const showEnemy = sortieState > SortieState.Navigation || baseDefense
+    const fleetWidth = escortFleet && !baseDefense ? 2 : 1
+    const enemyWidth = enemyEscort && !baseDefense ? 2 : 1
 
-  const enemyForce =
-    sortieState > SortieState.Navigation || isBaseDefense ? (
+    const alliedForce = (
+      <Fleets>
+        <FleetView
+          fleet={baseDefense ? landBase : mainFleet}
+          title={t('Main Fleet')}
+          count={times * fleetCount}
+          View={View}
+          root={root}
+        />
+        <FleetView
+          fleet={baseDefense ? undefined : escortFleet}
+          title={t('Escort Fleet')}
+          count={times * fleetCount}
+          View={View}
+          root={root}
+        />
+      </Fleets>
+    )
+
+    const enemyForce = showEnemy ? (
       <Fleets style={{ flexDirection: ecGameOrder ? 'row-reverse' : 'row' }}>
         <FleetView
           fleet={enemyFleet}
@@ -244,124 +286,147 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
       <noscript />
     )
 
-  const combatInfo = (
-    <ProphetInfo>
-      <CombatTitle>
-        <FleetTitle isFriend title={t(friendTitle)}>
-          <FleetName>{`${t(friendTitle)}`}</FleetName>
-          {TP.total > 0 && !isBaseDefense && (
-            <StatGroup>
-              <Tooltip
-                position="bottom"
-                content={
-                  <div id="tp-indicator">
-                    <span>{`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}</span>
-                  </div>
-                }
-              >
-                <span>
-                  <FontAwesome name="database" />[
-                  {TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
-                  <span>{TP.total}</span>]
-                </span>
-              </Tooltip>
-            </StatGroup>
-          )}
-          {airForce[0] > 0 && (
-            <StatGroup>
-              <FontAwesome name="plane" />
-              {`[${airForce[0] - airForce[1]} / ${airForce[0]}]`}
-            </StatGroup>
-          )}
-        </FleetTitle>
-        <CombatVS visible={sortieState > SortieState.Navigation || isBaseDefense}>vs</CombatVS>
-        {sortieState > SortieState.Navigation || isBaseDefense ? (
-          <FleetTitle title={t(enemyTitle)}>
-            {airForce[2] > 0 && (
+    const combatInfo = (
+      <ProphetInfo>
+        <CombatTitle>
+          <FleetTitle isFriend title={t(friendTitle)}>
+            <FleetName>{`${t(friendTitle)}`}</FleetName>
+            {TP.total > 0 && !baseDefense && (
               <StatGroup>
-                <FontAwesome name="plane" />
-                {` [${airForce[2] - airForce[3]} / ${airForce[2]}]`}
+                <Tooltip
+                  position="bottom"
+                  content={
+                    <div id="tp-indicator">
+                      <span>{`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}</span>
+                    </div>
+                  }
+                >
+                  <span>
+                    <FontAwesome name="database" />[
+                    {TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
+                    <span>{TP.total}</span>]
+                  </span>
+                </Tooltip>
               </StatGroup>
             )}
-            <FleetName>{t(enemyTitle)}</FleetName>
+            {shownAirForce[0] > 0 && (
+              <StatGroup>
+                <FontAwesome name="plane" />
+                {`[${shownAirForce[0] - shownAirForce[1]} / ${shownAirForce[0]}]`}
+              </StatGroup>
+            )}
           </FleetTitle>
-        ) : (
-          <FleetTitle />
-        )}
-      </CombatTitle>
-    </ProphetInfo>
-  )
+          <CombatVS visible={showEnemy}>vs</CombatVS>
+          {showEnemy ? (
+            <FleetTitle title={t(enemyTitle)}>
+              {shownAirForce[2] > 0 && (
+                <StatGroup>
+                  <FontAwesome name="plane" />
+                  {` [${shownAirForce[2] - shownAirForce[3]} / ${shownAirForce[2]}]`}
+                </StatGroup>
+              )}
+              <FleetName>{t(enemyTitle)}</FleetName>
+            </FleetTitle>
+          ) : (
+            <FleetTitle />
+          )}
+        </CombatTitle>
+      </ProphetInfo>
+    )
 
-  const battleInfo = (
-    <BattleInfo
-      result={result?.rank}
-      eFormation={eFormation}
-      battleForm={battleForm}
-      airControl={airControl}
-      smokeType={smokeType}
-    />
-  )
+    const battleInfo = (
+      <BattleInfo
+        result={result?.rank}
+        eFormation={eFormation}
+        battleForm={battleForm}
+        airControl={airControl}
+        smokeType={smokeType}
+      />
+    )
 
-  const mapInfo = (
-    <ProphetInfo className="alert prophet-info">
-      {/* eslint-disable no-nested-ternary */}
-      {sortieState === SortieState.Navigation && !isBaseDefense ? (
-        <NextSpotInfo
-          eventId={eventId}
-          eventKind={eventKind}
-          isHeavyBomberDefense={isHeavyBomberDefense}
-        />
-      ) : isBaseDefense ? (
-        [
-          battleInfo,
+    const mapInfo = (
+      <ProphetInfo className="alert prophet-info">
+        {/* eslint-disable no-nested-ternary */}
+        {baseDefense ? (
+          battleInfo
+        ) : sortieState === SortieState.Navigation ? (
           <NextSpotInfo
-            key="next-spot"
             eventId={eventId}
             eventKind={eventKind}
             isHeavyBomberDefense={isHeavyBomberDefense}
-          />,
-        ]
-      ) : getShip || getItem ? (
-        <DropInfo getShip={getShip} getItem={getItem} />
-      ) : sortieState > SortieState.Navigation || isBaseDefense ? (
-        battleInfo
-      ) : (
-        <noscript />
-      )}
-      {/* eslint-enable no-nested-ternary */}
-    </ProphetInfo>
-  )
+          />
+        ) : getShip || getItem ? (
+          <DropInfo getShip={getShip} getItem={getItem} />
+        ) : sortieState > SortieState.Navigation ? (
+          battleInfo
+        ) : (
+          <noscript />
+        )}
+        {/* eslint-enable no-nested-ternary */}
+      </ProphetInfo>
+    )
+
+    return (
+      <>
+        {horizontalLayout ? combatInfo : null}
+        <FleetsContainer horizontalLayout={horizontalLayout}>
+          <FleetContainer
+            className="fleet-container"
+            style={{
+              flex: horizontalLayout ? fleetWidth : 1,
+              flexDirection:
+                horizontalLayout && (escortFleet || []).length && !baseDefense
+                  ? 'column-reverse'
+                  : 'column',
+            }}
+          >
+            {alliedForce}
+            {!horizontalLayout ? combatInfo : null}
+          </FleetContainer>
+          <FleetContainer
+            className="fleet-container"
+            style={{
+              flex: horizontalLayout ? enemyWidth : 1,
+              flexDirection:
+                horizontalLayout && (enemyEscort || []).length ? 'column-reverse' : 'column',
+            }}
+          >
+            {enemyForce}
+            {!horizontalLayout ? mapInfo : null}
+          </FleetContainer>
+        </FleetsContainer>
+        {horizontalLayout ? mapInfo : null}
+      </>
+    )
+  }
 
   return (
     <div id="overview-area">
-      {horizontalLayout ? combatInfo : null}
-      <FleetsContainer horizontalLayout={horizontalLayout}>
-        <FleetContainer
-          className="fleet-container"
-          style={{
-            flex: horizontalLayout ? fleetWidth : 1,
-            flexDirection:
-              horizontalLayout && (escortFleet || []).length && !isBaseDefense
-                ? 'column-reverse'
-                : 'column',
-          }}
-        >
-          {alliedForce}
-          {!horizontalLayout ? combatInfo : null}
-        </FleetContainer>
-        <FleetContainer
-          className="fleet-container"
-          style={{
-            flex: horizontalLayout ? enemyWidth : 1,
-            flexDirection:
-              horizontalLayout && (enemyEscort || []).length ? 'column-reverse' : 'column',
-          }}
-        >
-          {enemyForce}
-          {!horizontalLayout ? mapInfo : null}
-        </FleetContainer>
-      </FleetsContainer>
-      {horizontalLayout ? mapInfo : null}
+      {isBaseDefense && (
+        <AirRaidPanel className="air-raid-panel">
+          <AirRaidHeader
+            isOpen={airRaidOpen}
+            onClick={toggleAirRaid}
+            role="button"
+            tabIndex={0}
+            aria-expanded={airRaidOpen}
+            aria-controls="air-raid-body"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                toggleAirRaid()
+              }
+            }}
+          >
+            <FontAwesome name="caret-right" />
+            <span>{t('Air Defense')}</span>
+          </AirRaidHeader>
+          <Collapse isOpen={airRaidOpen}>
+            <div id="air-raid-body">{renderArea(true)}</div>
+          </Collapse>
+        </AirRaidPanel>
+      )}
+      {renderArea(false)}
     </div>
   )
 }
