@@ -54,6 +54,9 @@ export const initEnemy = (
         pos: intl + i,
         maxHP: api_maxhps[i],
         nowHP: api_nowhps[i],
+        // The game may hide an enemy's HP, sending a placeholder ('N/A') instead of
+        // the number. Flag it the way lib-battle does so it is ignored where HP matters.
+        hpUnknown: typeof api_maxhps[i] !== 'number' || typeof api_nowhps[i] !== 'number',
         items: [],
         raw,
       })
