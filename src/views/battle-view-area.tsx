@@ -102,6 +102,11 @@ const AirRaidPanel = styled.div`
   border-bottom: 1px solid rgba(128, 128, 128, 0.4);
 `
 
+const AirRaidBody = styled.div`
+  padding-top: 8px;
+  padding-bottom: 8px;
+`
+
 const AirRaidHeader = styled.div<{ isOpen?: boolean }>`
   display: flex;
   align-items: center;
@@ -422,7 +427,7 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
             <span>{t('Air Defense')}</span>
           </AirRaidHeader>
           <Collapse isOpen={airRaidOpen}>
-            <div id="air-raid-body">{renderArea(true)}</div>
+            <AirRaidBody id="air-raid-body">{renderArea(true)}</AirRaidBody>
           </Collapse>
         </AirRaidPanel>
       )}
