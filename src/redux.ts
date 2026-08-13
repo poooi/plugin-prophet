@@ -85,6 +85,40 @@ const HistoryReducer = (
   }
 }
 
+/**
+ * Maps whose transport gauge uses the "戦車輸送" TP table. The game itself only knows
+ * this from `api_get_member/chart_additional_info`: `api_atp_value` ("alternative TP")
+ * holds an entry keyed by map id for every such map, and the client picks
+ * `atp_value[mapId] ?? tp_value`. The API is requested every time the sortie map screen
+ * opens, so the list is known before the fleet ever leaves port.
+ */
+interface UpdateTankTransportMapsAction {
+  type: '@@poi-plugin-prophet@updateTankTransportMaps'
+  mapIds: number[]
+}
+
+export const onUpdateTankTransportMaps = (mapIds: number[]): UpdateTankTransportMapsAction => ({
+  type: '@@poi-plugin-prophet@updateTankTransportMaps',
+  mapIds,
+})
+
+const TankTransportMapsReducer = (
+  state: number[] = (CACHE.tankTransportMaps as unknown as number[]) ?? [],
+  action: UpdateTankTransportMapsAction | { type: string },
+): number[] => {
+  if (action.type === '@@poi-plugin-prophet@updateTankTransportMaps') {
+    // replaced, not merged: a map stops being one once its event is over
+    const { mapIds } = action as UpdateTankTransportMapsAction
+    return isEqual(mapIds, state) ? state : mapIds
+  }
+  return state
+}
+
+export const tankTransportMapsSelector = (state: PoiRootState): number[] => {
+  const ext = extensionSelectorFactory(PLUGIN_KEY)(state)
+  return (ext as { tankTransportMaps?: number[] }).tankTransportMaps ?? []
+}
+
 export const initBattleState: BattleDisplayState = {
   mainFleet: [],
   escortFleet: [],
@@ -136,6 +170,7 @@ export const battleStateSelector = (state: PoiRootState): BattleDisplayState => 
 export const reducer = combineReducers({
   history: HistoryReducer,
   battle: BattleReducer,
+  tankTransportMaps: TankTransportMapsReducer,
 })
 
 export const setLocalStorage = (): void =>
@@ -161,3 +196,4 @@ const createObserver = (path: string) => {
 }
 
 export const historyObserver = createObserver('history')
+export const tankTransportMapsObserver = createObserver('tankTransportMaps')

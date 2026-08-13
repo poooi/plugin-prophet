@@ -48,5 +48,7 @@
   "Not in sortie": "출격중이 아닙니다",
   "last_chosen": "Last chosen: ",
   "smoke": "Smoke screen activated",
-  "A_rank": "A rank"
+  "A_rank": "A rank",
+  "Transport Point": "Transport Point (TP)",
+  "Tank Transport Point": "Tank Transport Point (TP)"
 }

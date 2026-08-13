@@ -1,7 +1,7 @@
 import type { Ship } from 'poi-lib-battle'
 
 import { combinedFleetType, SortieState, type SortieStateValue } from '../utils/constants'
-import { getTPDazzyDing } from '../utils/transport'
+import { getTPDazzyDing, type TPResult } from '../utils/transport'
 
 export interface BattleTitleInput {
   sortieState: SortieStateValue
@@ -41,6 +41,17 @@ export const friendTitle = ({
   return combinedFlag > 0 ? (combinedFleetType[combinedFlag] ?? 'Combined Fleet') : fleetName
 }
 
+export const isTankTransportMap = (
+  sortieMapId: number | undefined,
+  tankTransportMaps: readonly number[],
+): boolean => Number.isFinite(sortieMapId) && tankTransportMaps.includes(sortieMapId as number)
+
+const noTP: TPResult = { total: 0, actual: 0 }
+
+/**
+ * Both flavours of TP, so the caller can show the pair while in port and the one
+ * matching the map once sortied.
+ */
 export const transportPoints = ({
   inEvent,
   mainFleet = [],
@@ -51,7 +62,11 @@ export const transportPoints = ({
   mainFleet?: (Ship | null)[]
   escortFleet?: (Ship | null)[]
   escapedShipIds?: number[]
-}): { total: number; actual: number } =>
-  inEvent
-    ? getTPDazzyDing([...mainFleet, ...escortFleet], escapedShipIds)
-    : { total: 0, actual: 0 }
+}): { normal: TPResult; tank: TPResult } => {
+  if (!inEvent) return { normal: noTP, tank: noTP }
+  const fleet = [...mainFleet, ...escortFleet]
+  return {
+    normal: getTPDazzyDing(fleet, escapedShipIds, 'normal'),
+    tank: getTPDazzyDing(fleet, escapedShipIds, 'tank'),
+  }
+}

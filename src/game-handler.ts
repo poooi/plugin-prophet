@@ -18,6 +18,7 @@ import {
   getAirForceStatus,
   transformToLibBattleClass,
   transformToDazzyDingClass,
+  parseTankTransportMaps,
   SortieState,
 } from './utils'
 import { resolvePoiHostAssetPath } from './host/poi-assets'
@@ -25,9 +26,11 @@ import {
   onPatchBattle,
   onBattleResult,
   onGetPracticeInfo,
+  onUpdateTankTransportMaps,
   initBattleState,
   battleStateSelector,
   historyObserver,
+  tankTransportMapsObserver,
 } from './redux'
 import type { BattleDisplayState } from './types'
 import { selectFleetsEquips } from './selectors'
@@ -265,6 +268,12 @@ const handleGameResponse = (e: Event): void => {
       break
     }
 
+    case '/kcsapi/api_get_member/chart_additional_info': {
+      store.dispatch(onUpdateTankTransportMaps(parseTankTransportMaps(body)))
+      updateFleetStateFromLibBattle = false
+      break
+    }
+
     case '/kcsapi/api_req_practice/battle': {
       battleRef = new Battle({
         type: BattleType.Practice,
@@ -376,7 +385,11 @@ const fleetObserver = observer(
 
 export const initHandler = (): void => {
   window.addEventListener('game.response', handleGameResponse)
-  unsubscribeObservers = observe(store, [historyObserver, fleetObserver])
+  unsubscribeObservers = observe(store, [
+    historyObserver,
+    fleetObserver,
+    tankTransportMapsObserver,
+  ])
 
   if (window.dbg?.isEnabled()) {
     window.prophetTest = (battle) =>

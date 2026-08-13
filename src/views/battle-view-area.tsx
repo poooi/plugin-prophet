@@ -18,14 +18,17 @@ import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY, SortieState } from '../utils'
+import { tankTransportMapsSelector } from '../redux'
 import type { ProphetBattleResult } from '../types'
 import type { SortieStateValue } from '../utils/constants'
 import {
   battleSpotKey,
   enemyTitle as buildEnemyTitle,
   friendTitle as buildFriendTitle,
+  isTankTransportMap,
   transportPoints,
 } from './battle-view-model'
+import type { TPResult } from '../utils/transport'
 
 const FleetsContainer = styled.div<{ horizontalLayout?: boolean }>`
   display: flex;
@@ -216,7 +219,20 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
 
   const escapedShipIds = useSelector(escapedShipIdSelector)
   const inEvent = useSelector(inEventSelector)
+  const tankTransportMaps = useSelector(tankTransportMapsSelector)
   const TP = transportPoints({ inEvent, mainFleet, escortFleet, escapedShipIds })
+  // in port the map is not decided yet, so both tables are shown side by side;
+  // once sortied only the one the map actually uses is relevant
+  const shownTP: { tp: TPResult; icon: string; label: string }[] =
+    sortieState === SortieState.InPort
+      ? [
+          { tp: TP.normal, icon: 'database', label: 'Transport Point' },
+          { tp: TP.tank, icon: 'truck', label: 'Tank Transport Point' },
+        ]
+      : // the api hands the map id over as a string on some responses
+        isTankTransportMap(Number(sortieMapId), tankTransportMaps)
+        ? [{ tp: TP.tank, icon: 'truck', label: 'Tank Transport Point' }]
+        : [{ tp: TP.normal, icon: 'database', label: 'Transport Point' }]
 
   const fleetName = useSelector((state: PoiRootState) =>
     state.info?.fleets?.[fleetIds[0]]?.api_name ?? 'Sortie Fleet',
@@ -296,24 +312,29 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
         <CombatTitle>
           <FleetTitle isFriend title={t(friendTitle)}>
             <FleetName>{`${t(friendTitle)}`}</FleetName>
-            {TP.total > 0 && !baseDefense && (
-              <StatGroup>
-                <Tooltip
-                  position="bottom"
-                  content={
-                    <div id="tp-indicator">
-                      <span>{`${t('A_rank')}${Math.floor(TP.actual * 0.7)}`}</span>
-                    </div>
-                  }
-                >
-                  <span>
-                    <FontAwesome name="database" />[
-                    {TP.total !== TP.actual && <span>{`${TP.actual} / `}</span>}
-                    <span>{TP.total}</span>]
-                  </span>
-                </Tooltip>
-              </StatGroup>
-            )}
+            {!baseDefense &&
+              shownTP.map(
+                ({ tp, icon, label }) =>
+                  tp.total > 0 && (
+                    <StatGroup key={label}>
+                      <Tooltip
+                        position="bottom"
+                        content={
+                          <div id="tp-indicator">
+                            <div>{t(label)}</div>
+                            <span>{`${t('A_rank')}${Math.floor(tp.actual * 0.7)}`}</span>
+                          </div>
+                        }
+                      >
+                        <span>
+                          <FontAwesome name={icon} />[
+                          {tp.total !== tp.actual && <span>{`${tp.actual} / `}</span>}
+                          <span>{tp.total}</span>]
+                        </span>
+                      </Tooltip>
+                    </StatGroup>
+                  ),
+              )}
             {shownAirForce[0] > 0 && (
               <StatGroup>
                 <FontAwesome name="plane" />
