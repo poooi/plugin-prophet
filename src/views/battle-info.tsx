@@ -42,6 +42,7 @@ interface BattleInfoProps {
   battleForm?: string
   airControl?: string
   smokeType?: number
+  escortNight?: boolean
 }
 
 const BattleInfo: FC<BattleInfoProps> = ({
@@ -50,6 +51,7 @@ const BattleInfo: FC<BattleInfoProps> = ({
   battleForm = '',
   airControl = '',
   smokeType = 0,
+  escortNight = false,
 }) => {
   const { t } = useTranslation('poi-plugin-prophet')
   return (
@@ -71,6 +73,7 @@ const BattleInfo: FC<BattleInfoProps> = ({
         _t(battleForm),
         _t(airControl),
         ...(smokeType ? [`${t('smoke')}: ${smokeType}`] : []),
+        ...(escortNight ? [t('escortNightInfo')] : []),
       ]).map((text) => (
         <div key={text}>{text}</div>
       ))}

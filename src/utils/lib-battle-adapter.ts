@@ -245,6 +245,7 @@ export const synthesizeInfo = (
   eFormation: Formation | ''
   fFormation: Formation | ''
   smokeType: number
+  hasEnteredNightBattle: boolean
   result: Result
 } => {
   let mainFleet = _simulator.mainFleet
@@ -273,10 +274,11 @@ export const synthesizeInfo = (
   let fLost = 0
   let eResidule = 0
   let eLost = 0
+  let hasEnteredNightBattle = false
 
   _.each(stages, (stage: Stage | null) => {
     if (stage == null) return
-    const { engagement, aerial, type } = stage
+    const { engagement, aerial, type, subtype } = stage
 
     if (engagement && type === StageType.Engagement) {
       battleForm = engagement.engagement ?? ''
@@ -284,6 +286,8 @@ export const synthesizeInfo = (
       fFormation = engagement.fFormation ?? ''
       smokeType = engagement.smokeType ?? 0
     }
+
+    if (subtype === StageType.Night) hasEnteredNightBattle = true
 
     if (aerial && type === StageType.Aerial) {
       const { fPlaneInit, fPlaneNow, ePlaneInit, ePlaneNow, control } = aerial
@@ -324,6 +328,7 @@ export const synthesizeInfo = (
     eFormation,
     fFormation,
     smokeType,
+    hasEnteredNightBattle,
     result,
   }
 }

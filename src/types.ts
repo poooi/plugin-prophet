@@ -34,6 +34,7 @@ export interface BattleDisplayState {
   airControl: string
   isBaseDefense: boolean
   isHeavyBomberDefense: boolean
+  hasEnteredNightBattle: boolean
   sortieState: SortieStateValue
   mapAreaId: number
   eventId: number
