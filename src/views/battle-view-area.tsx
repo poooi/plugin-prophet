@@ -162,6 +162,7 @@ interface BattleViewAreaProps {
   airControl?: string
   isBaseDefense?: boolean
   isHeavyBomberDefense?: boolean
+  hasEnteredNightBattle: boolean
   sortieState?: SortieStateValue
   eventId?: number
   eventKind?: number
@@ -184,6 +185,7 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
   airControl = '',
   isBaseDefense,
   isHeavyBomberDefense,
+  hasEnteredNightBattle = false,
   sortieState = SortieState.InPort,
   eventId = 0,
   eventKind = 0,
@@ -307,6 +309,18 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
       <noscript />
     )
 
+    const checkEnemyNightEngagementFleet = (enemyEscort: (Ship | null)[]): boolean => {
+      let v = 0
+      for (const [idx, ship] of enemyEscort.entries()) {
+        if (!ship || ship.maxHP <= 0 || ship.nowHP <= 0 || ship.hpUnknown) continue
+
+        v +=
+          (ship.nowHP * 4 <= ship.maxHP ? 0 : ship.nowHP * 2 <= ship.maxHP ? 7 : 10) +
+          (idx === 0 ? 10 : 0)
+      }
+      return v >= 30
+    }
+
     const combatInfo = (
       <ProphetInfo>
         <CombatTitle>
@@ -367,6 +381,9 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
         battleForm={battleForm}
         airControl={airControl}
         smokeType={smokeType}
+        escortNight={
+          !hasEnteredNightBattle && checkEnemyNightEngagementFleet(enemyEscort)
+        }
       />
     )
 

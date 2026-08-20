@@ -130,6 +130,7 @@ const handleGameResponse = (e: Event): void => {
     result,
     battleForm,
     eFormation,
+    hasEnteredNightBattle,
   } = battleState
   isBaseDefense = false
   let updateFleetStateFromLibBattle = !!battleRef
@@ -146,6 +147,7 @@ const handleGameResponse = (e: Event): void => {
         eventKind,
         result,
         airForce,
+        hasEnteredNightBattle,
       } = initBattleState)
       updateFleetStateFromLibBattle = false
       break
@@ -167,7 +169,7 @@ const handleGameResponse = (e: Event): void => {
       eventId = api_event_id === undefined ? eventId : api_event_id
       eventKind = api_event_kind === undefined ? eventKind : api_event_kind
       mapAreaId = api_maparea_id === undefined ? mapAreaId : api_maparea_id
-      ;({ enemyFleet, enemyEscort, landBase, airForce } = initBattleState)
+      ;({ enemyFleet, enemyEscort, landBase, airForce, hasEnteredNightBattle } = initBattleState)
 
       if (_showAirRaid && api_destruction_battle != null) {
         const destructionBattleArray = Array.isArray(api_destruction_battle)
@@ -349,6 +351,7 @@ const handleGameResponse = (e: Event): void => {
       result,
       battleForm,
       eFormation,
+      hasEnteredNightBattle,
       ...newState,
     }),
   )
