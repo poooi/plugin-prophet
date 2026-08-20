@@ -130,6 +130,7 @@ export const initBattleState: BattleDisplayState = {
   isBaseDefense: false,
   isHeavyBomberDefense: false,
   hasEnteredNightBattle: false,
+  isBattleEnded: false,
   sortieState: SortieState.InPort,
   mapAreaId: 0,
   eventId: 0,

@@ -162,7 +162,8 @@ interface BattleViewAreaProps {
   airControl?: string
   isBaseDefense?: boolean
   isHeavyBomberDefense?: boolean
-  hasEnteredNightBattle: boolean
+  hasEnteredNightBattle?: boolean
+  isBattleEnded?: boolean
   sortieState?: SortieStateValue
   eventId?: number
   eventKind?: number
@@ -186,6 +187,7 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
   isBaseDefense,
   isHeavyBomberDefense,
   hasEnteredNightBattle = false,
+  isBattleEnded = false,
   sortieState = SortieState.InPort,
   eventId = 0,
   eventKind = 0,
@@ -382,7 +384,9 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
         airControl={airControl}
         smokeType={smokeType}
         escortNight={
-          !hasEnteredNightBattle && checkEnemyNightEngagementFleet(enemyEscort)
+          !hasEnteredNightBattle &&
+          !isBattleEnded &&
+          checkEnemyNightEngagementFleet(enemyEscort)
         }
       />
     )

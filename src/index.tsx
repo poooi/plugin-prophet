@@ -49,6 +49,7 @@ export const Prophet: FC = () => {
     isBaseDefense,
     isHeavyBomberDefense,
     hasEnteredNightBattle,
+    isBattleEnded,
     sortieState,
     eventId,
     eventKind,
@@ -73,6 +74,7 @@ export const Prophet: FC = () => {
         isBaseDefense={isBaseDefense}
         isHeavyBomberDefense={isHeavyBomberDefense}
         hasEnteredNightBattle={hasEnteredNightBattle}
+        isBattleEnded={isBattleEnded}
         sortieState={sortieState}
         eventId={eventId}
         eventKind={eventKind}
