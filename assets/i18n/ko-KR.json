@@ -48,7 +48,7 @@
   "Not in sortie": "출격중이 아닙니다",
   "last_chosen": "Last chosen: ",
   "smoke": "Smoke screen activated",
-  "escortNightInfo": "야간전 시 호위 함대와 교전할 가능성이 있음",
+  "escortNightInfo": "야간전 시 호위 함대와 교전할 가능성이 있음 (우군 함대 내습 시 변동)",
   "A_rank": "A rank",
   "Transport Point": "Transport Point (TP)",
   "Tank Transport Point": "Tank Transport Point (TP)"

@@ -69,7 +69,7 @@
   "Ship parameters include equipment bonus": "舰娘属性包含装备加成",
   "last_chosen": "上次选择：",
   "smoke": "烟幕发动",
-  "escortNightInfo": "夜战可能与随伴舰队交战",
+  "escortNightInfo": "夜战可能与随伴舰队交战（友军舰队来援后可能改变）",
   "Carrier Task Force": "空母机动部队",
   "Surface Task Force": "水上打击部队",
   "Transport Escort": "输送护卫部队",

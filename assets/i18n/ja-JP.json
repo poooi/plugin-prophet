@@ -69,7 +69,7 @@
   "Ship parameters include equipment bonus": "装備込みのステータスを表示する",
   "last_chosen": "前の選択：",
   "smoke": "煙幕発動",
-  "escortNightInfo": "随伴艦隊と夜戦の可能性あり",
+  "escortNightInfo": "随伴艦隊と夜戦の可能性あり（友軍艦隊来援により変動）",
   "Carrier Task Force": "空母機動部隊",
   "Surface Task Force": "水上打撃部隊",
   "Transport Escort": "輸送護衛部隊",
