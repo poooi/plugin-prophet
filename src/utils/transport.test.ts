@@ -3,17 +3,46 @@ import type { Ship } from 'poi-lib-battle'
 
 import { getTPDazzyDing, getTransportPoint, parseTankTransportMaps } from './transport'
 
-const slotItem = (apiSlotitemId: number): ApiSlotItemLike => ({
+// the TP tables key off the equipment category in api_type[2]
+const landingCraft = new Set([68, 166, 193, 230, 355, 408, 409, 436, 449, 482, 494, 495, 514, 576])
+const amphibious = new Set([167, 525, 526])
+const tanks = new Set([496, 497, 498, 499])
+const rations = new Set([145, 150, 241])
+
+const category = (apiSlotitemId: number): number => {
+  if (landingCraft.has(apiSlotitemId)) return 24
+  if (amphibious.has(apiSlotitemId)) return 46
+  if (tanks.has(apiSlotitemId)) return 52
+  if (rations.has(apiSlotitemId)) return 43
+  return apiSlotitemId === 75 ? 30 : 1
+}
+
+const slotItem = (apiSlotitemId: number, apiTypeId = category(apiSlotitemId)): ApiSlotItemLike => ({
   api_id: apiSlotitemId,
   api_level: 0,
   api_locked: 0,
   api_slotitem_id: apiSlotitemId,
   api_name: String(apiSlotitemId),
-  api_type: [],
+  api_type: [0, 0, apiTypeId, 0, 0],
 })
 
 const equipSlots = (...items: ApiSlotItemLike[]): [ApiSlotItemLike, ...unknown[]][] =>
   items.map((item) => [item])
+
+// [api_stype, api_ship_id, equipment ids]
+type FleetFixture = [number, number, number[]][]
+
+const shipsOf = (fleet: FleetFixture) =>
+  fleet.map(([api_stype, api_ship_id], index) => ({
+    api_id: index,
+    api_nowhp: 10,
+    api_maxhp: 10,
+    api_stype,
+    api_ship_id,
+  }))
+
+const equipsOf = (fleet: FleetFixture) =>
+  fleet.map(([, , items]) => equipSlots(...items.map((item) => slotItem(item))))
 
 describe('transport point helpers', () => {
   it('calculates total and actual TP from ship and equipment data', () => {
@@ -50,10 +79,32 @@ describe('transport point helpers', () => {
     ).toEqual({ total: 0, actual: 5 })
   })
 
+  it('scores equipment by category, so unknown landing craft still count', () => {
+    const ships = [{ api_id: 1, api_nowhp: 10, api_maxhp: 10, api_stype: 2, api_ship_id: 1 }]
+    const equips = [equipSlots(slotItem(9999, 24))]
+
+    // 8 for the landing craft, 6 in tank mode, on top of the destroyer itself
+    expect(getTransportPoint(ships, equips)).toEqual({ total: 13, actual: 13 })
+    expect(getTransportPoint(ships, equips, [], 'tank')).toEqual({ total: 9, actual: 9 })
+  })
+
+  it('adds the 鬼怒改二 bonus once, and does not scale it in tank mode', () => {
+    const kinu: FleetFixture = [
+      [3, 487, [68]],
+      [2, 1, [68]],
+    ]
+    const fleet = [shipsOf(kinu), equipsOf(kinu)] as const
+
+    // 鬼怒改二 2 + 8 bonus + 8 daihatsu, destroyer 5 + 8
+    expect(getTransportPoint(...fleet)).toEqual({ total: 31, actual: 31 })
+    // tank: 1.5 + 8 (unscaled) + 6, 3.75 + 6 -> 25.25
+    expect(getTransportPoint(...fleet, [], 'tank')).toEqual({ total: 25, actual: 25 })
+  })
+
   // 2026 summer E-5 transport fleet, checked against the in-game 艦隊戦力分析 panel:
   // 205 on the normal transport map, 446 on the tank transport one (E-5-2)
   describe('2026 summer E-5 fleet', () => {
-    const fleet: [number, number, number[]][] = [
+    const fleet: FleetFixture = [
       [22, 1008, [56, 56, 107]], // しまね丸改
       [17, 727, [499, 498, 497]], // 第百一号輸送艦
       [2, 548, [166, 230, 230]],
@@ -67,21 +118,43 @@ describe('transport point helpers', () => {
       [2, 745, [366, 366, 449, 575]],
       [2, 959, [455, 294, 482]],
     ]
-    const ships = fleet.map(([api_stype, api_ship_id], index) => ({
-      api_id: index,
-      api_nowhp: 10,
-      api_maxhp: 10,
-      api_stype,
-      api_ship_id,
-    }))
-    const equips = fleet.map(([, , items]) => equipSlots(...items.map(slotItem)))
 
     it('matches the in-game normal transport value', () => {
-      expect(getTransportPoint(ships, equips)).toEqual({ total: 205, actual: 205 })
+      expect(getTransportPoint(shipsOf(fleet), equipsOf(fleet))).toEqual({
+        total: 205,
+        actual: 205,
+      })
     })
 
     it('matches the in-game tank transport value', () => {
-      expect(getTransportPoint(ships, equips, [], 'tank')).toEqual({ total: 446, actual: 446 })
+      expect(getTransportPoint(shipsOf(fleet), equipsOf(fleet), [], 'tank')).toEqual({
+        total: 446,
+        actual: 446,
+      })
+    })
+  })
+
+  // second E-5-2 fleet, checked against `api_landing_hp.api_sub_value` = 468 at S rank.
+  // 鬼怒改二 sits in the escort fleet: its bonus is what makes this 468 and not 466
+  it('matches the tank transport value of a fleet with 鬼怒改二', () => {
+    const fleet: FleetFixture = [
+      [9, 918, [276, 276, 107, 515]], // Maryland改
+      [10, 411, [290, 318, 526, 538, 483]], // 扶桑改二
+      [10, 412, [290, 290, 526, 471, 483]], // 山城改二
+      [7, 283, [100, 244, 422, 473, 274]], // 飛鷹改
+      [16, 348, [576, 449, 495, 274]], // 瑞穂
+      [2, 960, [576, 449, 495, 517]], // 清霜改二
+      [3, 487, [166, 166, 436, 173]], // 鬼怒改二
+      [2, 587, [514, 449, 230]],
+      [2, 667, [514, 355, 230]],
+      [2, 469, [436, 482, 230]],
+      [2, 498, [166, 166, 494]],
+      [4, 146, [309, 179, 179, 412]], // 木曾改二
+    ]
+
+    expect(getTransportPoint(shipsOf(fleet), equipsOf(fleet), [], 'tank')).toEqual({
+      total: 468,
+      actual: 468,
     })
   })
 
@@ -107,8 +180,8 @@ describe('transport point helpers', () => {
           api_maxhp: 20,
           api_stype: 2,
           api_ship_id: 1,
-          poi_slot: [{ api_slotitem_id: 75 }],
-          poi_slot_ex: { api_slotitem_id: 167 },
+          poi_slot: [slotItem(75)],
+          poi_slot_ex: slotItem(167),
         },
       },
       null,

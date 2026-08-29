@@ -5,12 +5,13 @@ import type { FriendShipRaw } from '../views/ship-view/types'
 /**
  * Transport operations come in two flavours since 2026:
  *
- * - `normal`: the classic TP table, every landing craft counts as 8.
- * - `tank`: "戦車輸送" maps (e.g. 2026 summer E-5-2), where landing craft carrying
- *   tanks and 内火艇 are worth far more, while everything else (plain landing craft,
- *   drums, rations and the ship type values themselves) is worth 0.75x its normal value.
+ * - `normal`: the classic table, where every landing craft counts as 8.
+ * - `tank`: "戦車輸送" maps (e.g. 2026 summer E-5-2), where an item is worth
+ *   `normal * 0.75` plus a bonus depending on the tank it carries, and the ship type
+ *   values are worth 0.75x as well.
  *
- * Verified against 2026 summer E-5 with a 12 ship fleet: normal 205, tank 446.
+ * Checked against the in-game 艦隊戦力分析 panel and `api_landing_hp.api_sub_value`
+ * for two real 2026 summer E-5 fleets: normal 205, tank 446 and 468.
  */
 export type TransportMode = 'normal' | 'tank'
 
@@ -39,57 +40,50 @@ export const parseTankTransportMaps = (body: ChartAdditionalInfoLike): number[] 
     .sortBy()
     .value()
 
-const TPByItem: Record<number, number> = {
-  75: 5,
-  68: 8,
-  166: 8,
-  193: 8,
-  230: 8,
-  355: 8,
-  408: 8,
-  409: 8,
-  436: 8,
-  449: 8,
-  482: 8,
-  494: 8,
-  495: 8,
-  514: 8,
-  576: 8,
-  167: 2,
-  525: 2,
-  526: 2,
-  145: 1,
-  150: 1,
-  241: 1,
+/**
+ * Base TP by equipment category (`api_type[2]`) instead of by item id, so a landing
+ * craft we have never heard of still counts for the usual 8.
+ */
+const TPByItemType: Record<number, number> = {
+  24: 8, // 上陸用舟艇 (大発動艇系)
+  30: 5, // 簡易輸送部材 (ドラム缶)
+  43: 1, // おにぎり (戦闘糧食系)
+  46: 2, // 特型内火艇
 }
 
 /**
- * Tank transport values, only for the items that break the flat 0.75x rule.
- * Anything missing here falls back to `TPByItem * TANK_RATIO`.
+ * What the tank table adds on top of `base * TANK_RATIO`, by item id - the trailing
+ * comment is the resulting S rank value. Items missing here keep the plain 0.75x base,
+ * which is all a tankless landing craft, a drum or a ration is worth.
  */
-const TPByItemTank: Record<number, number> = {
-  576: 24, // 大発動艇(R35&フランス兵)
-  514: 23, // 特大発動艇+Ⅲ号戦車J型
-  449: 21, // 特大発動艇+一式砲戦車
-  355: 20, // M4A1 DD
-  230: 19, // 特大発動艇+戦車第11連隊
-  482: 19, // 特大発動艇+Ⅲ号戦車(北アフリカ仕様)
-  495: 19, // 特大発動艇+チハ改
-  494: 17, // 特大発動艇+チハ
-  436: 16, // 大発動艇(II号戦車/北アフリカ仕様)
-  166: 14, // 大発動艇(八九式中戦車&陸戦隊)
-  499: 14, // 陸軍歩兵部隊+チハ改
-  526: 13.5, // 特四式内火艇改
-  525: 12.5, // 特四式内火艇
-  167: 12.5, // 特二式内火艇
-  498: 9, // 九七式中戦車 新砲塔(チハ改)
-  497: 7, // 九七式中戦車(チハ)
+const TankTPBonusByItem: Record<number, number> = {
+  576: 18, // 大発動艇(R35&フランス兵) -> 24
+  514: 17, // 特大発動艇+Ⅲ号戦車J型 -> 23
+  449: 15, // 特大発動艇+一式砲戦車 -> 21
+  355: 14, // M4A1 DD -> 20
+  499: 14, // 陸軍歩兵部隊+チハ改 -> 14
+  230: 13, // 特大発動艇+戦車第11連隊 -> 19
+  495: 13, // 特大発動艇+チハ改 -> 19
+  482: 13, // 特大発動艇+Ⅲ号戦車(北アフリカ仕様) -> 19
+  526: 12, // 特四式内火艇改 -> 13.5
+  494: 11, // 特大発動艇+チハ -> 17
+  167: 11, // 特二式内火艇 -> 12.5
+  436: 10, // 大発動艇(II号戦車/北アフリカ仕様) -> 16
+  525: 10, // 特四式内火艇 -> 11.5
+  498: 9, // 九七式中戦車 新砲塔(チハ改) -> 9
+  166: 8, // 大発動艇(八九式中戦車&陸戦隊) -> 14
+  497: 7, // 九七式中戦車(チハ) -> 7
+  496: 5, // 陸軍歩兵部隊 -> 5
 }
 
 const TANK_RATIO = 0.75
 
-const TPByShip: Record<number, number> = {
-  487: 8,
+/**
+ * 鬼怒改二 delivers one 大発 worth of TP on top of its ship type value, once per fleet.
+ * The tank table does not scale this one down: it stays 8 there too.
+ */
+const TPBonusByShip: Record<number, number> = {
+  487: 8, // 鬼怒改二
 }
 
 const TPByShipType: Record<number, number> = {
@@ -106,21 +100,50 @@ const TPByShipType: Record<number, number> = {
   20: 7,
 }
 
-const itemTP = (slotitemId: number | undefined, mode: TransportMode): number => {
-  if (slotitemId == null) return 0
-  const normal = TPByItem[slotitemId] || 0
-  if (mode !== 'tank') return normal
-  return TPByItemTank[slotitemId] ?? normal * TANK_RATIO
+type ItemLike = { api_slotitem_id?: number; api_type?: number[] } | null | undefined
+
+const itemTP = (item: ItemLike, mode: TransportMode): number => {
+  if (item == null) return 0
+  const base = TPByItemType[item.api_type?.[2] ?? -1] ?? 0
+  if (mode !== 'tank') return base
+  return base * TANK_RATIO + (TankTPBonusByItem[item.api_slotitem_id ?? -1] ?? 0)
 }
 
-const shipTP = (stype: number, shipId: number, mode: TransportMode): number => {
-  const normal = (TPByShipType[stype] || 0) + (TPByShip[shipId] || 0)
-  return mode === 'tank' ? normal * TANK_RATIO : normal
+const shipTypeTP = (stype: number, mode: TransportMode): number =>
+  (TPByShipType[stype] || 0) * (mode === 'tank' ? TANK_RATIO : 1)
+
+// ship bonuses count once per fleet, however many such ships are in it
+const shipBonuses = (shipIds: number[]): number[] => {
+  const counted = new Set<number>()
+  return shipIds.map((shipId) => {
+    const bonus = TPBonusByShip[shipId] || 0
+    if (!bonus || counted.has(shipId)) return 0
+    counted.add(shipId)
+    return bonus
+  })
 }
 
 export interface TPResult {
   total: number
   actual: number
+}
+
+interface ShipTP {
+  ignored: boolean
+  ship: number
+  bonus: number
+  equip: number
+}
+
+// tank values are fractional, the fleet total is floored
+const collect = (ships: ShipTP[]): TPResult => {
+  const shipTP = ({ ship, bonus, equip }: ShipTP): number => ship + bonus + equip
+  const equipTP = _.sumBy(ships, 'equip')
+
+  return {
+    total: equipTP ? Math.floor(_.sumBy(ships, shipTP)) : 0,
+    actual: Math.floor(_.sumBy(ships.filter(({ ignored }) => !ignored), shipTP)),
+  }
 }
 
 interface TransportShipData {
@@ -133,37 +156,22 @@ interface TransportShipData {
 
 type EquipSlotTuple = [ApiSlotItemLike | null | undefined, ...unknown[]]
 
-// tank transport values are fractional, the game floors the fleet total
-const sumTP = (values: number[]): number => Math.floor(_.sum(values))
-
 export const getTransportPoint = (
   shipsData: TransportShipData[],
   equipsData: (EquipSlotTuple | null | undefined)[][],
   escapedShipIds: number[] = [],
   mode: TransportMode = 'normal',
 ): TPResult => {
-  const ignores = _.map(
-    shipsData,
-    (ship) =>
-      escapedShipIds.includes(ship.api_id) || ship.api_nowhp * 4 <= ship.api_maxhp,
+  const bonuses = shipBonuses(_.map(shipsData, 'api_ship_id'))
+
+  return collect(
+    _.map(shipsData, (ship, index) => ({
+      ignored: escapedShipIds.includes(ship.api_id) || ship.api_nowhp * 4 <= ship.api_maxhp,
+      ship: shipTypeTP(ship.api_stype, mode),
+      bonus: bonuses[index],
+      equip: _.sumBy(equipsData[index] ?? [], (slot) => itemTP((slot ?? [])[0], mode)),
+    })),
   )
-
-  const shipTPs = _.map(shipsData, (ship) => shipTP(ship.api_stype, ship.api_ship_id, mode))
-
-  const equipTPs = _.map(equipsData, (equipData) =>
-    _.sum(_.map(equipData, (slot) => itemTP((slot ?? [])[0]?.api_slotitem_id, mode))),
-  )
-
-  const equipTP = _.sum(equipTPs)
-
-  const actual = sumTP(
-    _.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index] + equipTPs[index])),
-  )
-
-  return {
-    total: equipTP ? sumTP([_.sum(shipTPs), equipTP]) : 0,
-    actual,
-  }
 }
 
 export const getTPDazzyDing = (
@@ -171,32 +179,21 @@ export const getTPDazzyDing = (
   escapedShipIds: number[] = [],
   mode: TransportMode = 'normal',
 ): TPResult => {
-  const validShips = ships.filter((s): s is Ship => s != null)
+  const raws = ships
+    .filter((ship): ship is Ship => ship != null)
+    .map((ship) => ship.raw as FriendShipRaw)
+  const bonuses = shipBonuses(raws.map((raw) => raw.api_ship_id ?? -1))
 
-  const ignores = validShips.map((ship) => {
-    const raw = ship.raw as FriendShipRaw
-    return escapedShipIds.includes(raw.api_id ?? -1) || (raw.api_nowhp ?? 0) * 4 <= (raw.api_maxhp ?? 0)
-  })
-
-  const shipTPs = validShips.map((ship) => {
-    const raw = ship.raw as FriendShipRaw
-    return shipTP(raw.api_stype, raw.api_ship_id ?? -1, mode)
-  })
-
-  const equipTPs = validShips.map((ship) => {
-    const raw = ship.raw as FriendShipRaw
-    const allEquips = [...(raw.poi_slot ?? []), raw.poi_slot_ex ?? null]
-    return _.sum(_.map(allEquips, (equip) => itemTP(equip?.api_slotitem_id, mode)))
-  })
-
-  const equipTP = _.sum(equipTPs)
-
-  const actual = sumTP(
-    _.map(ignores, (ignore, index) => (ignore ? 0 : shipTPs[index] + equipTPs[index])),
+  return collect(
+    raws.map((raw, index) => ({
+      ignored:
+        escapedShipIds.includes(raw.api_id ?? -1) ||
+        (raw.api_nowhp ?? 0) * 4 <= (raw.api_maxhp ?? 0),
+      ship: shipTypeTP(raw.api_stype, mode),
+      bonus: bonuses[index],
+      equip: _.sumBy([...(raw.poi_slot ?? []), raw.poi_slot_ex ?? null], (item) =>
+        itemTP(item, mode),
+      ),
+    })),
   )
-
-  return {
-    total: equipTP ? sumTP([_.sum(shipTPs), equipTP]) : 0,
-    actual,
-  }
 }
