@@ -88,6 +88,17 @@ describe('transport point helpers', () => {
     expect(getTransportPoint(ships, equips, [], 'tank')).toEqual({ total: 9, actual: 9 })
   })
 
+  it('get the equipment category from the master', () => {
+    const ships = [{ api_id: 114, api_nowhp: 514, api_maxhp: 666, api_stype: 1, api_ship_id: 325 }]
+    const memberItem = { api_id: 1, api_level: 0, api_locked: 0, api_slotitem_id: 576 } // R35
+    const masterItem = { api_type: [0, 0, 24, 0, 0] }
+    const equip: [typeof memberItem, typeof masterItem] = [memberItem, masterItem]
+    const equips = [[equip]]
+
+    expect(getTransportPoint(ships, equips)).toEqual({ total: 8, actual: 8 })
+    expect(getTransportPoint(ships, equips, [], 'tank')).toEqual({ total: 24, actual: 24 })
+  })
+
   it('adds the 鬼怒改二 bonus once, and does not scale it in tank mode', () => {
     const kinu: FleetFixture = [
       [3, 487, [68]],
@@ -180,14 +191,19 @@ describe('transport point helpers', () => {
           api_maxhp: 20,
           api_stype: 2,
           api_ship_id: 1,
-          poi_slot: [slotItem(75)],
-          poi_slot_ex: slotItem(167),
+          poi_slot: [{ api_slotitem_id: 75 }],
+          poi_slot_ex: { api_slotitem_id: 167 },
         },
       },
       null,
     ] as (Ship | null)[]
+    const itemMasters = {
+      75: { api_type: [0, 0, 30, 0, 0] },
+      167: { api_type: [0, 0, 46, 0, 0] },
+    }
 
-    expect(getTPDazzyDing(ships)).toEqual({ total: 12, actual: 12 })
-    expect(getTPDazzyDing(ships, [1])).toEqual({ total: 12, actual: 0 })
+    expect(getTPDazzyDing(ships, [], 'normal', itemMasters)).toEqual({ total: 12, actual: 12 })
+    expect(getTPDazzyDing(ships, [], 'tank', itemMasters)).toEqual({ total: 20, actual: 20 })
+    expect(getTPDazzyDing(ships, [1], 'normal', itemMasters)).toEqual({ total: 12, actual: 0 })
   })
 })

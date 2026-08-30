@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { Ship } from 'poi-lib-battle'
 
 import { SortieState } from '../utils/constants'
 import {
@@ -41,6 +42,30 @@ describe('battle view model helpers', () => {
     expect(transportPoints({ inEvent: false })).toEqual({
       normal: { total: 0, actual: 0 },
       tank: { total: 0, actual: 0 },
+    })
+  })
+
+  it('uses master data of equipments for transport calculations', () => {
+    const ship = {
+      raw: {
+        api_id: 114,
+        api_nowhp: 514,
+        api_maxhp: 666,
+        api_stype: 1,
+        api_ship_id: 325,
+        poi_slot: [{ api_slotitem_id: 576 }], 
+      },
+    } as Ship
+
+    expect(
+      transportPoints({
+        inEvent: true,
+        mainFleet: [ship],
+        itemMasters: { 576: { api_type: [0, 0, 24, 0, 0] } }, // R35
+      }),
+    ).toEqual({
+      normal: { total: 8, actual: 8 },
+      tank: { total: 24, actual: 24 },
     })
   })
 

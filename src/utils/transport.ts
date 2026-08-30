@@ -101,10 +101,17 @@ const TPByShipType: Record<number, number> = {
 }
 
 type ItemLike = { api_slotitem_id?: number; api_type?: number[] } | null | undefined
+type ItemMasterLike = { api_type?: number[] } | null | undefined
 
-const itemTP = (item: ItemLike, mode: TransportMode): number => {
+export type ItemMasterMap = Record<number, ItemMasterLike>
+
+const itemTP = (
+  item: ItemLike,
+  mode: TransportMode,
+  master?: ItemMasterLike,
+): number => {
   if (item == null) return 0
-  const base = TPByItemType[item.api_type?.[2] ?? -1] ?? 0
+  const base = TPByItemType[item.api_type?.[2] ?? master?.api_type?.[2] ?? -1] ?? 0
   if (mode !== 'tank') return base
   return base * TANK_RATIO + (TankTPBonusByItem[item.api_slotitem_id ?? -1] ?? 0)
 }
@@ -154,7 +161,7 @@ interface TransportShipData {
   api_ship_id: number
 }
 
-type EquipSlotTuple = [ApiSlotItemLike | null | undefined, ...unknown[]]
+type EquipSlotTuple = [ItemLike, ...unknown[]]
 
 export const getTransportPoint = (
   shipsData: TransportShipData[],
@@ -169,7 +176,10 @@ export const getTransportPoint = (
       ignored: escapedShipIds.includes(ship.api_id) || ship.api_nowhp * 4 <= ship.api_maxhp,
       ship: shipTypeTP(ship.api_stype, mode),
       bonus: bonuses[index],
-      equip: _.sumBy(equipsData[index] ?? [], (slot) => itemTP((slot ?? [])[0], mode)),
+      equip: _.sumBy(equipsData[index] ?? [], (slot) => {
+        const [item, master] = slot ?? []
+        return itemTP(item, mode, master as ItemMasterLike)
+      }),
     })),
   )
 }
@@ -178,6 +188,7 @@ export const getTPDazzyDing = (
   ships: (Ship | null | undefined)[],
   escapedShipIds: number[] = [],
   mode: TransportMode = 'normal',
+  itemMasters: ItemMasterMap = {},
 ): TPResult => {
   const raws = ships
     .filter((ship): ship is Ship => ship != null)
@@ -192,7 +203,7 @@ export const getTPDazzyDing = (
       ship: shipTypeTP(raw.api_stype, mode),
       bonus: bonuses[index],
       equip: _.sumBy([...(raw.poi_slot ?? []), raw.poi_slot_ex ?? null], (item) =>
-        itemTP(item, mode),
+        itemTP(item, mode, itemMasters[item?.api_slotitem_id ?? -1]),
       ),
     })),
   )
