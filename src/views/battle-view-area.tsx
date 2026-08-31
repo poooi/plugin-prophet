@@ -224,14 +224,7 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
   const escapedShipIds = useSelector(escapedShipIdSelector)
   const inEvent = useSelector(inEventSelector)
   const tankTransportMaps = useSelector(tankTransportMapsSelector)
-  const itemMasters = useSelector((state: PoiRootState) => state.const?.$equips)
-  const TP = transportPoints({
-    inEvent,
-    mainFleet,
-    escortFleet,
-    escapedShipIds,
-    itemMasters,
-  })
+  const TP = transportPoints({ inEvent, mainFleet, escortFleet, escapedShipIds })
   // in port the map is not decided yet, so both tables are shown side by side;
   // once sortied only the one the map actually uses is relevant
   const shownTP: { tp: TPResult; icon: string; label: string }[] =

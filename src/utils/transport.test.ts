@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { Ship } from 'poi-lib-battle'
 
-import { getTPDazzyDing, getTransportPoint, parseTankTransportMaps } from './transport'
+import {
+  getTransportPoint,
+  getTransportPointFromFleets,
+  parseTankTransportMaps,
+} from './transport'
 
 // the TP tables key off the equipment category in api_type[2]
 const landingCraft = new Set([68, 166, 193, 230, 355, 408, 409, 436, 449, 482, 494, 495, 514, 576])
@@ -26,7 +30,7 @@ const slotItem = (apiSlotitemId: number, apiTypeId = category(apiSlotitemId)): A
   api_type: [0, 0, apiTypeId, 0, 0],
 })
 
-const equipSlots = (...items: ApiSlotItemLike[]): [ApiSlotItemLike, ...unknown[]][] =>
+const equipSlots = (...items: ApiSlotItemLike[]): [ApiSlotItemLike][] =>
   items.map((item) => [item])
 
 // [api_stype, api_ship_id, equipment ids]
@@ -191,19 +195,15 @@ describe('transport point helpers', () => {
           api_maxhp: 20,
           api_stype: 2,
           api_ship_id: 1,
-          poi_slot: [{ api_slotitem_id: 75 }],
-          poi_slot_ex: { api_slotitem_id: 167 },
+          poi_slot: [slotItem(75)],
+          poi_slot_ex: slotItem(167),
         },
       },
       null,
     ] as (Ship | null)[]
-    const itemMasters = {
-      75: { api_type: [0, 0, 30, 0, 0] },
-      167: { api_type: [0, 0, 46, 0, 0] },
-    }
 
-    expect(getTPDazzyDing(ships, [], 'normal', itemMasters)).toEqual({ total: 12, actual: 12 })
-    expect(getTPDazzyDing(ships, [], 'tank', itemMasters)).toEqual({ total: 20, actual: 20 })
-    expect(getTPDazzyDing(ships, [1], 'normal', itemMasters)).toEqual({ total: 12, actual: 0 })
+    expect(getTransportPointFromFleets([ships])).toEqual({ total: 12, actual: 12 })
+    expect(getTransportPointFromFleets([ships], { mode: 'tank' })).toEqual({ total: 20, actual: 20 })
+    expect(getTransportPointFromFleets([ships], { escapedShipIds: [1] })).toEqual({ total: 12, actual: 0 })
   })
 })

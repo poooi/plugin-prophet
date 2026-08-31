@@ -101,17 +101,10 @@ const TPByShipType: Record<number, number> = {
 }
 
 type ItemLike = { api_slotitem_id?: number; api_type?: number[] } | null | undefined
-type ItemMasterLike = { api_type?: number[] } | null | undefined
 
-export type ItemMasterMap = Record<number, ItemMasterLike>
-
-const itemTP = (
-  item: ItemLike,
-  mode: TransportMode,
-  master?: ItemMasterLike,
-): number => {
+const itemTP = (item: ItemLike, mode: TransportMode): number => {
   if (item == null) return 0
-  const base = TPByItemType[item.api_type?.[2] ?? master?.api_type?.[2] ?? -1] ?? 0
+  const base = TPByItemType[item.api_type?.[2] ?? -1] ?? 0
   if (mode !== 'tank') return base
   return base * TANK_RATIO + (TankTPBonusByItem[item.api_slotitem_id ?? -1] ?? 0)
 }
@@ -142,14 +135,18 @@ interface ShipTP {
   equip: number
 }
 
-// tank values are fractional, the fleet total is floored
-const collect = (ships: ShipTP[]): TPResult => {
+// tank values are fractional, the fleet total is floored before merge
+const collect = (fleets: ShipTP[][]): TPResult => {
   const shipTP = ({ ship, bonus, equip }: ShipTP): number => ship + bonus + equip
+  const ships = fleets.flat()
   const equipTP = _.sumBy(ships, 'equip')
+  const fleetTP = (fleet: ShipTP[]): number => Math.floor(_.sumBy(fleet, shipTP))
 
   return {
-    total: equipTP ? Math.floor(_.sumBy(ships, shipTP)) : 0,
-    actual: Math.floor(_.sumBy(ships.filter(({ ignored }) => !ignored), shipTP)),
+    total: equipTP ? _.sumBy(fleets, fleetTP) : 0,
+    actual: _.sumBy(fleets, (fleet) =>
+      fleetTP(fleet.filter(({ ignored }) => !ignored)),
+    ),
   }
 }
 
@@ -161,7 +158,7 @@ interface TransportShipData {
   api_ship_id: number
 }
 
-type EquipSlotTuple = [ItemLike, ...unknown[]]
+type EquipSlotTuple = [ItemLike, { api_type?: number[] }?, ...unknown[]]
 
 export const getTransportPoint = (
   shipsData: TransportShipData[],
@@ -171,40 +168,55 @@ export const getTransportPoint = (
 ): TPResult => {
   const bonuses = shipBonuses(_.map(shipsData, 'api_ship_id'))
 
-  return collect(
+  return collect([
     _.map(shipsData, (ship, index) => ({
       ignored: escapedShipIds.includes(ship.api_id) || ship.api_nowhp * 4 <= ship.api_maxhp,
       ship: shipTypeTP(ship.api_stype, mode),
       bonus: bonuses[index],
       equip: _.sumBy(equipsData[index] ?? [], (slot) => {
         const [item, master] = slot ?? []
-        return itemTP(item, mode, master as ItemMasterLike)
+        return itemTP(item == null ? item : { ...(master ?? {}), ...item }, mode)
       }),
     })),
-  )
+  ])
 }
 
-export const getTPDazzyDing = (
-  ships: (Ship | null | undefined)[],
-  escapedShipIds: number[] = [],
-  mode: TransportMode = 'normal',
-  itemMasters: ItemMasterMap = {},
+type ShipLike = Ship | null | undefined
+
+export interface FleetTransportPointOptions {
+  escapedShipIds?: number[]
+  mode?: TransportMode
+}
+
+export const getTransportPointFromFleets = (
+  fleets: ShipLike[][],
+  {
+    escapedShipIds = [],
+    mode = 'normal',
+  }: FleetTransportPointOptions = {},
 ): TPResult => {
-  const raws = ships
-    .filter((ship): ship is Ship => ship != null)
-    .map((ship) => ship.raw as FriendShipRaw)
-  const bonuses = shipBonuses(raws.map((raw) => raw.api_ship_id ?? -1))
+  const rawFleets = fleets.map((fleet) =>
+    fleet
+      .filter((ship): ship is Ship => ship != null)
+      .map((ship) => ship.raw as FriendShipRaw),
+  )
+  const bonuses = shipBonuses(
+    rawFleets.flatMap((raws) => raws.map((raw) => raw.api_ship_id ?? -1)),
+  )
+  let bonusIndex = 0
 
   return collect(
-    raws.map((raw, index) => ({
-      ignored:
-        escapedShipIds.includes(raw.api_id ?? -1) ||
-        (raw.api_nowhp ?? 0) * 4 <= (raw.api_maxhp ?? 0),
-      ship: shipTypeTP(raw.api_stype, mode),
-      bonus: bonuses[index],
-      equip: _.sumBy([...(raw.poi_slot ?? []), raw.poi_slot_ex ?? null], (item) =>
-        itemTP(item, mode, itemMasters[item?.api_slotitem_id ?? -1]),
-      ),
-    })),
+    rawFleets.map((raws) =>
+      raws.map((raw) => ({
+        ignored:
+          escapedShipIds.includes(raw.api_id ?? -1) ||
+          (raw.api_nowhp ?? 0) * 4 <= (raw.api_maxhp ?? 0),
+        ship: shipTypeTP(raw.api_stype, mode),
+        bonus: bonuses[bonusIndex++],
+        equip: _.sumBy([...(raw.poi_slot ?? []), raw.poi_slot_ex ?? null], (item) =>
+          itemTP(item, mode),
+        ),
+      })),
+    ),
   )
 }

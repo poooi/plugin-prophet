@@ -2,8 +2,7 @@ import type { Ship } from 'poi-lib-battle'
 
 import { combinedFleetType, SortieState, type SortieStateValue } from '../utils/constants'
 import {
-  getTPDazzyDing,
-  type ItemMasterMap,
+  getTransportPointFromFleets,
   type TPResult,
 } from '../utils/transport'
 
@@ -61,18 +60,16 @@ export const transportPoints = ({
   mainFleet = [],
   escortFleet = [],
   escapedShipIds = [],
-  itemMasters = {},
 }: {
   inEvent: boolean
   mainFleet?: (Ship | null)[]
   escortFleet?: (Ship | null)[]
   escapedShipIds?: number[]
-  itemMasters?: ItemMasterMap
 }): { normal: TPResult; tank: TPResult } => {
   if (!inEvent) return { normal: noTP, tank: noTP }
-  const fleet = [...mainFleet, ...escortFleet]
+  const fleets = [mainFleet, escortFleet]
   return {
-    normal: getTPDazzyDing(fleet, escapedShipIds, 'normal', itemMasters),
-    tank: getTPDazzyDing(fleet, escapedShipIds, 'tank', itemMasters),
+    normal: getTransportPointFromFleets(fleets, { escapedShipIds }),
+    tank: getTransportPointFromFleets(fleets, { escapedShipIds, mode: 'tank' }),
   }
 }
