@@ -1,7 +1,10 @@
 import type { Ship } from 'poi-lib-battle'
 
 import { combinedFleetType, SortieState, type SortieStateValue } from '../utils/constants'
-import { getTPDazzyDing, type TPResult } from '../utils/transport'
+import {
+  getTransportPointFromFleets,
+  type TPResult,
+} from '../utils/transport'
 
 export interface BattleTitleInput {
   sortieState: SortieStateValue
@@ -64,9 +67,9 @@ export const transportPoints = ({
   escapedShipIds?: number[]
 }): { normal: TPResult; tank: TPResult } => {
   if (!inEvent) return { normal: noTP, tank: noTP }
-  const fleet = [...mainFleet, ...escortFleet]
+  const fleets = [mainFleet, escortFleet]
   return {
-    normal: getTPDazzyDing(fleet, escapedShipIds, 'normal'),
-    tank: getTPDazzyDing(fleet, escapedShipIds, 'tank'),
+    normal: getTransportPointFromFleets(fleets, { escapedShipIds }),
+    tank: getTransportPointFromFleets(fleets, { escapedShipIds, mode: 'tank' }),
   }
 }

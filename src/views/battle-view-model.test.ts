@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest'
+import type { Ship } from 'poi-lib-battle'
 
 import { SortieState } from '../utils/constants'
 import {
@@ -41,6 +42,57 @@ describe('battle view model helpers', () => {
     expect(transportPoints({ inEvent: false })).toEqual({
       normal: { total: 0, actual: 0 },
       tank: { total: 0, actual: 0 },
+    })
+  })
+
+  it('uses master data of equipments for transport calculations', () => {
+    const ship = {
+      raw: {
+        api_id: 114,
+        api_nowhp: 514,
+        api_maxhp: 666,
+        api_stype: 1,
+        api_ship_id: 325,
+        poi_slot: [{ api_slotitem_id: 576, api_type: [0, 0, 24, 0, 0] }],
+      },
+    } as Ship
+
+    expect(
+      transportPoints({
+        inEvent: true,
+        mainFleet: [ship],
+      }),
+    ).toEqual({
+      normal: { total: 8, actual: 8 },
+      tank: { total: 24, actual: 24 },
+    })
+  })
+
+  it('floors main and escort fleet transport points separately', () => {
+    const ship = (apiId: number, apiStype: number, items: number[] = []) => ({
+      raw: {
+        api_id: apiId,
+        api_nowhp: 10,
+        api_maxhp: 10,
+        api_stype: apiStype,
+        api_ship_id: apiId,
+        poi_slot: items.map((apiSlotitemId) => ({
+          api_slotitem_id: apiSlotitemId,
+          api_type: [0, 0, 24, 0, 0],
+        })),
+      },
+    }) as Ship
+
+    expect(
+      transportPoints({
+        inEvent: true,
+        mainFleet: [ship(1, 2, [68]), ship(3, 6)],
+        escortFleet: [ship(2, 2)],
+        escapedShipIds: [3],
+      }),
+    ).toEqual({
+      normal: { total: 22, actual: 18 },
+      tank: { total: 15, actual: 12 },
     })
   })
 

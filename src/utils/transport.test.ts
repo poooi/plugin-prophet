@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import type { Ship } from 'poi-lib-battle'
 
-import { getTPDazzyDing, getTransportPoint, parseTankTransportMaps } from './transport'
+import {
+  getTransportPoint,
+  getTransportPointFromFleets,
+  parseTankTransportMaps,
+} from './transport'
 
 // the TP tables key off the equipment category in api_type[2]
 const landingCraft = new Set([68, 166, 193, 230, 355, 408, 409, 436, 449, 482, 494, 495, 514, 576])
@@ -26,7 +30,7 @@ const slotItem = (apiSlotitemId: number, apiTypeId = category(apiSlotitemId)): A
   api_type: [0, 0, apiTypeId, 0, 0],
 })
 
-const equipSlots = (...items: ApiSlotItemLike[]): [ApiSlotItemLike, ...unknown[]][] =>
+const equipSlots = (...items: ApiSlotItemLike[]): [ApiSlotItemLike][] =>
   items.map((item) => [item])
 
 // [api_stype, api_ship_id, equipment ids]
@@ -86,6 +90,17 @@ describe('transport point helpers', () => {
     // 8 for the landing craft, 6 in tank mode, on top of the destroyer itself
     expect(getTransportPoint(ships, equips)).toEqual({ total: 13, actual: 13 })
     expect(getTransportPoint(ships, equips, [], 'tank')).toEqual({ total: 9, actual: 9 })
+  })
+
+  it('get the equipment category from the master', () => {
+    const ships = [{ api_id: 114, api_nowhp: 514, api_maxhp: 666, api_stype: 1, api_ship_id: 325 }]
+    const memberItem = { api_id: 1, api_level: 0, api_locked: 0, api_slotitem_id: 576 } // R35
+    const masterItem = { api_type: [0, 0, 24, 0, 0] }
+    const equip: [typeof memberItem, typeof masterItem] = [memberItem, masterItem]
+    const equips = [[equip]]
+
+    expect(getTransportPoint(ships, equips)).toEqual({ total: 8, actual: 8 })
+    expect(getTransportPoint(ships, equips, [], 'tank')).toEqual({ total: 24, actual: 24 })
   })
 
   it('adds the 鬼怒改二 bonus once, and does not scale it in tank mode', () => {
@@ -187,7 +202,8 @@ describe('transport point helpers', () => {
       null,
     ] as (Ship | null)[]
 
-    expect(getTPDazzyDing(ships)).toEqual({ total: 12, actual: 12 })
-    expect(getTPDazzyDing(ships, [1])).toEqual({ total: 12, actual: 0 })
+    expect(getTransportPointFromFleets([ships])).toEqual({ total: 12, actual: 12 })
+    expect(getTransportPointFromFleets([ships], { mode: 'tank' })).toEqual({ total: 20, actual: 20 })
+    expect(getTransportPointFromFleets([ships], { escapedShipIds: [1] })).toEqual({ total: 12, actual: 0 })
   })
 })

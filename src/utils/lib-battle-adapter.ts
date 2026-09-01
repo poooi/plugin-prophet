@@ -14,9 +14,9 @@ import {
 } from 'poi-lib-battle'
 import type { APIMstShip } from 'kcsapi/api_start2/getData/response'
 import type { APIGetMemberShip2Response } from 'kcsapi/api_get_member/ship2/response'
-import type { APISlotItem } from 'kcsapi/api_get_member/require_info/response'
 
 import { getStore } from '../host/poi-store'
+import type { ProphetEquipEntry } from '../types'
 import { PLUGIN_KEY } from './constants'
 
 const __ = i18next.getFixedT(null, [PLUGIN_KEY, 'resources'])
@@ -25,8 +25,14 @@ const { Ship: ShipClass, ShipOwner, Formation: FormationConst, Engagement: Engag
 
 // [apiShip, $ship] pair from poi fleet selectors
 type FleetShipPair = [APIGetMemberShip2Response, APIMstShip] | null | undefined
-// [apiSlotItem, ...rest] pair from poi equip selectors
-type EquipSlot = [APISlotItem | null | undefined, ...unknown[]] | null | undefined
+type EquipSlot = ProphetEquipEntry | null | undefined
+
+const mergeEquipSlot = (entry: EquipSlot): ApiSlotItemLike | null => {
+  if (!entry) return null
+  const [item, master] = entry
+  if (!item) return null
+  return { ...master, ...item }
+}
 
 export const initEnemy = (
   intl = 0,
@@ -188,13 +194,11 @@ export const transformToLibBattleClass = (
             ..._ship,
             poi_slot: shipEquips.map((e) => {
               const equip = e?.[0]
-              return equip && equip.api_id !== _ship.api_slot_ex ? equip : null
+              return equip && equip.api_id !== _ship.api_slot_ex ? mergeEquipSlot(e) : null
             }),
-            poi_slot_ex:
-              _.find(
-                shipEquips,
-                (e) => e?.[0] != null && (e[0] as APISlotItem).api_id === _ship.api_slot_ex,
-              )?.[0] as RawSlotItem | null ?? null,
+            poi_slot_ex: mergeEquipSlot(
+              _.find(shipEquips, (e) => e?.[0]?.api_id === _ship.api_slot_ex),
+            ),
           } as unknown as RawFleetShip,
         })
       }),
@@ -216,7 +220,7 @@ export const transformToDazzyDingClass = (
         return {
           ...$ship,
           ..._ship,
-          poi_slot: shipEquips.map((e) => (e?.[0] ? e[0] : null)),
+          poi_slot: shipEquips.map(mergeEquipSlot),
           poi_slot_ex: null,
         } as RawFleetShip
       }),
