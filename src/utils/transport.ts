@@ -1,6 +1,7 @@
 import _ from 'lodash'
-import type { Ship } from 'poi-lib-battle'
-import type { FriendShipRaw } from '../views/ship-view/types'
+import type { APIGetMemberShip2Response } from 'kcsapi/api_get_member/ship2/response'
+
+import type { ProphetEquipEntry, ProphetFleetEntry } from '../types'
 
 /**
  * Transport operations come in two flavours since 2026:
@@ -52,7 +53,7 @@ const TPByItemType: Record<number, number> = {
 }
 
 /**
- * What the tank table adds on top of `base * TANK_RATIO`, by item id - the trailing
+ * What the tank table adds on top of `base * 0.75`, by item id - the trailing
  * comment is the resulting S rank value. Items missing here keep the plain 0.75x base,
  * which is all a tankless landing craft, a drum or a ration is worth.
  */
@@ -76,15 +77,24 @@ const TankTPBonusByItem: Record<number, number> = {
   496: 5, // 陸軍歩兵部隊 -> 5
 }
 
-const TANK_RATIO = 0.75
-
-/**
- * 鬼怒改二 delivers one 大発 worth of TP on top of its ship type value, once per fleet.
- * The tank table does not scale this one down: it stays 8 there too.
- */
-const TPBonusByShip: Record<number, number> = {
-  487: 8, // 鬼怒改二
+interface TransportRule {
+  baseMultiplier: { numerator: number; denominator: number }
+  itemBonusById: Readonly<Record<number, number>>
 }
+
+const rules: Record<TransportMode, TransportRule> = {
+  normal: {
+    baseMultiplier: { numerator: 1, denominator: 1 },
+    itemBonusById: {},
+  },
+  tank: {
+    baseMultiplier: { numerator: 3, denominator: 4 },
+    itemBonusById: TankTPBonusByItem,
+  },
+}
+
+const KINU_KAI_NI = 487
+const KINU_BONUS = 8
 
 const TPByShipType: Record<number, number> = {
   2: 5,
@@ -100,123 +110,105 @@ const TPByShipType: Record<number, number> = {
   20: 7,
 }
 
-type ItemLike = { api_slotitem_id?: number; api_type?: number[] } | null | undefined
-
-const itemTP = (item: ItemLike, mode: TransportMode): number => {
-  if (item == null) return 0
-  const base = TPByItemType[item.api_type?.[2] ?? -1] ?? 0
-  if (mode !== 'tank') return base
-  return base * TANK_RATIO + (TankTPBonusByItem[item.api_slotitem_id ?? -1] ?? 0)
+export interface TransportResult {
+  planned: number
+  deliverable: number
+  /** Cargo presence is separate from the ship's own transport capacity. */
+  hasTransportCargo: boolean
 }
 
-const shipTypeTP = (stype: number, mode: TransportMode): number =>
-  (TPByShipType[stype] || 0) * (mode === 'tank' ? TANK_RATIO : 1)
-
-// ship bonuses count once per fleet, however many such ships are in it
-const shipBonuses = (shipIds: number[]): number[] => {
-  const counted = new Set<number>()
-  return shipIds.map((shipId) => {
-    const bonus = TPBonusByShip[shipId] || 0
-    if (!bonus || counted.has(shipId)) return 0
-    counted.add(shipId)
-    return bonus
-  })
-}
-
-export interface TPResult {
-  total: number
-  actual: number
-}
-
-interface ShipTP {
-  ignored: boolean
-  ship: number
-  bonus: number
-  equip: number
-}
-
-// tank values are fractional, the fleet total is floored before merge
-const collect = (fleets: ShipTP[][]): TPResult => {
-  const shipTP = ({ ship, bonus, equip }: ShipTP): number => ship + bonus + equip
-  const ships = fleets.flat()
-  const equipTP = _.sumBy(ships, 'equip')
-  const fleetTP = (fleet: ShipTP[]): number => Math.floor(_.sumBy(fleet, shipTP))
-
-  return {
-    total: equipTP ? _.sumBy(fleets, fleetTP) : 0,
-    actual: _.sumBy(fleets, (fleet) =>
-      fleetTP(fleet.filter(({ ignored }) => !ignored)),
-    ),
-  }
-}
-
-interface TransportShipData {
-  api_id: number
-  api_nowhp: number
-  api_maxhp: number
-  api_stype: number
-  api_ship_id: number
-}
-
-type EquipSlotTuple = [ItemLike, { api_type?: number[] }?, ...unknown[]]
-
-export const getTransportPoint = (
-  shipsData: TransportShipData[],
-  equipsData: (EquipSlotTuple | null | undefined)[][],
-  escapedShipIds: number[] = [],
-  mode: TransportMode = 'normal',
-): TPResult => {
-  const bonuses = shipBonuses(_.map(shipsData, 'api_ship_id'))
-
-  return collect([
-    _.map(shipsData, (ship, index) => ({
-      ignored: escapedShipIds.includes(ship.api_id) || ship.api_nowhp * 4 <= ship.api_maxhp,
-      ship: shipTypeTP(ship.api_stype, mode),
-      bonus: bonuses[index],
-      equip: _.sumBy(equipsData[index] ?? [], (slot) => {
-        const [item, master] = slot ?? []
-        return itemTP(item == null ? item : { ...(master ?? {}), ...item }, mode)
-      }),
-    })),
-  ])
-}
-
-type ShipLike = Ship | null | undefined
-
-export interface FleetTransportPointOptions {
-  escapedShipIds?: number[]
+export interface TransportOptions {
   mode?: TransportMode
+  /** Member ship IDs that have retreated and can no longer deliver. */
+  escapedShipIds?: readonly number[]
 }
 
-export const getTransportPointFromFleets = (
-  fleets: ShipLike[][],
-  {
-    escapedShipIds = [],
-    mode = 'normal',
-  }: FleetTransportPointOptions = {},
-): TPResult => {
-  const rawFleets = fleets.map((fleet) =>
-    fleet
-      .filter((ship): ship is Ship => ship != null)
-      .map((ship) => ship.raw as FriendShipRaw),
-  )
-  const bonuses = shipBonuses(
-    rawFleets.flatMap((raws) => raws.map((raw) => raw.api_ship_id ?? -1)),
-  )
-  let bonusIndex = 0
+type TransportFleets = readonly (readonly ProphetFleetEntry[])[]
+type TransportEquips = readonly (readonly (readonly (ProphetEquipEntry | undefined)[])[])[]
 
-  return collect(
-    rawFleets.map((raws) =>
-      raws.map((raw) => ({
-        ignored:
-          escapedShipIds.includes(raw.api_id ?? -1) ||
-          (raw.api_nowhp ?? 0) * 4 <= (raw.api_maxhp ?? 0),
-        ship: shipTypeTP(raw.api_stype, mode),
-        bonus: bonuses[bonusIndex++],
-        equip: _.sumBy([...(raw.poi_slot ?? []), raw.poi_slot_ex ?? null], (item) =>
-          itemTP(item, mode),
-        ),
-      })),
+type ShipFilter = (member: APIGetMemberShip2Response) => boolean
+
+// The member HP the selector copies straight from Poi; do not substitute a
+// simulated or post-battle value here.
+const isEligible = (
+  member: APIGetMemberShip2Response,
+  escapedShipIds: readonly number[],
+): boolean =>
+  !escapedShipIds.includes(member.api_id) &&
+  (member.api_nowhp ?? 0) * 4 > (member.api_maxhp ?? 0)
+
+const fleetScore = (
+  fleet: readonly ProphetFleetEntry[],
+  shipEquips: TransportEquips[number],
+  rule: TransportRule,
+  include: ShipFilter,
+): number => {
+  const { numerator, denominator } = rule.baseMultiplier
+  let base = 0
+  let itemBonus = 0
+
+  // Pair and slot positions line up with the selector output; empty slots are
+  // undefined and a missing ship master is possible while the plugin boots up.
+  fleet.forEach((pair, shipIndex) => {
+    const [member, master] = pair ?? []
+    if (!member || !include(member)) return
+    base += TPByShipType[master?.api_stype ?? -1] ?? 0
+    ;(shipEquips[shipIndex] ?? []).forEach((slot) => {
+      if (!slot) return
+      base += TPByItemType[slot[1]?.api_type?.[2] ?? -1] ?? 0
+      itemBonus += rule.itemBonusById[slot[0]?.api_slotitem_id ?? -1] ?? 0
+    })
+  })
+
+  // Preserve per-fleet rounding; do not round individual contributions.
+  return Math.floor((base * numerator + itemBonus * denominator) / denominator)
+}
+
+const score = (
+  fleets: TransportFleets,
+  equips: TransportEquips,
+  rule: TransportRule,
+  include: ShipFilter,
+): number => {
+  const fleetPoints = _.sum(fleets.map((fleet, fleetIndex) =>
+    fleetScore(fleet, equips[fleetIndex] ?? [], rule, include),
+  ))
+
+  // Once across main + escort, evaluated on the population being scored.
+  // This integer bonus stays unscaled in the current tank rule, so adding it
+  // after per-fleet rounding is equivalent to including it before rounding.
+  const fleetBonus = fleets.some((fleet) => fleet.some(
+    (pair) => pair != null && include(pair[0]) && pair[0].api_ship_id === KINU_KAI_NI,
+  )) ? KINU_BONUS : 0
+
+  return fleetPoints + fleetBonus
+}
+
+/**
+ * S-rank TP straight from the Poi fleet selector pairs. Keep main and escort as
+ * separate fleets; eligibility comes from the member HP and the retreated ship IDs.
+ */
+export const calculateTransport = (
+  fleets: TransportFleets,
+  equips: TransportEquips,
+  { mode = 'normal', escapedShipIds = [] }: TransportOptions = {},
+): TransportResult => {
+  const rule = rules[mode]
+  return {
+    planned: score(fleets, equips, rule, () => true),
+    deliverable: score(
+      fleets,
+      equips,
+      rule,
+      (member) => isEligible(member, escapedShipIds),
     ),
-  )
+    hasTransportCargo: fleets.some((fleet, fleetIndex) => fleet.some((pair, shipIndex) =>
+      pair?.[0] != null &&
+      (equips[fleetIndex]?.[shipIndex] ?? []).some((slot) =>
+        slot != null &&
+        ((TPByItemType[slot[1]?.api_type?.[2] ?? -1] ?? 0) > 0 ||
+          (rule.itemBonusById[slot[0]?.api_slotitem_id ?? -1] ?? 0) > 0),
+      ),
+    )),
+  }
 }

@@ -1,10 +1,8 @@
 import FontAwesome from 'react-fontawesome'
 import React, { FC, useEffect, useState } from 'react'
-import { createSelector } from 'reselect'
 import _ from 'lodash'
 import { useSelector } from 'react-redux'
 import { Collapse } from '@blueprintjs/core'
-import { Tooltip } from 'views/components/etc/overlay'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import type { Ship } from 'poi-lib-battle'
@@ -17,18 +15,15 @@ import SquadView from './squad-view'
 import BattleInfo from './battle-info'
 import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
+import TransportPoints from './transport-points'
 import { PLUGIN_KEY, SortieState } from '../utils'
-import { tankTransportMapsSelector } from '../redux'
 import type { ProphetBattleResult } from '../types'
 import type { SortieStateValue } from '../utils/constants'
 import {
   battleSpotKey,
   enemyTitle as buildEnemyTitle,
   friendTitle as buildFriendTitle,
-  isTankTransportMap,
-  transportPoints,
 } from './battle-view-model'
-import type { TPResult } from '../utils/transport'
 
 const FleetsContainer = styled.div<{ horizontalLayout?: boolean }>`
   display: flex;
@@ -130,28 +125,6 @@ const AirRaidHeader = styled.div<{ isOpen?: boolean }>`
   }
 `
 
-const inEventSelector = createSelector(
-  [(state: PoiRootState) => state.const?.$maps],
-  (maps = {}) => Object.keys(maps).some((mapId) => +mapId > 100),
-)
-
-const escapedShipIdSelector = createSelector(
-  [
-    (state: PoiRootState) => state.sortie.escapedPos ?? [],
-    (state: PoiRootState) => state.sortie.combinedFlag ?? 0,
-    (state: PoiRootState) => state,
-  ],
-  (escapedPos: number[], combinedFlag: number, state: PoiRootState) => {
-    if (combinedFlag > 0) {
-      const shipIds = _.flatMap([0, 1], (fleetId) =>
-        state.info?.fleets?.[fleetId]?.api_ship ?? [],
-      )
-      return escapedPos.map((pos) => shipIds[pos])
-    }
-    return []
-  },
-)
-
 interface BattleViewAreaProps {
   mainFleet?: (Ship | null)[]
   escortFleet?: (Ship | null)[]
@@ -220,23 +193,6 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
       : undefined,
   )
   const enemyTitle = buildEnemyTitle({ sortieState, showEnemyTitle, storedEnemyTitle: historyTitle })
-
-  const escapedShipIds = useSelector(escapedShipIdSelector)
-  const inEvent = useSelector(inEventSelector)
-  const tankTransportMaps = useSelector(tankTransportMapsSelector)
-  const TP = transportPoints({ inEvent, mainFleet, escortFleet, escapedShipIds })
-  // in port the map is not decided yet, so both tables are shown side by side;
-  // once sortied only the one the map actually uses is relevant
-  const shownTP: { tp: TPResult; icon: string; label: string }[] =
-    sortieState === SortieState.InPort
-      ? [
-          { tp: TP.normal, icon: 'database', label: 'Transport Point' },
-          { tp: TP.tank, icon: 'truck', label: 'Tank Transport Point' },
-        ]
-      : // the api hands the map id over as a string on some responses
-        isTankTransportMap(Number(sortieMapId), tankTransportMaps)
-        ? [{ tp: TP.tank, icon: 'truck', label: 'Tank Transport Point' }]
-        : [{ tp: TP.normal, icon: 'database', label: 'Transport Point' }]
 
   const fleetName = useSelector((state: PoiRootState) =>
     state.info?.fleets?.[fleetIds[0]]?.api_name ?? 'Sortie Fleet',
@@ -328,29 +284,7 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
         <CombatTitle>
           <FleetTitle isFriend title={t(friendTitle)}>
             <FleetName>{`${t(friendTitle)}`}</FleetName>
-            {!baseDefense &&
-              shownTP.map(
-                ({ tp, icon, label }) =>
-                  tp.total > 0 && (
-                    <StatGroup key={label}>
-                      <Tooltip
-                        position="bottom"
-                        content={
-                          <div id="tp-indicator">
-                            <div>{t(label)}</div>
-                            <span>{`${t('A_rank')}${Math.floor(tp.actual * 0.7)}`}</span>
-                          </div>
-                        }
-                      >
-                        <span>
-                          <FontAwesome name={icon} />[
-                          {tp.total !== tp.actual && <span>{`${tp.actual} / `}</span>}
-                          <span>{tp.total}</span>]
-                        </span>
-                      </Tooltip>
-                    </StatGroup>
-                  ),
-              )}
+            {!baseDefense && <TransportPoints sortieState={sortieState} />}
             {shownAirForce[0] > 0 && (
               <StatGroup>
                 <FontAwesome name="plane" />
