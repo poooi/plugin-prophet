@@ -1,169 +1,169 @@
-# TP 计算规则
+# Transport Point (TP) Calculation Rules
 
-本文只记录《舰队 Collection》浏览器版运输作战的 TP 计算规则及其依据，不讨论程序实现。
+This document records only the TP calculation rules for transport operations in the browser version of Kantai Collection and the sources behind them; it does not discuss program implementation.
 
-资料核对日期：2026-09-01；补充核对：2026-09-15。
+Source check date: 2026-09-01; supplementary check: 2026-09-15.
 
-本文最初记录于 2026-09-01 的资料恢复核对：当日「艦これ攻略 Wiki」与「ぜかましねっと艦これ！」已读取核对，英文 KanColle Wiki 受 Cloudflare 限制未能重新读取，其内容依此前会话的核对摘要。
+This document was first recorded during the 2026-09-01 source-recovery check. On that day the Japanese "艦これ攻略 Wiki" and "ぜかましねっと艦これ！" were read and checked, while the English KanColle Wiki could not be re-read because of a Cloudflare restriction, so its content relies on a check summary from an earlier session.
 
-2026-09-15 补充核对：重新读取了「ぜかましねっと艦これ！」的普通运输与战车运输完整表格，本文所列数值及资料间不一致均与当日读取一致；同日「艦これ攻略 Wiki」受 Cloudflare 限制未能重新读取，英文 KanColle Wiki 本次未重新核对。
+2026-09-15 supplementary check: the full normal-transport and tank-transport tables on "ぜかましねっと艦これ！" were re-read, and the values and inter-source discrepancies listed here all matched that day's reading. On the same day the Japanese "艦これ攻略 Wiki" could not be re-read because of a Cloudflare restriction, and the English KanColle Wiki was not re-checked this time.
 
-## 资料来源
+## Sources
 
-- [Transport Operation - KanColle Wiki](https://en.kancollewiki.net/Transport_Operation)（英文 Wiki，2026-09-01 与 2026-09-15 均未重新读取）
-- [輸送資源量の計算 - 艦これ攻略 Wiki](https://wikiwiki.jp/kancolle/%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88%E6%B5%B7%E5%9F%9F%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88/%E8%BC%B8%E9%80%81%E8%B3%87%E6%BA%90%E9%87%8F%E3%81%AE%E8%A8%88%E7%AE%97_2019%E7%A7%8B)（日文，2026-09-01 已读取；2026-09-15 复核受阻）
-- [TP-輸送資源量-を把握しよう - ぜかましねっと艦これ！](https://zekamashi.net/kancolle-kouryaku/yusou-tp/)（日文，2026-09-01 与 2026-09-15 均已读取）
+- [Transport Operation - KanColle Wiki](https://en.kancollewiki.net/Transport_Operation) (English wiki; not re-read on either 2026-09-01 or 2026-09-15)
+- [輸送資源量の計算 - 艦これ攻略 Wiki](https://wikiwiki.jp/kancolle/%E3%82%A4%E3%83%99%E3%83%B3%E3%83%88%E6%B5%B7%E5%9F%9F%E3%83%86%E3%83%B3%E3%83%97%E3%83%AC%E3%83%BC%E3%83%88/%E8%BC%B8%E9%80%81%E8%B3%87%E6%BA%90%E9%87%8F%E3%81%AE%E8%A8%88%E7%AE%97_2019%E7%A7%8B) (Japanese; read on 2026-09-01; re-check blocked on 2026-09-15)
+- [TP-輸送資源量-を把握しよう - ぜかましねっと艦これ！](https://zekamashi.net/kancolle-kouryaku/yusou-tp/) (Japanese; read on both 2026-09-01 and 2026-09-15)
 
-## 记号
+## Notation
 
-对在扬陆点有效的舰船及其装备，定义：
+For the ships and equipment valid at the landing point, define:
 
 ```text
-ShipBase = 舰种基础 TP 之和
-ItemBase = 装备类别基础 TP 之和
+ShipBase = sum of ship-type base TP
+ItemBase = sum of equipment-category base TP
 Base     = ShipBase + ItemBase
 ```
 
-鬼怒改二另有一次相当于一件大发动艇的 `+8` TP，此项有日文资料支持。就单艘未携带装备的鬼怒改二而言，普通运输中这个追加值与轻巡洋舰本身的 `2` TP 相加，结果为 `10` TP；上述仅描述单艘情形，不代表多艘鬼怒改二会各自叠加。
+Kinu Kai Ni additionally grants a `+8` TP bonus equivalent to one Daihatsu landing craft, which is supported by the Japanese source. For a single unarmed Kinu Kai Ni in normal transport, this bonus is added to the light cruiser's own `2` TP, giving `10` TP; the above describes only the single-ship case and does not establish that multiple Kinu Kai Ni would each stack.
 
-## 普通运输
+## Normal transport
 
-结算前贡献：
+Pre-settlement contribution:
 
 ```text
 NormalRaw = Base + KinuBonus
 ```
 
-资料注明小数只在整次计算的最后舍去，不能先把每艘舰或每件装备分别向下取整后再相加。
+The source notes that decimals are dropped only at the very end of the whole calculation; you must not floor each ship or each piece of equipment separately and then add them.
 
-普通运输列出的舰种基础值、装备类别基础值与鬼怒改二 `+8` 均为整数，因此 `NormalRaw` 恒为整数。最终结果为：
+All ship-type base values, equipment-category base values, and the Kinu Kai Ni `+8` listed for normal transport are integers, so `NormalRaw` is always an integer. The final result is:
 
 ```text
-S 胜：floor(NormalRaw)
-A 胜：floor(NormalRaw × 0.7)
-B 胜及以下：0
+S rank: floor(NormalRaw)
+A rank: floor(NormalRaw × 0.7)
+B or below: 0
 ```
 
-由于 `NormalRaw` 为整数，`floor(NormalRaw × 0.7)` 与 `floor(floor(NormalRaw) × 0.7)` 等价，普通运输不存在中间取整顺序的问题。
+Because `NormalRaw` is an integer, `floor(NormalRaw × 0.7)` and `floor(floor(NormalRaw) × 0.7)` are equivalent, so normal transport has no intermediate-rounding-order issue.
 
-### 舰种基础 TP
+### Ship-type base TP
 
-| 舰种 | S 胜基础值 |
+| Ship type | S rank base value |
 | --- | ---: |
-| 驱逐舰 | 5 |
-| 轻巡洋舰 | 2 |
-| 练习巡洋舰 | 6 |
-| 航空巡洋舰 | 4 |
-| 航空战舰 | 7 |
-| 补给舰 | 15 |
-| 水上机母舰 | 9 |
-| 扬陆舰 | 12 |
-| 潜水空母 | 1 |
-| 潜水母舰 | 7 |
-| 其他舰种 | 0 |
+| Destroyer | 5 |
+| Light cruiser | 2 |
+| Training cruiser | 6 |
+| Aviation cruiser | 4 |
+| Aviation battleship | 7 |
+| Fleet oiler | 15 |
+| Seaplane tender | 9 |
+| Landing ship | 12 |
+| Submarine aircraft carrier (SSV) | 1 |
+| Submarine tender (AS) | 7 |
+| Other ship types | 0 |
 
-### 装备类别基础 TP
+### Equipment-category base TP
 
-| 装备类别 | S 胜基础值 |
+| Equipment category | S rank base value |
 | --- | ---: |
-| 大发动艇系、特大发动艇系及其战车型 | 8 |
-| 特二式内火艇、特四式内火艇、特四式内火艇改 | 2 |
-| ドラム缶(輸送用) | 5 |
-| 战斗粮食系 | 1 |
-| 其他装备 | 0 |
+| Daihatsu-class and Toku Daihatsu-class landing craft and their tank variants (大発動艇系、特大発動艇系) | 8 |
+| Special Type 2 / Type 4 / Type 4 Kai amphibious tanks (特二式内火艇、特四式内火艇、特四式内火艇改) | 2 |
+| Drum Can (Transport) (ドラム缶(輸送用)) | 5 |
+| Combat rations (戦闘糧食系) | 1 |
+| Other equipment | 0 |
 
-装备改修等级不改变 TP。
+Equipment improvement level does not change TP.
 
-## 战车运输 / Landing Operation
+## Tank transport / Landing Operation
 
-战车运输规则与地图相关，不能把某次活动的数值视为所有地图永久通用的规则。
+Tank transport rules depend on the map; a value observed in one event must not be treated as a permanent, universal rule for all maps.
 
-2026 年夏季活动中已观察到的这套规则，对普通舰种基础值和装备类别基础值统一应用 `0.75`，再加上特定装备的追加值：
+For the rule observed in the 2026 summer event, a `0.75` multiplier is applied uniformly to the normal ship-type base values and equipment-category base values, and the specific-equipment bonus is added on top:
 
 ```text
 LandingRaw = Base × 0.75 + ItemSpecificBonus
 ```
 
-按同期实测数值，鬼怒改二的 `+8` 在战车运输中不参与 `0.75` 缩放：
+According to measured values from the same period, the Kinu Kai Ni `+8` does not participate in the `0.75` scaling in tank transport:
 
 ```text
 LandingRaw = Base × 0.75 + ItemSpecificBonus + KinuBonus
 ```
 
-证据等级：`+8` 本身有日文资料支持；战车运输中不缩放、以及在整支联合舰队中最多计入一次，仅为实测/既有行为，缺少资料直接记载，待确认。
+Evidence level: the `+8` itself is supported by the Japanese source; that it is unscaled in tank transport, and that it is counted at most once across the whole combined fleet, are only measured/existing behavior lacking direct source documentation, and remain unconfirmed.
 
-结算前的 `LandingRaw` 保持未取整。取整时机与 A 胜中间值顺序均未确定，故不在此断言 `floor(LandingRaw × 0.7)` 为已确认总公式；资料提到但尚未确认的结算形式如下：
+Before settlement, `LandingRaw` is kept unrounded. Neither the rounding timing nor the A-rank intermediate-value order is determined, so we do not assert `floor(LandingRaw × 0.7)` as a confirmed total formula here; the settlement forms mentioned by the sources but not yet confirmed are:
 
 ```text
-S 胜：floor(LandingRaw)
-A 胜：floor(LandingRaw × 0.7)
-B 胜及以下：0
+S rank: floor(LandingRaw)
+A rank: floor(LandingRaw × 0.7)
+B or below: 0
 ```
 
-### 特定装备追加值
+### Specific equipment bonus
 
-下表的“追加值”是在 `普通类别基础值 × 0.75` 之外另行相加的值。“战车运输 S 值”用于交叉检查公式。
+The "bonus" column below is added on top of `normal category base value × 0.75`. The "tank transport S value" column cross-checks the formula.
 
-| 装备 | 普通基础值 | 追加值 | 战车运输 S 值 |
+| Equipment | Normal base value | Bonus | Tank transport S value |
 | --- | ---: | ---: | ---: |
-| 大発動艇(R35＆フランス兵) | 8 | 18 | 24 |
-| 特大発動艇＋III号戦車J型 | 8 | 17 | 23 |
-| 特大発動艇＋一式砲戦車 | 8 | 15 | 21 |
+| Daihatsu Landing Craft (R35 & French Infantry) (大発動艇(R35＆フランス兵)) | 8 | 18 | 24 |
+| Toku Daihatsu Landing Craft + Type III Tank J (特大発動艇＋III号戦車J型) | 8 | 17 | 23 |
+| Toku Daihatsu Landing Craft + Type 1 Gun Tank (特大発動艇＋一式砲戦車) | 8 | 15 | 21 |
 | M4A1 DD | 8 | 14 | 20 |
-| 特大発動艇＋戦車第11連隊 | 8 | 13 | 19 |
-| 特大発動艇＋チハ改 | 8 | 13 | 19 |
-| 特大発動艇＋III号戦車(北アフリカ仕様) | 8 | 13 | 19 |
-| 特大発動艇＋チハ | 8 | 11 | 17 |
-| 大発動艇(II号戦車/北アフリカ仕様) | 8 | 10 | 16 |
-| 大発動艇(八九式中戦車＆陸戦隊) | 8 | 8 | 14 |
-| 特大发动艇、大发动艇、武装大发、装甲艇(AB艇) | 8 | 0 | 6 |
-| 特四式内火艇改 | 2 | 12 | 13.5 |
-| 特二式内火艇 | 2 | 11 | 12.5 |
-| 特四式内火艇 | 2 | 10 | 11.5 |
-| 陸軍歩兵部隊＋チハ改 | 0 | 14 | 14 |
-| 九七式中戦車 新砲塔(チハ改) | 0 | 9 | 9 |
-| 九七式中戦車(チハ) | 0 | 7 | 7 |
-| 陸軍歩兵部隊 | 0 | 5 | 5 |
-| ドラム缶(輸送用) | 5 | 0 | 3.75 |
-| 战斗粮食系 | 1 | 0 | 0.75 |
+| Toku Daihatsu Landing Craft + 11th Tank Regiment (特大発動艇＋戦車第11連隊) | 8 | 13 | 19 |
+| Toku Daihatsu Landing Craft + Chi-Ha Kai (特大発動艇＋チハ改) | 8 | 13 | 19 |
+| Toku Daihatsu Landing Craft + Type III Tank (North African Specification) (特大発動艇＋III号戦車(北アフリカ仕様)) | 8 | 13 | 19 |
+| Toku Daihatsu Landing Craft + Chi-Ha (特大発動艇＋チハ) | 8 | 11 | 17 |
+| Daihatsu Landing Craft (Type II Tank / North African Specification) (大発動艇(II号戦車/北アフリカ仕様)) | 8 | 10 | 16 |
+| Daihatsu Landing Craft (Type 89 Tank & Marines) (大発動艇(八九式中戦車＆陸戦隊)) | 8 | 8 | 14 |
+| Toku Daihatsu / Daihatsu / Armed Daihatsu / Armored Boat (AB) (特大発動艇、大発動艇、武装大発、装甲艇(AB艇)) | 8 | 0 | 6 |
+| Special Type 4 Amphibious Tank Kai (特四式内火艇改) | 2 | 12 | 13.5 |
+| Special Type 2 Amphibious Tank (特二式内火艇) | 2 | 11 | 12.5 |
+| Special Type 4 Amphibious Tank (特四式内火艇) | 2 | 10 | 11.5 |
+| Army Infantry Unit + Chi-Ha Kai (陸軍歩兵部隊＋チハ改) | 0 | 14 | 14 |
+| Type 97 Medium Tank New Turret (Chi-Ha Kai) (九七式中戦車 新砲塔(チハ改)) | 0 | 9 | 9 |
+| Type 97 Medium Tank (Chi-Ha) (九七式中戦車(チハ)) | 0 | 7 | 7 |
+| Army Infantry Unit (陸軍歩兵部隊) | 0 | 5 | 5 |
+| Drum Can (Transport) (ドラム缶(輸送用)) | 5 | 0 | 3.75 |
+| Combat rations (戦闘糧食系) | 1 | 0 | 0.75 |
 
-例：大发动艇(R35＆フランス兵)的战车运输 S 值为：
+Example: the tank transport S value of Daihatsu Landing Craft (R35 & French Infantry) is:
 
 ```text
 8 × 0.75 + 18 = 24
 ```
 
-普通舰种基础值同样乘以 `0.75`。例如驱逐舰为 `5 × 0.75 = 3.75`，轻巡洋舰为 `2 × 0.75 = 1.5`。
+Normal ship-type base values are also multiplied by `0.75`. For example, a destroyer is `5 × 0.75 = 3.75` and a light cruiser is `2 × 0.75 = 1.5`.
 
-## 哪些舰船计入 TP
+## Which ships count toward TP
 
-- 在进入扬陆点时已经大破或退避的舰船，以及它们携带的装备，不计入本次运输 TP。
-- 进入扬陆点之后才大破或退避，不影响已经扬陆的 TP。
-- 因此，参与公式的舰队状态应以进入扬陆点时为准。
+- Ships that were already heavily damaged or had retreated when entering the landing point, and the equipment they carry, do not count toward this transport's TP.
+- Heavy damage or retreat after entering the landing point does not affect the TP already landed.
+- Therefore, the fleet state used in the formula should be the state when entering the landing point.
 
-## 资料间的不一致
+## Inconsistencies between sources
 
-ぜかまし的普通运输表将少数 S 胜为 `8` 的大发系装备写成了 A 胜 `3.5`；同页又说明 A 胜为 S 胜的 `0.7`，而艦これ攻略 Wiki 将这些装备列在共同的 `8 / 5.6` 表格中。两处依据一致，因此这里采用：
+In zekamashi's normal-transport table, a few Daihatsu-class items whose S rank is `8` are written as A rank `3.5`; the same page also states that A rank is `0.7` of S rank, while the 艦これ攻略 Wiki lists these items in a common `8 / 5.6` table. Both bases agree, so we adopt:
 
 ```text
 8 × 0.7 = 5.6
 ```
 
-ぜかまし的战车运输舰种表中，潜水空母与潜水母舰对应的 `0.75`、`5.25` 疑似互换。依据普通基础值 `1`、`7` 及同表统一的 `0.75` 倍率，本文按以下数值理解；该项缺少独立直接核实，属疑似记录问题：
+In zekamashi's tank-transport ship-type table, the `0.75` and `5.25` values for the submarine aircraft carrier (SSV) and submarine tender (AS) appear to be swapped. Based on the normal base values `1` and `7` and the table's uniform `0.75` multiplier, this document reads them as follows; this item lacks independent direct confirmation and is treated as a suspected recording issue:
 
 ```text
-潜水空母：1 × 0.75 = 0.75
-潜水母舰：7 × 0.75 = 5.25
+Submarine aircraft carrier (SSV): 1 × 0.75 = 0.75
+Submarine tender (AS): 7 × 0.75 = 5.25
 ```
 
-此外，该页在 2026-08-01 更新的段落中写有“2026秋イベントの一例”，与更新时间和当期活动不符，疑似文字误记，缺少独立直接核实，不影响表中的倍率和装备数值。
+In addition, a paragraph updated on 2026-08-01 on that page says "2026秋イベントの一例" (an example from the 2026 autumn event), which does not match the update time or the event then current; this appears to be a textual misstatement, lacks independent direct confirmation, and does not affect the multipliers or equipment values in the table.
 
-## 尚未由资料确认的部分
+## Not yet confirmed by the sources
 
-以下取整顺序只在存在非整数贡献时才有影响，即战车运输（`0.75` 倍率）与联合舰队求和；普通运输各项均为整数，不涉及这些问题。
+The rounding orders below only matter when non-integer contributions exist, i.e. tank transport (the `0.75` multiplier) and combined-fleet sums; in normal transport every term is an integer, so these issues do not arise.
 
-- 联合舰队是主力舰队、随伴舰队分别取整后相加，还是合并原始值后统一取整。
-- 联合舰队 A 胜的 `0.7` 是作用于两队合并的原始值，还是作用于某个已经取整的中间值。
-- 战车运输中鬼怒改二的 `+8` 不受地图倍率影响，目前有游戏内数值支持，但缺少上述资料的明确文字说明。
+- Whether a combined fleet is rounded per fleet (main and escort separately, then summed) or summed as raw values and rounded once.
+- Whether the combined-fleet A-rank `0.7` applies to the two fleets' combined raw value or to some already-rounded intermediate value.
+- In tank transport, whether the Kinu Kai Ni `+8` is unaffected by the map multiplier; it currently has in-game value support but lacks explicit wording in the sources above.
 
-在取得能区分这些情况的直接资料或游戏数据前，不应把其中任一种取整顺序写成已确认规则。
+Until direct sources or game data that can distinguish these cases are available, none of these rounding orders should be written as a confirmed rule.
