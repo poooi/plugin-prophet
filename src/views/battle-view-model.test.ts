@@ -104,4 +104,36 @@ describe('battle view model helpers', () => {
     expect(isTankTransportMap(Number(undefined), [625])).toBe(false)
     expect(isTankTransportMap(Number('625'), [625])).toBe(true)
   })
+
+  it('preserves cargo-only display while retaining actual ship capacity', () => {
+    const ship = {
+      raw: {
+        api_id: 1, api_ship_id: 1, api_stype: 2,
+        api_nowhp: 10, api_maxhp: 20,
+      },
+    } as Ship
+    expect(transportPoints({ inEvent: true, mainFleet: [ship] })).toEqual({
+      normal: { total: 0, actual: 5 },
+      tank: { total: 0, actual: 3 },
+    })
+  })
+
+  it('retains Kinu bonus when the first Kinu has retreated', () => {
+    const kinu = (api_id: number) => ({
+      raw: {
+        api_id, api_ship_id: 487, api_stype: 3,
+        api_nowhp: 10, api_maxhp: 20,
+        poi_slot: [{ api_slotitem_id: 68, api_type: [0, 0, 24] }],
+      },
+    }) as Ship
+    expect(transportPoints({
+      inEvent: true,
+      mainFleet: [kinu(1)],
+      escortFleet: [kinu(2)],
+      escapedShipIds: [1],
+    })).toEqual({
+      normal: { total: 28, actual: 18 },
+      tank: { total: 22, actual: 15 },
+    })
+  })
 })

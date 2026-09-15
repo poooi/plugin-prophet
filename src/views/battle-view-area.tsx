@@ -27,8 +27,8 @@ import {
   friendTitle as buildFriendTitle,
   isTankTransportMap,
   transportPoints,
+  type TPResult,
 } from './battle-view-model'
-import type { TPResult } from '../utils/transport'
 
 const FleetsContainer = styled.div<{ horizontalLayout?: boolean }>`
   display: flex;

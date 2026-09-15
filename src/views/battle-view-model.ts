@@ -2,9 +2,10 @@ import type { Ship } from 'poi-lib-battle'
 
 import { combinedFleetType, SortieState, type SortieStateValue } from '../utils/constants'
 import {
-  getTransportPointFromFleets,
-  type TPResult,
+  calculateTransport,
+  type TransportResult,
 } from '../utils/transport'
+import { toTransportFleets } from '../utils/transport-adapter'
 
 export interface BattleTitleInput {
   sortieState: SortieStateValue
@@ -49,7 +50,18 @@ export const isTankTransportMap = (
   tankTransportMaps: readonly number[],
 ): boolean => Number.isFinite(sortieMapId) && tankTransportMaps.includes(sortieMapId as number)
 
+export interface TPResult {
+  total: number
+  actual: number
+}
+
 const noTP: TPResult = { total: 0, actual: 0 }
+
+// Preserve the view's cargo-only visibility without discarding ship TP in the calculator.
+const displayedTP = ({ planned, deliverable, hasTransportCargo }: TransportResult): TPResult => ({
+  total: hasTransportCargo ? planned : 0,
+  actual: deliverable,
+})
 
 /**
  * Both flavours of TP, so the caller can show the pair while in port and the one
@@ -67,9 +79,9 @@ export const transportPoints = ({
   escapedShipIds?: number[]
 }): { normal: TPResult; tank: TPResult } => {
   if (!inEvent) return { normal: noTP, tank: noTP }
-  const fleets = [mainFleet, escortFleet]
+  const fleets = toTransportFleets([mainFleet, escortFleet], escapedShipIds)
   return {
-    normal: getTransportPointFromFleets(fleets, { escapedShipIds }),
-    tank: getTransportPointFromFleets(fleets, { escapedShipIds, mode: 'tank' }),
+    normal: displayedTP(calculateTransport(fleets)),
+    tank: displayedTP(calculateTransport(fleets, 'tank')),
   }
 }
