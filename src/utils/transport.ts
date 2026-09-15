@@ -1,4 +1,7 @@
 import _ from 'lodash'
+import type { APIGetMemberShip2Response } from 'kcsapi/api_get_member/ship2/response'
+
+import type { ProphetEquipEntry, ProphetFleetEntry } from '../types'
 
 /**
  * Transport operations come in two flavours since 2026:
@@ -107,19 +110,6 @@ const TPByShipType: Record<number, number> = {
   20: 7,
 }
 
-export interface TransportItem {
-  itemId: number
-  category: number
-}
-
-export interface TransportShip {
-  /** Master ship ID, used for ship-specific bonuses. */
-  shipId: number
-  shipType: number
-  eligible: boolean
-  items: readonly TransportItem[]
-}
-
 export interface TransportResult {
   planned: number
   deliverable: number
@@ -127,45 +117,97 @@ export interface TransportResult {
   hasTransportCargo: boolean
 }
 
-type TransportFleets = readonly (readonly TransportShip[])[]
+export interface TransportOptions {
+  mode?: TransportMode
+  /** Member ship IDs that have retreated and can no longer deliver. */
+  escapedShipIds?: readonly number[]
+}
 
-const score = (fleets: TransportFleets, rule: TransportRule): number => {
+type TransportFleets = readonly (readonly ProphetFleetEntry[])[]
+type TransportEquips = readonly (readonly (readonly (ProphetEquipEntry | undefined)[])[])[]
+
+type ShipFilter = (member: APIGetMemberShip2Response) => boolean
+
+// The member HP the selector copies straight from Poi; do not substitute a
+// simulated or post-battle value here.
+const isEligible = (
+  member: APIGetMemberShip2Response,
+  escapedShipIds: readonly number[],
+): boolean =>
+  !escapedShipIds.includes(member.api_id) &&
+  (member.api_nowhp ?? 0) * 4 > (member.api_maxhp ?? 0)
+
+const fleetScore = (
+  fleet: readonly ProphetFleetEntry[],
+  shipEquips: TransportEquips[number],
+  rule: TransportRule,
+  include: ShipFilter,
+): number => {
   const { numerator, denominator } = rule.baseMultiplier
-  const fleetPoints = _.sumBy(fleets, (ships) => {
-    const items = ships.flatMap((ship) => ship.items)
-    const base = _.sumBy(ships, (ship) => TPByShipType[ship.shipType] ?? 0) +
-      _.sumBy(items, (item) => TPByItemType[item.category] ?? 0)
-    const itemBonus = _.sumBy(items, (item) => rule.itemBonusById[item.itemId] ?? 0)
+  let base = 0
+  let itemBonus = 0
 
-    // Preserve per-fleet rounding; do not round individual contributions.
-    return Math.floor((base * numerator + itemBonus * denominator) / denominator)
+  // Pair and slot positions line up with the selector output; empty slots are
+  // undefined and a missing ship master is possible while the plugin boots up.
+  fleet.forEach((pair, shipIndex) => {
+    const [member, master] = pair ?? []
+    if (!member || !include(member)) return
+    base += TPByShipType[master?.api_stype ?? -1] ?? 0
+    ;(shipEquips[shipIndex] ?? []).forEach((slot) => {
+      if (!slot) return
+      base += TPByItemType[slot[1]?.api_type?.[2] ?? -1] ?? 0
+      itemBonus += rule.itemBonusById[slot[0]?.api_slotitem_id ?? -1] ?? 0
+    })
   })
+
+  // Preserve per-fleet rounding; do not round individual contributions.
+  return Math.floor((base * numerator + itemBonus * denominator) / denominator)
+}
+
+const score = (
+  fleets: TransportFleets,
+  equips: TransportEquips,
+  rule: TransportRule,
+  include: ShipFilter,
+): number => {
+  const fleetPoints = _.sum(fleets.map((fleet, fleetIndex) =>
+    fleetScore(fleet, equips[fleetIndex] ?? [], rule, include),
+  ))
 
   // Once across main + escort, evaluated on the population being scored.
   // This integer bonus stays unscaled in the current tank rule, so adding it
   // after per-fleet rounding is equivalent to including it before rounding.
-  const fleetBonus = fleets.some((ships) =>
-    ships.some((ship) => ship.shipId === KINU_KAI_NI),
-  ) ? KINU_BONUS : 0
+  const fleetBonus = fleets.some((fleet) => fleet.some(
+    (pair) => pair != null && include(pair[0]) && pair[0].api_ship_id === KINU_KAI_NI,
+  )) ? KINU_BONUS : 0
 
   return fleetPoints + fleetBonus
 }
 
 /**
- * S-rank TP from normalized ships. Keep main and escort as separate fleets.
- * Eligibility is supplied by the caller; this calculation does not interpret HP.
+ * S-rank TP straight from the Poi fleet selector pairs. Keep main and escort as
+ * separate fleets; eligibility comes from the member HP and the retreated ship IDs.
  */
 export const calculateTransport = (
   fleets: TransportFleets,
-  mode: TransportMode = 'normal',
+  equips: TransportEquips,
+  { mode = 'normal', escapedShipIds = [] }: TransportOptions = {},
 ): TransportResult => {
   const rule = rules[mode]
   return {
-    planned: score(fleets, rule),
-    deliverable: score(fleets.map((ships) => ships.filter((ship) => ship.eligible)), rule),
-    hasTransportCargo: fleets.some((ships) => ships.some((ship) =>
-      ship.items.some((item) =>
-        (TPByItemType[item.category] ?? 0) > 0 || (rule.itemBonusById[item.itemId] ?? 0) > 0,
+    planned: score(fleets, equips, rule, () => true),
+    deliverable: score(
+      fleets,
+      equips,
+      rule,
+      (member) => isEligible(member, escapedShipIds),
+    ),
+    hasTransportCargo: fleets.some((fleet, fleetIndex) => fleet.some((pair, shipIndex) =>
+      pair?.[0] != null &&
+      (equips[fleetIndex]?.[shipIndex] ?? []).some((slot) =>
+        slot != null &&
+        ((TPByItemType[slot[1]?.api_type?.[2] ?? -1] ?? 0) > 0 ||
+          (rule.itemBonusById[slot[0]?.api_slotitem_id ?? -1] ?? 0) > 0),
       ),
     )),
   }

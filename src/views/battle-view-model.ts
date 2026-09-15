@@ -1,11 +1,9 @@
-import type { Ship } from 'poi-lib-battle'
-
 import { combinedFleetType, SortieState, type SortieStateValue } from '../utils/constants'
 import {
   calculateTransport,
   type TransportResult,
 } from '../utils/transport'
-import { toTransportFleets } from '../utils/transport-adapter'
+import type { ProphetEquipEntry, ProphetFleetEntry } from '../types'
 
 export interface BattleTitleInput {
   sortieState: SortieStateValue
@@ -69,19 +67,18 @@ const displayedTP = ({ planned, deliverable, hasTransportCargo }: TransportResul
  */
 export const transportPoints = ({
   inEvent,
-  mainFleet = [],
-  escortFleet = [],
+  fleets = [],
+  equips = [],
   escapedShipIds = [],
 }: {
   inEvent: boolean
-  mainFleet?: (Ship | null)[]
-  escortFleet?: (Ship | null)[]
+  fleets?: readonly (readonly ProphetFleetEntry[])[]
+  equips?: readonly (readonly (readonly (ProphetEquipEntry | undefined)[])[])[]
   escapedShipIds?: number[]
 }): { normal: TPResult; tank: TPResult } => {
   if (!inEvent) return { normal: noTP, tank: noTP }
-  const fleets = toTransportFleets([mainFleet, escortFleet], escapedShipIds)
   return {
-    normal: displayedTP(calculateTransport(fleets)),
-    tank: displayedTP(calculateTransport(fleets, 'tank')),
+    normal: displayedTP(calculateTransport(fleets, equips, { escapedShipIds })),
+    tank: displayedTP(calculateTransport(fleets, equips, { escapedShipIds, mode: 'tank' })),
   }
 }

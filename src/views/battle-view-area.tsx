@@ -19,6 +19,7 @@ import DropInfo from './drop-info'
 import NextSpotInfo from './next-spot-info'
 import { PLUGIN_KEY, SortieState } from '../utils'
 import { tankTransportMapsSelector } from '../redux'
+import { selectFleetsEquips } from '../selectors'
 import type { ProphetBattleResult } from '../types'
 import type { SortieStateValue } from '../utils/constants'
 import {
@@ -224,7 +225,11 @@ const BattleViewArea: FC<BattleViewAreaProps> = ({
   const escapedShipIds = useSelector(escapedShipIdSelector)
   const inEvent = useSelector(inEventSelector)
   const tankTransportMaps = useSelector(tankTransportMapsSelector)
-  const TP = transportPoints({ inEvent, mainFleet, escortFleet, escapedShipIds })
+  // TP comes from the Poi fleet/equipment pairs, not the lib-battle view models.
+  // selectFleetsEquips rebuilds its nested arrays, so compare them deeply to
+  // keep the selector reference stable between identical states.
+  const { fleets, equips } = useSelector(selectFleetsEquips, _.isEqual)
+  const TP = transportPoints({ inEvent, fleets, equips, escapedShipIds })
   // in port the map is not decided yet, so both tables are shown side by side;
   // once sortied only the one the map actually uses is relevant
   const shownTP: { tp: TPResult; icon: string; label: string }[] =

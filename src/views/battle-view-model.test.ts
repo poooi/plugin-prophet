@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import type { Ship } from 'poi-lib-battle'
+import type { APIGetMemberShip2Response } from 'kcsapi/api_get_member/ship2/response'
+import type { APIGetMemberSlotItemResponse } from 'kcsapi/api_get_member/slot_item/response'
+import type { APIMstShip, APIMstSlotitem } from 'kcsapi/api_start2/getData/response'
 
+import type { ProphetEquipEntry, ProphetFleetEntry } from '../types'
 import { SortieState } from '../utils/constants'
 import {
   battleSpotKey,
@@ -9,6 +12,20 @@ import {
   isTankTransportMap,
   transportPoints,
 } from './battle-view-model'
+
+const memberShip = (api_id: number, api_ship_id: number, nowhp = 10, maxhp = 10) =>
+  ({ api_id, api_ship_id, api_nowhp: nowhp, api_maxhp: maxhp }) as APIGetMemberShip2Response
+
+const masterShip = (api_stype: number) => ({ api_stype }) as APIMstShip
+
+const memberItem = (api_slotitem_id: number) =>
+  ({ api_slotitem_id }) as APIGetMemberSlotItemResponse
+
+const masterItem = (api_type: number) =>
+  ({ api_type: [0, 0, api_type, 0, 0] }) as APIMstSlotitem
+
+const slot = (itemId: number, itemType: number): ProphetEquipEntry =>
+  [memberItem(itemId), masterItem(itemType), undefined]
 
 describe('battle view model helpers', () => {
   it('builds spot keys for practice and sortie nodes', () => {
@@ -46,50 +63,32 @@ describe('battle view model helpers', () => {
   })
 
   it('uses master data of equipments for transport calculations', () => {
-    const ship = {
-      raw: {
-        api_id: 114,
-        api_nowhp: 514,
-        api_maxhp: 666,
-        api_stype: 1,
-        api_ship_id: 325,
-        poi_slot: [{ api_slotitem_id: 576, api_type: [0, 0, 24, 0, 0] }],
-      },
-    } as Ship
+    const fleets: ProphetFleetEntry[][] = [[
+      [memberShip(114, 325, 514, 666), masterShip(1)],
+    ]]
+    const equips: ProphetEquipEntry[][][] = [[[slot(576, 24)]]]
 
-    expect(
-      transportPoints({
-        inEvent: true,
-        mainFleet: [ship],
-      }),
-    ).toEqual({
+    expect(transportPoints({ inEvent: true, fleets, equips })).toEqual({
       normal: { total: 8, actual: 8 },
       tank: { total: 24, actual: 24 },
     })
   })
 
   it('floors main and escort fleet transport points separately', () => {
-    const ship = (apiId: number, apiStype: number, items: number[] = []) => ({
-      raw: {
-        api_id: apiId,
-        api_nowhp: 10,
-        api_maxhp: 10,
-        api_stype: apiStype,
-        api_ship_id: apiId,
-        poi_slot: items.map((apiSlotitemId) => ({
-          api_slotitem_id: apiSlotitemId,
-          api_type: [0, 0, 24, 0, 0],
-        })),
-      },
-    }) as Ship
+    const fleets: ProphetFleetEntry[][] = [
+      [
+        [memberShip(1, 2), masterShip(2)],
+        [memberShip(3, 6), masterShip(6)],
+      ],
+      [[memberShip(2, 2), masterShip(2)]],
+    ]
+    const equips: ProphetEquipEntry[][][] = [
+      [[slot(68, 24)], []],
+      [[]],
+    ]
 
     expect(
-      transportPoints({
-        inEvent: true,
-        mainFleet: [ship(1, 2, [68]), ship(3, 6)],
-        escortFleet: [ship(2, 2)],
-        escapedShipIds: [3],
-      }),
+      transportPoints({ inEvent: true, fleets, equips, escapedShipIds: [3] }),
     ).toEqual({
       normal: { total: 22, actual: 18 },
       tank: { total: 15, actual: 12 },
@@ -106,30 +105,22 @@ describe('battle view model helpers', () => {
   })
 
   it('preserves cargo-only display while retaining actual ship capacity', () => {
-    const ship = {
-      raw: {
-        api_id: 1, api_ship_id: 1, api_stype: 2,
-        api_nowhp: 10, api_maxhp: 20,
-      },
-    } as Ship
-    expect(transportPoints({ inEvent: true, mainFleet: [ship] })).toEqual({
+    const fleets: ProphetFleetEntry[][] = [[[memberShip(1, 1), masterShip(2)]]]
+    const equips: ProphetEquipEntry[][][] = [[[]]]
+    expect(transportPoints({ inEvent: true, fleets, equips })).toEqual({
       normal: { total: 0, actual: 5 },
       tank: { total: 0, actual: 3 },
     })
   })
 
   it('retains Kinu bonus when the first Kinu has retreated', () => {
-    const kinu = (api_id: number) => ({
-      raw: {
-        api_id, api_ship_id: 487, api_stype: 3,
-        api_nowhp: 10, api_maxhp: 20,
-        poi_slot: [{ api_slotitem_id: 68, api_type: [0, 0, 24] }],
-      },
-    }) as Ship
+    const kinu = (api_id: number): ProphetFleetEntry => [memberShip(api_id, 487), masterShip(3)]
+    const fleets: ProphetFleetEntry[][] = [[kinu(1)], [kinu(2)]]
+    const equips: ProphetEquipEntry[][][] = [[[slot(68, 24)]], [[slot(68, 24)]]]
     expect(transportPoints({
       inEvent: true,
-      mainFleet: [kinu(1)],
-      escortFleet: [kinu(2)],
+      fleets,
+      equips,
       escapedShipIds: [1],
     })).toEqual({
       normal: { total: 28, actual: 18 },
